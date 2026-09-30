@@ -1,0 +1,254 @@
+/* Línea de tiempo — requiere tokens.css + app.css */
+
+/* Colores que codifican datos (reino, evaluación, tipo). Se mantienen. */
+.app-timeline {
+  --judah: #1A2B48;
+  --israel: #7A2E3A;
+  --unido: #C5A059;
+  --good: #3E7D51;
+  --bad: #B23A2E;
+  --mixed: #B8863A;
+  --judge: #5C7A5E;
+  --prophet: #4A6670;
+  --ctx-empire: #8C6D3F;
+  --ctx-event: #A5502E;
+  --ctx-culture: #6E5A8C;
+
+  --tint-judah: #F4F5F8;
+  --tint-israel: #FAF3F4;
+  --tint-jp-south: #F2F5F2;
+  --tint-jp-north: #F0F4F5;
+  --tint-context: #F8F5EE;
+}
+html, body { height: auto; }
+
+/* ---------- Cabecera ---------- */
+.app-timeline header { padding: 1.25rem 2rem 1.5rem; border-bottom: 1px solid var(--line); }
+.topbar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+#headerBody { margin-top: 1.25rem; }
+#headerBody.header-hidden { display: none; }
+
+.app-timeline h1 {
+  margin: 0 0 0.75rem;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(1.8rem, 3.4vw, 2.6rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+.subtitle {
+  margin: 0 0 1.5rem;
+  max-width: 46rem;
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: var(--ink-2);
+}
+.subtitle strong { font-weight: 500; color: var(--ink); }
+
+.controls-row { display: flex; flex-wrap: wrap; gap: 0.75rem 1.75rem; align-items: center; margin-bottom: 1rem; }
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  user-select: none;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--ink-2);
+}
+.toggle .swatch-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.toggle input { display: none; }
+.switch {
+  position: relative;
+  width: 34px;
+  height: 20px;
+  flex-shrink: 0;
+  background: var(--line-strong);
+  border-radius: 10px;
+  transition: background .18s ease;
+}
+.switch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .2);
+  transition: transform .18s ease;
+}
+.toggle input:checked + .switch { background: var(--ink); }
+.toggle input:checked + .switch::after { transform: translateX(14px); }
+.toggle-compact { color: var(--muted); }
+
+.legend { display: flex; flex-wrap: wrap; gap: 0.75rem 1.75rem; font-size: var(--text-sm); color: var(--ink-2); }
+.legend-group { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.legend-label { margin-right: 0.15rem; font-size: var(--text-xs); font-weight: 500; color: var(--muted); }
+.swatch { display: inline-flex; align-items: center; gap: 0.4rem; }
+.legend .dot { border-radius: 2px; }
+.licon { font-size: 15px; line-height: 1; }
+.pill { display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px; border-radius: 999px; font-size: var(--text-xs); font-weight: 500; color: #fff; }
+.hint { margin-top: 0.75rem; font-size: var(--text-xs); line-height: 1.5; color: var(--muted); max-width: 46rem; }
+
+/* ---------- Línea de tiempo ---------- */
+.timeline-wrap { overflow-x: auto; overflow-y: hidden; padding: 1.25rem 0 2rem; }
+.timeline-wrap::-webkit-scrollbar { height: 10px; }
+.timeline-wrap::-webkit-scrollbar-track { background: var(--bg); }
+.timeline-wrap::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 5px; }
+
+#timeline { position: relative; transition: height .25s ease; }
+
+.ruler { position: relative; height: 30px; border-bottom: 1px solid var(--line); }
+.tick { position: absolute; top: 0; bottom: 0; border-left: 1px solid var(--line); }
+.tick span {
+  position: absolute; top: 7px; left: 5px; white-space: nowrap;
+  font-size: 10.5px; color: var(--muted); font-variant-numeric: tabular-nums;
+}
+
+.milestones { position: relative; height: 34px; border-bottom: 1px solid var(--line); }
+.milestone { position: absolute; top: 0; height: 100%; display: flex; align-items: center; gap: 6px; padding-left: 2px; white-space: nowrap; }
+.milestone .flag { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+.milestone .mtext { font-size: var(--text-sm); font-weight: 600; color: var(--ink); }
+.milestone .myear { font-size: 10.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.guide-line { position: absolute; width: 0; border-left: 1px dashed var(--accent); opacity: .35; z-index: 1; pointer-events: none; }
+
+.lane { position: absolute; left: 0; width: 100%; transition: top .25s ease; }
+.lane-ribbon {
+  position: sticky;
+  left: 0;
+  top: 0;
+  width: 28px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 6;
+  padding: 10px 0;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  text-align: center;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #fff;
+}
+.row-judah { background: var(--tint-judah); }
+.row-israel { background: var(--tint-israel); }
+.row-jp-south { background: var(--tint-jp-south); }
+.row-jp-north { background: var(--tint-jp-north); }
+.row-context { background: var(--tint-context); }
+.row-judah .lane-ribbon { background: var(--judah); }
+.row-israel .lane-ribbon { background: var(--israel); }
+.row-jp-south .lane-ribbon { background: var(--judge); }
+.row-jp-north .lane-ribbon { background: var(--prophet); }
+.row-context .lane-ribbon { background: var(--ctx-empire); }
+
+.row-kings { height: 104px; }
+.row-extra.hidden-row { display: none; }
+
+/* Reyes: el borde izquierdo codifica el reino */
+.card {
+  position: absolute;
+  top: 16px;
+  height: 82px;
+  overflow: hidden;
+  padding: 6px 8px 5px;
+  cursor: pointer;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--ink);
+  border-radius: 4px;
+  transition: border-color .12s ease, box-shadow .12s ease;
+}
+.card:hover { border-color: var(--line-strong); box-shadow: 0 4px 14px rgba(20, 24, 32, .08); }
+.card.judah { border-left-color: var(--judah); }
+.card.israel { border-left-color: var(--israel); }
+.card.unido { border-left-color: var(--unido); }
+.card .ktag { position: absolute; top: 5px; right: 5px; padding: 1px 5px; border-radius: 999px; font-size: 8px; font-weight: 600; letter-spacing: 0.02em; color: #fff; }
+.card.judah .ktag { background: var(--judah); }
+.card.israel .ktag { background: var(--israel); }
+.card.unido .ktag { background: var(--unido); color: #3a2c10; }
+.card .kname {
+  display: block; margin-bottom: 2px; padding-right: 34px;
+  font-family: var(--serif); font-weight: 500; font-size: 14px; line-height: 1.15;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.card .kyears { display: block; font-size: 10.5px; color: var(--muted); white-space: nowrap; overflow: hidden; font-variant-numeric: tabular-nums; }
+.card .kref { display: block; margin-top: 3px; font-size: 9.5px; line-height: 1.25; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.badge { display: inline-block; margin-top: 3px; padding: 1px 6px; border-radius: 999px; font-size: 9.5px; font-weight: 600; color: #fff; }
+.badge.bueno { background: var(--good); }
+.badge.malo { background: var(--bad); }
+.badge.mixto { background: var(--mixed); color: #2E2410; }
+.plus-btn {
+  position: absolute; bottom: 4px; right: 4px; width: 17px; height: 17px;
+  font-size: 12px; line-height: 15px; text-align: center; color: var(--muted);
+  border: 1px solid var(--line-strong); border-radius: 50%;
+}
+
+/* Niveles de detalle según el ancho real (proporcional a los años) de la caja */
+.card.tier-md .badge, .card.tier-md .kref, .card.tier-md .plus-btn, .card.tier-md .ktag { display: none; }
+.card.tier-md .kname { padding-right: 4px; }
+.card.tier-sm .kyears, .card.tier-sm .badge, .card.tier-sm .kref, .card.tier-sm .plus-btn, .card.tier-sm .ktag { display: none; }
+.card.tier-sm .kname { padding-right: 4px; font-size: 11px; }
+.card.tier-xs .kname, .card.tier-xs .kyears, .card.tier-xs .badge, .card.tier-xs .kref, .card.tier-xs .plus-btn, .card.tier-xs .ktag { display: none; }
+.card.tier-xs { padding: 0; }
+
+/* Jueces, profetas y contexto */
+.chip {
+  position: absolute;
+  width: 150px;
+  min-height: 70px;
+  padding: 7px 8px 7px 44px;
+  cursor: pointer;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  transition: border-color .12s ease, box-shadow .12s ease;
+}
+.chip:hover { border-color: var(--line-strong); box-shadow: 0 4px 14px rgba(20, 24, 32, .08); }
+.chip .cicon {
+  position: absolute; left: 7px; top: 7px; width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: #fff; border-radius: 4px;
+}
+.chip .clabel { display: block; font-size: 11.5px; font-weight: 500; line-height: 1.28; color: var(--ink); }
+.chip .cyear { display: block; margin-top: 3px; font-size: 10px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.chip.compact .clabel, .chip.compact .cyear { display: none; }
+.chip.compact { padding-left: 38px; }
+.chip.tipo-juez .cicon { background: var(--judge); }
+.chip.tipo-profeta .cicon { background: var(--prophet); }
+.chip.tipo-imperio .cicon { background: var(--ctx-empire); }
+.chip.tipo-evento .cicon { background: var(--ctx-event); }
+.chip.tipo-cultural .cicon { background: var(--ctx-culture); }
+
+/* Modal: contenido en app.css (.modal, .ficha-*) */
+.overlay { z-index: 50; }
+
+/* ---------- Pie ---------- */
+.app-timeline footer {
+  padding: 1rem 2rem 2.75rem;
+  font-size: var(--text-xs);
+  line-height: 1.55;
+  color: var(--muted);
+  border-top: 1px solid var(--line);
+}
+.app-timeline footer .credit { display: block; margin-top: 0.3rem; font-weight: 500; color: var(--ink-2); }
+
+.fixed-scrollbar {
+  position: fixed; left: 0; bottom: 0; width: 100%; height: 14px; z-index: 40;
+  overflow-x: auto; overflow-y: hidden;
+  background: var(--bg); border-top: 1px solid var(--line);
+}
+.fixed-scrollbar::-webkit-scrollbar { height: 12px; }
+.fixed-scrollbar::-webkit-scrollbar-track { background: var(--bg); }
+.fixed-scrollbar::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 6px; }
+.fixed-scrollbar-inner { height: 1px; }
+
+@media (max-width: 640px) {
+  .app-timeline header { padding: 1rem; }
+  .app-timeline footer { padding: 1rem 1rem 2.75rem; }
+}

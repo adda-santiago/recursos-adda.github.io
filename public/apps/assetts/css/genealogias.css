@@ -1,0 +1,123 @@
+/* Genealogías — requiere tokens.css + app.css */
+
+.app-genealogias { --sidebar-w: 330px; }
+
+header.brand .fase {
+  display: inline-block;
+  margin-top: 0.75rem;
+  padding: 0.1rem 0.55rem;
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--muted);
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+}
+
+/* Buscador */
+#search-wrap { position: relative; }
+#search-input { padding-right: 2rem; }
+#search-clear {
+  position: absolute;
+  right: 0.7rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: none;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--muted);
+}
+#search-clear:hover { color: var(--ink); }
+.search-hint { margin-top: 0.4rem; font-size: var(--text-xs); line-height: 1.45; color: var(--muted); }
+
+/* Líneas genealógicas: el trazo de color es el mismo del árbol */
+.radio-row { display: flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0.1rem; font-size: 0.9rem; }
+.radio-row label { cursor: pointer; display: flex; align-items: center; gap: 0.5rem; }
+.linea-swatch { width: 18px; height: 3px; display: inline-block; border-radius: 2px; }
+
+.checklist { max-height: 150px; }
+
+.btnrow { display: flex; gap: 0.5rem; }
+.btnrow button {
+  flex: 1;
+  padding: 0.45rem 0.4rem;
+  cursor: pointer;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--ink-2);
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+}
+.btnrow button:hover { color: var(--bg); background: var(--ink); border-color: var(--ink); }
+
+/* ---------- Lienzo del árbol ---------- */
+#treewrap { flex: 1; position: relative; overflow: scroll; background: var(--surface-2); }
+#tree-svg { display: block; margin-left: 230px; margin-top: 300px; }
+
+.node { cursor: pointer; }
+.node-rect { fill: var(--surface); stroke: var(--line-strong); stroke-width: 1; transition: stroke .15s; }
+.node:hover .node-rect { stroke: var(--ink); }
+.node-rect.node-jesus { stroke: var(--accent); stroke-width: 2; }
+.node-conyuge .node-rect { stroke-dasharray: 3, 2; }
+.node-text { font-family: var(--serif); font-size: 13px; fill: var(--ink); pointer-events: none; }
+.toggle-circle { fill: var(--ink-2); cursor: pointer; }
+.toggle-circle:hover { fill: var(--accent); }
+.toggle-text { font-family: var(--sans); font-size: 12px; font-weight: 500; fill: var(--surface); }
+.era-label { font-family: var(--sans); font-size: 11px; }
+.year-tick { font-family: var(--sans); font-size: 10.5px; fill: var(--muted); font-variant-numeric: tabular-nums; }
+
+/* Navegación por época (fija al viewport) */
+#era-nav-wrap { position: fixed; top: 14px; left: calc(var(--sidebar-w) + 14px); z-index: 60; transition: left .25s ease; }
+#app.collapsed #era-nav-wrap { left: 14px; }
+#era-nav { display: flex; flex-direction: column; gap: 2px; max-width: 210px; padding: 0.4rem; }
+.era-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.45rem;
+  cursor: pointer;
+  font-size: var(--text-xs);
+  color: var(--ink-2);
+  border-radius: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.era-pill:hover { background: var(--surface-2); }
+.era-pill.active { color: var(--ink); font-weight: 600; background: var(--surface-2); }
+
+/* Zoom (fijo al viewport) */
+#zoom-nav {
+  position: fixed;
+  bottom: 28px;
+  right: 22px;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0.35rem;
+}
+#zoom-nav button {
+  width: 34px;
+  height: 30px;
+  cursor: pointer;
+  font-size: 15px;
+  color: var(--ink-2);
+  background: none;
+  border: 0;
+  border-radius: 4px;
+}
+#zoom-nav button:hover { color: var(--ink); background: var(--surface-2); }
+#zoom-level { font-size: 10px; text-align: center; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+/* Ficha biográfica */
+.ficha-roles { display: flex; flex-wrap: wrap; gap: 0.4rem 0.75rem; align-items: center; }
+.ficha-periodo { font-size: var(--text-sm); color: var(--muted); font-variant-numeric: tabular-nums; }
+.ficha-fuente {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  font-size: var(--text-xs);
+  line-height: 1.5;
+  color: var(--muted);
+  border-top: 1px solid var(--line);
+}

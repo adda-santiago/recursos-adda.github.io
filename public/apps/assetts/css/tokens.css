@@ -1,0 +1,53 @@
+/* ==========================================================
+   Fuego y Palabra — tokens.css
+   Única fuente de verdad de color, tipografía y escala.
+   La cargan TODAS las páginas: portada y las tres apps.
+   ========================================================== */
+
+:root {
+  /* Color — neutros */
+  --bg: #fafaf8;
+  --surface: #ffffff;        /* paneles, popups, fichas */
+  --surface-2: #f1f1ed;      /* fondo de lienzo (mapa, árbol) y rellenos suaves */
+  --ink: #1f2430;            /* texto de contenido */
+  --ink-2: #3d4250;          /* texto secundario de contenido */
+  --muted: #6b7080;          /* controles, metadatos */
+  --line: #e4e4df;
+  --line-strong: #cfcfc8;    /* bordes que deben verse (nodos, inputs) */
+
+  /* Color — acento (único) */
+  --accent: #9e2b25;
+
+  /* Tipografía */
+  --serif: "Newsreader", Georgia, "Times New Roman", serif;
+  --sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* Escala */
+  --text-xs: 0.75rem;
+  --text-sm: 0.85rem;
+  --text-base: 1.125rem;
+  --text-lg: 1.65rem;
+  --text-xl: clamp(2.4rem, 7vw, 3.75rem);
+
+  /* Espaciado y layout */
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.75rem;
+  --space-4: 4rem;
+  --measure: 44rem;
+  --radius: 6px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #15171c;
+    --surface: #1c1f25;
+    --surface-2: #111317;
+    --ink: #ebe9e4;
+    --ink-2: #c9c7c1;
+    --muted: #9a9ca6;
+    --line: #2a2d35;
+    --line-strong: #3a3e48;
+    --accent: #e0786d;
+  }
+}

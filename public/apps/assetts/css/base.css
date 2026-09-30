@@ -1,0 +1,65 @@
+/* ==========================================================
+   Fuego y Palabra — base.css
+   Reset y tipografía para páginas de lectura (portada).
+   Requiere tokens.css cargado antes.
+   Las apps NO cargan este archivo: usan app.css.
+   ========================================================== */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { background: var(--bg); }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: var(--text-base);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 { font-weight: 400; line-height: 1.15; letter-spacing: -0.01em; margin: 0; }
+h1 { font-size: var(--text-xl); letter-spacing: -0.02em; }
+p { margin: 0; }
+a { color: inherit; }
+img, svg { max-width: 100%; height: auto; }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+
+/* Layout */
+.wrap {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: clamp(2.5rem, 9vw, 6rem) 1.5rem var(--space-4);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+}
+.brand::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}

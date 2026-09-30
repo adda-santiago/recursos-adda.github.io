@@ -1,0 +1,20 @@
+/* Portada (index.html) */
+
+.home .brand { margin-bottom: 4.5rem; }
+.home h1 { max-width: 14ch; margin-bottom: 1.25rem; }
+.home .lead { color: var(--muted); max-width: 34rem; margin-bottom: 4.5rem; }
+
+.resources { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.resources li { border-bottom: 1px solid var(--line); }
+
+.resource { display: block; padding: var(--space-3) 0; text-decoration: none; }
+.resource h2 {
+  display: inline;
+  font-weight: 500;
+  font-size: var(--text-lg);
+  background: linear-gradient(var(--accent), var(--accent)) 0 100% / 0 1px no-repeat;
+  transition: background-size 0.25s ease;
+}
+.resource:hover h2,
+.resource:focus-visible h2 { background-size: 100% 1px; }
+.resource p { margin-top: 0.5rem; color: var(--muted); font-size: 1.05rem; }
