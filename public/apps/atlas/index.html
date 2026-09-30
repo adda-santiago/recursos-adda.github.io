@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atlas bíblico · Fuego y Palabra</title>
+<meta name="theme-color" content="#fafaf8">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%94%A5%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/app.css">
+<link rel="stylesheet" href="../assets/css/atlas.css">
+</head>
+<body class="app-atlas">
+<div id="app">
+  <aside id="sidebar">
+    <header class="brand">
+      <a class="mark" href="../../">Fuego y Palabra</a>
+      <h1>Atlas bíblico</h1>
+      <p>Ciudades, batallas, profecías y predicaciones a través de las Escrituras</p>
+    </header>
+    <div id="filters">
+
+      <div class="fgroup">
+        <h2>Estilo del mapa</h2>
+        <div class="chip-row" id="estiloChips" style="flex-wrap:wrap;"></div>
+      </div>
+
+      <div class="fgroup">
+        <h2>Buscar</h2>
+        <input id="search" class="field" type="search" placeholder="Nombre del lugar…" autocomplete="off">
+      </div>
+
+      <div class="fgroup">
+        <h2>Testamento</h2>
+        <div class="chip-row" id="testChips"></div>
+      </div>
+
+      <div class="fgroup">
+        <h2>Tipo de lugar / evento <button class="clear" data-clear="tipos">todos</button></h2>
+        <div id="tipoList"></div>
+      </div>
+
+      <div class="fgroup">
+        <h2>Período <button class="clear" data-clear="periodos">todos</button></h2>
+        <div class="checklist" id="periodoList"></div>
+      </div>
+
+      <div class="fgroup">
+        <h2>Libro bíblico <button class="clear" data-clear="libros">todos</button></h2>
+        <div class="checklist" id="libroList"></div>
+      </div>
+
+      <div class="fgroup">
+        <h2>Rutas y viajes</h2>
+        <div id="journeyList"></div>
+      </div>
+
+      <div class="fgroup">
+        <h2>Fronteras históricas</h2>
+        <div id="fronteraList"></div>
+        <p class="note">Fronteras aproximadas e ilustrativas: los límites antiguos no están documentados con precisión cartográfica.</p>
+      </div>
+
+    </div>
+    <div id="resultcount"></div>
+  </aside>
+
+  <div id="collapseBtn" title="Mostrar u ocultar filtros">‹</div>
+
+  <div id="mapwrap">
+    <div id="map"></div>
+    <div id="tile-warning"></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script src="lugares.js"></script>
+<script src="viajes.js"></script>
+<script src="fronteras.js"></script>
+<script>
+/* ============ DATOS ============
+   n: nombre | lat,lng | t: testamento (AT/NT)
+   li: libros | ty: tipos | p: periodo | r: referencia | d: descripción
+*/
+const TYPE_META = {
+  "Ciudad":        {color:"#4A3B2A", icon:"C"},
+  "Guerra/Batalla": {color:"#A8452B", icon:"B"},
+  "Evento profético":{color:"#6B4E7C", icon:"P"},
+  "Predicación/Discurso":{color:"#2A5C63", icon:"D"},
+  "Milagro":       {color:"#B4903B", icon:"M"},
+  "Alianza/Pacto": {color:"#5C6B3D", icon:"A"},
+  "Exilio/Cautiverio":{color:"#5A5750", icon:"E"},
+  "Conversión/Encuentro":{color:"#C97B4A", icon:"K"}
+};
+
+
+/* ============ INICIALIZACIÓN DEL MAPA ============ */
+const map = L.map('map', {zoomControl:true, minZoom:2, worldCopyJump:true}).setView([33.5,35.5], 6);
+window.fypReset = () => map.setView([33.5,35.5], 6);
+
+// Estilos de mapa disponibles — todos gratuitos, sin necesidad de clave API.
+const MAP_STYLES = {
+  clasico: {
+    nombre: "Neutro",
+    url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> colaboradores',
+    subdomains: "abc", maxZoom: 19,
+    filtro: "grayscale(1) brightness(1.05) contrast(0.9)"
+  },
+  topografico: {
+    nombre: "Relieve",
+    url: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+    attribution: '&copy; OpenStreetMap colaboradores, SRTM | &copy; <a href="https://opentopomap.org">OpenTopoMap</a>',
+    subdomains: "abc", maxZoom: 17,
+    filtro: "saturate(80%)"
+  },
+  satelite: {
+    nombre: "Satélite",
+    url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+    attribution: "Tiles &copy; Esri — Source: Esri, Maxar, Earthstar Geographics",
+    maxZoom: 19,
+    filtro: "none"
+  },
+  claro: {
+    nombre: "Calles",
+    url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
+    attribution: "Tiles &copy; Esri — Source: Esri, HERE, Garmin",
+    maxZoom: 19,
+    filtro: "saturate(70%)"
+  }
+};
+
+let baseTiles = null;
+let tileErrorCount = 0;
+const tileWarning = document.getElementById("tile-warning");
+
+function ocultarAvisoMosaicos() { tileWarning.style.display = "none"; }
+
+function mostrarAvisoMosaicos(nombreEstilo) {
+  tileWarning.innerHTML = `No se pudo cargar el mapa "${nombreEstilo}".
+    <button id="volver-clasico-btn">Volver a Neutro</button>`;
+  tileWarning.style.display = "block";
+  document.getElementById("volver-clasico-btn").onclick = () => {
+    estiloChips.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+    estiloChips.querySelector('[data-clave="clasico"]').classList.add("active");
+    aplicarEstiloMapa("clasico");
+  };
+}
+
+function aplicarEstiloMapa(claveEstilo) {
+  const estilo = MAP_STYLES[claveEstilo];
+  if (!estilo) return;
+  ocultarAvisoMosaicos();
+  if (baseTiles) map.removeLayer(baseTiles);
+  baseTiles = L.tileLayer(estilo.url, {
+    attribution: estilo.attribution,
+    subdomains: estilo.subdomains || "abc",
+    maxZoom: estilo.maxZoom || 19
+  }).addTo(map);
+  document.querySelector(".leaflet-tile-pane").style.filter = estilo.filtro;
+  tileErrorCount = 0;
+  baseTiles.on("tileerror", () => {
+    tileErrorCount++;
+    if (tileErrorCount === 3) {
+      console.warn("No se pudieron cargar los mosaicos de este estilo de mapa. Puede ser un bloqueo de red o que el proveedor no esté disponible.");
+      if (claveEstilo !== "clasico") mostrarAvisoMosaicos(estilo.nombre);
+    }
+  });
+}
+aplicarEstiloMapa("clasico");
+
+// Selector de estilo de mapa
+const estiloChips = document.getElementById("estiloChips");
+Object.entries(MAP_STYLES).forEach(([clave, estilo], i) => {
+  const chip = document.createElement("div");
+  chip.className = "chip" + (i === 0 ? " active" : "");
+  chip.textContent = estilo.nombre;
+  chip.dataset.clave = clave;
+  chip.onclick = () => {
+    estiloChips.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+    chip.classList.add("active");
+    aplicarEstiloMapa(clave);
+  };
+  estiloChips.appendChild(chip);
+});
+
+function makeIcon(place){
+  const primary = place.ty[0];
+  const meta = TYPE_META[primary] || {color:"#4A3B2A", icon:"•"};
+  return L.divIcon({
+    className:'',
+    html:`<div class="divmarker" style="background:${meta.color}">${meta.icon}</div>`,
+    iconSize:[22,22], iconAnchor:[11,11], popupAnchor:[0,-10]
+  });
+}
+
+function popupHTML(p){
+  const tags = p.ty.map(t=>{
+    const meta = TYPE_META[t] || {color:"#777"};
+    return `<span class="tag filled" style="background:${meta.color}">${t}</span>`;
+  }).join('');
+  const gmapsUrl = `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}`;
+  return `
+    <div class="ficha-meta">${p.t === 'AT' ? 'Antiguo Testamento' : 'Nuevo Testamento'}, ${p.p}</div>
+    <div class="ficha-h">${p.n}</div>
+    <div class="pop-tags">${tags}</div>
+    <div class="ficha-texto">${p.d}</div>
+    <div class="ficha-refs"><b>Referencia</b> ${p.r}<br><b>Libro(s)</b> ${p.li.join(', ')}</div>
+    <a class="pop-gmaps" href="${gmapsUrl}" target="_blank" rel="noopener noreferrer">Ver ubicación actual en Google Maps</a>
+  `;
+}
+
+const markers = PLACES.map(p=>{
+  const m = L.marker([p.lat,p.lng], {icon: makeIcon(p)});
+  m.bindPopup(popupHTML(p));
+  m._place = p;
+  return m;
+});
+const markerLayer = L.layerGroup(markers).addTo(map);
+
+/* ============ RUTAS Y VIAJES ============ */
+function resolvePoint(pt){
+  if(pt.ref){
+    const place = PLACES.find(pl=>pl.n === pt.ref);
+    if(!place){ console.warn('Punto de ruta no encontrado en PLACES:', pt.ref); return null; }
+    return {latlng:[place.lat, place.lng], label:place.n};
+  }
+  return {latlng:[pt.lat, pt.lng], label:pt.label || ''};
+}
+function bearingDeg(a,b){
+  const dx = b[1]-a[1], dy = b[0]-a[0];
+  return Math.atan2(dx,dy) * 180/Math.PI;
+}
+
+const journeyGroups = (typeof JOURNEYS !== 'undefined' ? JOURNEYS : []).map(j=>{
+  const resolved = j.puntos.map(resolvePoint).filter(Boolean);
+  const latlngs = resolved.map(r=>r.latlng);
+  const group = L.layerGroup();
+  if(latlngs.length >= 2){
+    const line = L.polyline(latlngs, {color:j.color, weight:3, opacity:0.9, dashArray:j.dash||null});
+    line.bindPopup(`
+      <div class="ficha-meta">Ruta</div>
+      <div class="ficha-h">${j.n}</div>
+      <div class="ficha-texto">${j.d}</div>
+      <div class="ficha-refs"><b>Referencia</b> ${j.ref}</div>
+    `);
+    line.addTo(group);
+    for(let i=0;i<latlngs.length-1;i++){
+      const a = latlngs[i], b = latlngs[i+1];
+      const mid = [(a[0]+b[0])/2, (a[1]+b[1])/2];
+      const angle = bearingDeg(a,b);
+      const arrowIcon = L.divIcon({
+        className:'',
+        html:`<div class="route-arrow" style="border-bottom-color:${j.color};transform:rotate(${angle}deg)"></div>`,
+        iconSize:[14,16], iconAnchor:[7,8]
+      });
+      L.marker(mid,{icon:arrowIcon, interactive:false}).addTo(group);
+    }
+  }
+  return {meta:j, layer:group};
+});
+
+// Checklist de rutas (todas apagadas por defecto para no saturar el mapa)
+const journeyList = document.getElementById('journeyList');
+journeyGroups.forEach(jg=>{
+  const row = document.createElement('div'); row.className='line-item';
+  row.innerHTML = `
+    <div class="line-swatch" style="border-top-color:${jg.meta.color};${jg.meta.dash?'border-top-style:dashed;':''}"></div>
+    <div class="line-text"><span class="lname">${jg.meta.n}</span><span class="lref">${jg.meta.ref}</span></div>
+  `;
+  const cb = document.createElement('input'); cb.type='checkbox'; cb.checked=false;
+  row.prepend(cb);
+  cb.onchange = ()=>{ cb.checked ? jg.layer.addTo(map) : map.removeLayer(jg.layer); };
+  row.querySelector('.line-text').onclick = ()=>{ cb.checked = !cb.checked; cb.onchange(); };
+  journeyList.appendChild(row);
+});
+
+/* ============ FRONTERAS HISTÓRICAS ============ */
+const fronteraLayers = (typeof FRONTERAS !== 'undefined' ? FRONTERAS : []).map(f => {
+  const polygon = L.polygon(f.puntos, {
+    color: f.color, weight: 2, fillColor: f.color, fillOpacity: 0.18, opacity: 0.75
+  });
+  polygon.bindPopup(`
+    <div class="ficha-meta">Frontera histórica</div>
+    <div class="ficha-h">${f.n}</div>
+    <div class="pop-tags"><span class="tag filled" style="background:${f.color}">${f.periodo}</span></div>
+    <div class="ficha-texto">${f.d}</div>
+  `);
+  return { meta: f, layer: polygon };
+});
+
+const fronteraList = document.getElementById('fronteraList');
+fronteraLayers.forEach(fg => {
+  const row = document.createElement('div'); row.className = 'line-item';
+  row.innerHTML = `
+    <div class="area-swatch" style="background:${fg.meta.color}44;border-color:${fg.meta.color}"></div>
+    <div class="line-text"><span class="lname">${fg.meta.n}</span><span class="lref">${fg.meta.periodo}</span></div>
+  `;
+  const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = false;
+  row.prepend(cb);
+  cb.onchange = () => { cb.checked ? fg.layer.addTo(map) : map.removeLayer(fg.layer); };
+  row.querySelector('.line-text').onclick = () => { cb.checked = !cb.checked; cb.onchange(); };
+  fronteraList.appendChild(row);
+});
+
+/* ============ FILTROS ============ */
+const state = { search:'', testamentos:new Set(['AT','NT']), tipos:new Set(Object.keys(TYPE_META)), periodos:new Set(), libros:new Set() };
+
+// Orden canónico de los 66 libros (usado para ordenar el filtro de libros)
+const BIBLE_ORDER = [
+  "Génesis","Éxodo","Levítico","Números","Deuteronomio","Josué","Jueces","Rut",
+  "1 Samuel","2 Samuel","1 Reyes","2 Reyes","1 Crónicas","2 Crónicas","Ezra","Nehemías","Ester",
+  "Job","Salmos","Proverbios","Eclesiastés","Cantares",
+  "Isaías","Jeremías","Lamentaciones","Ezequiel","Daniel",
+  "Oseas","Joel","Amós","Abdías","Jonás","Miqueas","Nahúm","Habacuc","Sofonías","Hageo","Zacarías","Malaquías",
+  "Mateo","Marcos","Lucas","Juan","Hechos",
+  "Romanos","1 Corintios","2 Corintios","Gálatas","Efesios","Filipenses","Colosenses",
+  "1 Tesalonicenses","2 Tesalonicenses","1 Timoteo","2 Timoteo","Tito","Filemón",
+  "Hebreos","Santiago","1 Pedro","2 Pedro","1 Juan","2 Juan","3 Juan","Judas","Apocalipsis",
+  "Múltiples libros"
+];
+function bookSort(a,b){
+  const ia = BIBLE_ORDER.indexOf(a), ib = BIBLE_ORDER.indexOf(b);
+  return (ia===-1?999:ia) - (ib===-1?999:ib);
+}
+
+// listas únicas
+const allPeriodos = [...new Set(PLACES.map(p=>p.p))].sort();
+const allLibros = [...new Set(PLACES.flatMap(p=>p.li))].sort(bookSort);
+allPeriodos.forEach(p=>state.periodos.add(p));
+allLibros.forEach(l=>state.libros.add(l));
+
+// Testamento chips
+const testChips = document.getElementById('testChips');
+[['AT','Antiguo'],['NT','Nuevo']].forEach(([key,label])=>{
+  const chip = document.createElement('div');
+  chip.className='chip active'; chip.textContent=label; chip.dataset.key=key;
+  chip.onclick=()=>{
+    if(state.testamentos.has(key)){ state.testamentos.delete(key); chip.classList.remove('active'); }
+    else { state.testamentos.add(key); chip.classList.add('active'); }
+    render();
+  };
+  testChips.appendChild(chip);
+});
+
+// Tipo checkboxes con conteo
+const tipoList = document.getElementById('tipoList');
+Object.keys(TYPE_META).forEach(ty=>{
+  const count = PLACES.filter(p=>p.ty.includes(ty)).length;
+  const row = document.createElement('div'); row.className='type-item';
+  row.innerHTML = `<span class="swatch" style="background:${TYPE_META[ty].color}"></span>
+    <label>${ty}</label><span class="type-count">${count}</span>`;
+  const cb = document.createElement('input'); cb.type='checkbox'; cb.checked=true;
+  row.prepend(cb);
+  cb.onchange=()=>{ cb.checked ? state.tipos.add(ty) : state.tipos.delete(ty); render(); };
+  row.querySelector('label').onclick=()=>{ cb.checked=!cb.checked; cb.onchange(); };
+  tipoList.appendChild(row);
+});
+
+// Periodo checklist
+const periodoList = document.getElementById('periodoList');
+allPeriodos.forEach(p=>{
+  const row = document.createElement('div'); row.className='check-item';
+  const id='per_'+p.replace(/\W+/g,'');
+  row.innerHTML = `<input type="checkbox" id="${id}" checked><label for="${id}">${p}</label>`;
+  row.querySelector('input').onchange=(e)=>{ e.target.checked ? state.periodos.add(p) : state.periodos.delete(p); render(); };
+  periodoList.appendChild(row);
+});
+
+// Libro checklist
+const libroList = document.getElementById('libroList');
+allLibros.forEach(l=>{
+  const row = document.createElement('div'); row.className='check-item';
+  const id='lib_'+l.replace(/\W+/g,'');
+  row.innerHTML = `<input type="checkbox" id="${id}" checked><label for="${id}">${l}</label>`;
+  row.querySelector('input').onchange=(e)=>{ e.target.checked ? state.libros.add(l) : state.libros.delete(l); render(); };
+  libroList.appendChild(row);
+});
+
+// Buscador
+document.getElementById('search').addEventListener('input', e=>{
+  state.search = e.target.value.trim().toLowerCase();
+  render();
+});
+
+// Botones "todos" / limpiar-restaurar
+document.querySelectorAll('.clear').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const target = btn.dataset.clear;
+    const allChecked = (target==='tipos' && state.tipos.size===Object.keys(TYPE_META).length) ||
+                        (target==='periodos' && state.periodos.size===allPeriodos.length) ||
+                        (target==='libros' && state.libros.size===allLibros.length);
+    let list, setRef, container;
+    if(target==='tipos'){ list=Object.keys(TYPE_META); setRef=state.tipos; container=tipoList; }
+    if(target==='periodos'){ list=allPeriodos; setRef=state.periodos; container=periodoList; }
+    if(target==='libros'){ list=allLibros; setRef=state.libros; container=libroList; }
+    container.querySelectorAll('input[type=checkbox]').forEach(cb=> cb.checked = allChecked ? false : true );
+    setRef.clear();
+    if(!allChecked) list.forEach(x=>setRef.add(x));
+    btn.textContent = allChecked ? 'todos' : 'ninguno';
+    render();
+  });
+});
+
+// Colapsar/expandir menú lateral
+const appEl = document.getElementById('app');
+const collapseBtn = document.getElementById('collapseBtn');
+collapseBtn.addEventListener('click', ()=>{
+  appEl.classList.toggle('collapsed');
+  collapseBtn.textContent = appEl.classList.contains('collapsed') ? '›' : '‹';
+  setTimeout(()=> map.invalidateSize(), 260); // tras la transición CSS
+});
+
+function render(){
+  let visible = 0;
+  markers.forEach(m=>{
+    const p = m._place;
+    const okTest = state.testamentos.has(p.t);
+    const okTipo = p.ty.some(t=>state.tipos.has(t));
+    const okPeriodo = state.periodos.has(p.p);
+    const okLibro = p.li.some(l=>state.libros.has(l));
+    const okSearch = !state.search || p.n.toLowerCase().includes(state.search);
+    const ok = okTest && okTipo && okPeriodo && okLibro && okSearch;
+    const has = map.hasLayer(m);
+    if(ok && !has) markerLayer.addLayer(m);
+    if(!ok && has) markerLayer.removeLayer(m);
+    if(ok) visible++;
+  });
+  document.getElementById('resultcount').innerHTML = `<b>${visible}</b> de ${PLACES.length} lugares`;
+}
+render();
+</script>
+<script src="../visor-bridge.js"></script>
+</body>
+</html>
