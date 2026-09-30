@@ -1,0 +1,57 @@
+# Compila el sitio y lo publica.
+# Piloto: GitHub Pages. Producción: descomentar el job de Hostinger y
+# borrar el de Pages (el build es el mismo; solo cambia el destino).
+name: Publicar
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: publicar
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      # Repo <organización>.github.io → sitio en la raíz. Con dominio propio: SITE_URL=https://tudominio.cl
+      SITE_URL: https://aula-visual.github.io
+      BASE_PATH: /
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npm run build
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: dist }
+
+  pages:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: { name: github-pages, url: '${{ steps.deploy.outputs.page_url }}' }
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v4
+
+  # hostinger:
+  #   needs: build
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/download-artifact@v4
+  #       with: { name: github-pages, path: . }
+  #     - run: mkdir dist && tar -xf artifact.tar -C dist
+  #     - uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+  #       with:
+  #         server: ${{ secrets.FTP_SERVIDOR }}
+  #         username: ${{ secrets.FTP_USUARIO }}
+  #         password: ${{ secrets.FTP_CLAVE }}
+  #         local-dir: ./dist/
+  #         server-dir: ./public_html/
