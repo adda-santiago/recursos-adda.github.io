@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Árbol genealógico · Fuego y Palabra</title>
+<meta name="theme-color" content="#fafaf8">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%94%A5%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/app.css">
+<link rel="stylesheet" href="../assets/css/genealogias.css">
+</head>
+<body class="app-genealogias">
+<div id="app">
+  <aside id="sidebar">
+    <header class="brand">
+      <a class="mark" href="../../">Fuego y Palabra</a>
+      <h1>Árbol genealógico</h1>
+      <p>De Adán a Jesús, y los sumos sacerdotes de Israel</p>
+      <span class="fase">Fase 1: tronco Adán–David</span>
+    </header>
+    <div id="filters">
+
+      <div class="fgroup">
+        <h2>Buscar personaje</h2>
+        <div id="search-wrap">
+          <input id="search-input" class="field" type="text" placeholder="Nombre…" autocomplete="off">
+          <span id="search-clear">✕</span>
+        </div>
+        <div class="search-hint">Muestra solo la línea desde Adán hasta el personaje encontrado.</div>
+      </div>
+
+      <div class="fgroup">
+        <h2>Línea genealógica</h2>
+        <div class="radio-row"><input type="checkbox" name="linea" value="jesus_mateo" id="l1"><label for="l1"><span class="linea-swatch" style="background:#C97B4A"></span>Jesús (vía Mateo)</label></div>
+        <div class="radio-row"><input type="checkbox" name="linea" value="jesus_lucas" id="l2"><label for="l2"><span class="linea-swatch" style="background:#E8A25A"></span>Jesús (vía Lucas)</label></div>
+        <div class="radio-row"><input type="checkbox" name="linea" value="sumos_sacerdotes" id="l3"><label for="l3"><span class="linea-swatch" style="background:#6B4E7C"></span>Sumos sacerdotes</label></div>
+      </div>
+
+      <div class="fgroup">
+        <h2>Época</h2>
+        <div class="checklist" id="epoca-list"></div>
+      </div>
+
+      <div class="fgroup">
+        <h2>Libro bíblico</h2>
+        <div class="checklist" id="libro-list"></div>
+      </div>
+
+      <div class="fgroup">
+        <h2>Árbol</h2>
+        <div class="btnrow">
+          <button id="expand-all">Expandir todo</button>
+          <button id="collapse-all">Colapsar todo</button>
+        </div>
+      </div>
+
+    </div>
+  </aside>
+
+  <div id="collapseBtn" title="Mostrar u ocultar filtros">‹</div>
+
+  <div id="treewrap">
+    <div id="era-nav-wrap"><div id="era-nav" class="float-panel"></div></div>
+    <div id="zoom-nav" class="float-panel">
+      <button id="zoom-in" title="Acercar">+</button>
+      <div id="zoom-level">100%</div>
+      <button id="zoom-out" title="Alejar">−</button>
+      <button id="zoom-reset" title="Restablecer">⤾</button>
+    </div>
+    <svg id="tree-svg" xmlns="http://www.w3.org/2000/svg">
+      <g id="layer-bands"></g>
+      <g id="layer-years"></g>
+      <g id="layer-links"></g>
+      <g id="layer-nodes"></g>
+    </svg>
+  </div>
+</div>
+
+<div id="modal" class="overlay">
+  <div id="modal-card" class="modal">
+    <button id="modal-close" class="modal-close" aria-label="Cerrar">✕</button>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script src="personas.js"></script>
+<script src="relaciones.js"></script>
+<script src="epocas.js"></script>
+<script src="app.js"></script>
+<script>
+  const appEl = document.getElementById('app');
+  const collapseBtn = document.getElementById('collapseBtn');
+  collapseBtn.addEventListener('click', ()=>{
+    appEl.classList.toggle('collapsed');
+    collapseBtn.textContent = appEl.classList.contains('collapsed') ? '›' : '‹';
+  });
+</script>
+<script src="../visor-bridge.js"></script>
+</body>
+</html>
