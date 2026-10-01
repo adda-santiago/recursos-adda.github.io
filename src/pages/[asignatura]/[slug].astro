@@ -1,0 +1,93 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Visor from '../../components/Visor.astro';
+import EspacioAnuncio from '../../components/EspacioAnuncio.astro';
+import { ASIGNATURAS, COLECCIONES, NIVELES, TIPOS } from '../../data/taxonomia';
+import { ruta } from '../../lib/url';
+
+export async function getStaticPaths() {
+  const recursos = await getCollection('recursos', (r) => r.data.publicado);
+  return recursos.map((r) => ({ params: { asignatura: r.data.asignatura, slug: r.id }, props: { r } }));
+}
+const { r } = Astro.props;
+const d = r.data;
+const { Content, headings } = await render(r);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'LearningResource',
+  name: d.titulo,
+  description: d.resumen,
+  inLanguage: 'es',
+  learningResourceType: TIPOS[d.tipo],
+  about: ASIGNATURAS[d.asignatura],
+  educationalLevel: d.niveles.map((n) => NIVELES[n]),
+  keywords: d.tags.join(', '),
+  isAccessibleForFree: true,
+  license: d.licencia.contenido,
+};
+---
+<Base titulo={d.titulo} descripcion={d.resumen}>
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(jsonLd)} />
+  <main>
+    <header class="ficha-cabecera">
+      <p class="miga">
+        <a href={ruta(`explorar/?asignatura=${d.asignatura}`)}>{ASIGNATURAS[d.asignatura]}</a>
+        {d.coleccion && <> / <a href={ruta(`explorar/?coleccion=${d.coleccion}`)}>{COLECCIONES[d.coleccion]}</a></>}
+        {' '}/ {TIPOS[d.tipo]}
+      </p>
+      <h1>{d.titulo}</h1>
+      <p class="resumen">{d.resumen}</p>
+      <p class="meta">
+        {d.niveles.map((n) => <span class="chip">{NIVELES[n]}</span>)}
+      </p>
+    </header>
+
+    <Visor r={r} modo="ficha" />
+
+    <div class="ficha-cuerpo">
+      <article class="articulo" data-pagefind-body>
+        <span hidden data-pagefind-filter={`asignatura:${ASIGNATURAS[d.asignatura]}`}></span>
+        <span hidden data-pagefind-filter={`tipo:${TIPOS[d.tipo]}`}></span>
+        {d.niveles.map((n) => <span hidden data-pagefind-filter={`nivel:${NIVELES[n]}`}></span>)}
+        {d.coleccion && <span hidden data-pagefind-filter={`coleccion:${COLECCIONES[d.coleccion]}`}></span>}
+        <span hidden data-pagefind-meta={`emoji:${d.emoji}`}></span>
+        <Content />
+        {d.tags.length > 0 && (
+          <p class="etiquetas">Etiquetas: {d.tags.map((t, i) => <>{i > 0 && ' '}<a href={ruta(`explorar/?tag=${t}`)}>#{t}</a></>)}</p>
+        )}
+        <EspacioAnuncio slot="ficha-final" />
+      </article>
+
+      <aside class="lateral">
+        {headings.filter((h) => h.depth === 2).length > 1 && (
+          <nav aria-label="En esta ficha">
+            <h2>En esta ficha</h2>
+            <ul>{headings.filter((h) => h.depth === 2).map((h) => <li><a href={`#${h.slug}`}>{h.text}</a></li>)}</ul>
+          </nav>
+        )}
+        {d.oa.length > 0 && (
+          <div><h2>Objetivos de aprendizaje</h2><p>{d.oa.join(', ')}</p></div>
+        )}
+        {d.visor.escala && <div><h2>Escala</h2><p>{d.visor.escala}</p></div>}
+        <div>
+          <h2>Fuentes</h2>
+          <ul>{d.fuentes.map((f) => <li>{f}</li>)}</ul>
+        </div>
+        <div>
+          <h2>Licencia y revisión</h2>
+          <p>{d.licencia.contenido}{d.licencia.modelo && ` · Modelo: ${d.licencia.modelo}`}</p>
+          {d.licencia.atribucion && <p>{d.licencia.atribucion}</p>}
+          <p class={d.revision.estado === 'borrador' ? 'estado-borrador' : undefined}>
+            {d.revision.estado === 'revisado'
+              ? `Revisado${d.revision.revisor ? ` por ${d.revision.revisor}` : ''}${d.revision.fecha ? `, ${d.revision.fecha.toLocaleDateString('es-CL')}` : ''}`
+              : 'Ficha en revisión'}
+          </p>
+        </div>
+        <p><a href={ruta(`buzon/?recurso=${d.uid}`)}>Reportar un error en este recurso</a></p>
+        <EspacioAnuncio slot="ficha-lateral" />
+      </aside>
+    </div>
+  </main>
+</Base>
