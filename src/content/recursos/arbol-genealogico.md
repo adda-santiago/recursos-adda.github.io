@@ -1,4 +1,3 @@
-[arbol-genealogico.md](https://github.com/user-attachments/files/32911785/arbol-genealogico.md)
 ---
 uid: arbol-genealogico
 titulo: Árbol genealógico
