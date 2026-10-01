@@ -19,6 +19,7 @@ fuentes:
   - 2 Crónicas 3–7
 revision:
   estado: borrador
+fechaPublicacion: 2026-09-30
 orden: 50
 ---
 

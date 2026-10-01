@@ -53,6 +53,8 @@ const recursos = defineCollection({
       fecha: z.coerce.date().optional(),
     }),
 
+    // Fecha en que el recurso se publicó en la plataforma: ordena "Recién agregados"
+    fechaPublicacion: z.coerce.date(),
     orden: z.number().default(100),
     publicado: z.boolean().default(true),
   }),

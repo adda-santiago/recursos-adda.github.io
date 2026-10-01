@@ -2,7 +2,7 @@
  * Analítica anónima de eventos. Sin cookies de seguimiento ni datos personales.
  * Eventos definidos (no inventar otros sin documentarlos en DIRECTRICES §12):
  *   abrir-recurso, pantalla-completa, restaurar-vista, compartir, copiar-embed,
- *   busqueda, busqueda-sin-resultados, guardar-favorito
+ *   busqueda, busqueda-sin-resultados, filtrar, guardar-favorito
  */
 import { SITIO } from '../config/sitio';
 

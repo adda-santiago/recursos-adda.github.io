@@ -18,6 +18,7 @@ fuentes:
   - Referencias bíblicas indicadas en cada lugar
 revision:
   estado: borrador
+fechaPublicacion: 2026-09-30
 orden: 10
 ---
 

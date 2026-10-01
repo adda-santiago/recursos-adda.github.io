@@ -19,6 +19,7 @@ fuentes:
   - Mateo 1:1–17; Lucas 3:23–38
 revision:
   estado: borrador
+fechaPublicacion: 2026-09-30
 orden: 30
 ---
 

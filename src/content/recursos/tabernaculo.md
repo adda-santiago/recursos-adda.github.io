@@ -20,6 +20,7 @@ fuentes:
   - Números 2
 revision:
   estado: borrador
+fechaPublicacion: 2026-09-30
 orden: 40
 ---
 

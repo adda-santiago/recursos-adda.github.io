@@ -1,6 +1,6 @@
 # Directrices del proyecto — Aula Visual (nombre provisional)
 
-Versión 1.1 · 30 de septiembre de 2026
+Versión 1.2 · 1 de octubre de 2026
 
 Este documento es la fuente de verdad del proyecto. Cualquier decisión nueva que contradiga algo de aquí se registra en la bitácora (§23) y se actualiza la sección correspondiente. Si el código y este documento no coinciden, se corrige uno de los dos; no se deja la diferencia.
 
@@ -106,8 +106,8 @@ No hay base de datos ni servidor propio. El contenido vive en archivos Markdown 
 
 | Ruta | Contenido | Indexable |
 |---|---|---|
-| `/` | Buscador + recursos por asignatura + guardados | Sí |
-| `/explorar/?asignatura=&tipo=&nivel=&tag=&coleccion=` | Catálogo filtrable | Sí |
+| `/?q=&seccion=&coleccion=&tipo=&nivel=&tag=&guardados=1` | Portada = catálogo completo: recién agregados, filtros y búsqueda. Valores múltiples separados por coma | Sí |
+| `/explorar/` | Redirección a la portada (conserva los parámetros; `asignatura` pasa a `seccion`) | No |
 | `/{asignatura}/{slug}/` | Ficha: visor + artículo + fuentes | Sí (única página indexada por Pagefind) |
 | `/embed/{slug}/` | Visor limpio para insertar | No (`noindex`, canonical a la ficha) |
 | `/apps/{app}/` | App legada cruda | No (`robots.txt`) |
@@ -205,7 +205,8 @@ Cada recurso es un archivo `src/content/recursos/{slug}.md`. El esquema está en
 | `fuentes` | Sí (≥ 1) | Citas bíblicas, bibliografía o repositorio de origen |
 | `revision.estado` | Sí | `borrador` o `revisado` |
 | `revision.revisor`, `revision.fecha` | Al pasar a `revisado` | Quién revisó y cuándo |
-| `orden` | No | Orden en listas |
+| `fechaPublicacion` | Sí | Fecha en que el recurso se publica en la plataforma (`AAAA-MM-DD`). Ordena "Recién agregados" |
+| `orden` | No | Orden editorial en el catálogo |
 | `publicado` | No | `false` oculta el recurso sin borrarlo |
 
 ## 9. Taxonomía
@@ -273,6 +274,7 @@ Anónima, sin cookies de seguimiento ni datos personales. Proveedor sugerido: Go
 | `compartir`, `copiar-embed` | Canales de difusión |
 | `busqueda` | Qué se busca |
 | `busqueda-sin-resultados` | **Backlog de recursos nuevos** |
+| `filtrar` | Qué facetas usan los profesores (`faceta/valor`) |
 | `guardar-favorito` | Señal para justificar cuentas |
 
 No se agregan eventos sin documentarlos en esta tabla.
@@ -285,7 +287,21 @@ No se agregan eventos sin documentarlos en esta tabla.
 - Antes de activar cuentas: base legal del tratamiento, política de retención y borrado de cuenta.
 - El proyecto no usa infraestructura corporativa de terceros (por ejemplo, el tenant de Microsoft de un empleador) para formularios, automatizaciones ni datos.
 
-## 14. Búsqueda
+## 14. Portada y búsqueda
+
+La portada es el catálogo completo, a ancho de pantalla:
+
+| Zona | Comportamiento |
+|---|---|
+| Cabecera fija | Marca, buscador arriba a la izquierda (presente en todas las páginas; desde otra página envía a `/?q=`) y Sugerencias |
+| Recién agregados | Los 4 recursos con `fechaPublicacion` más reciente. Se oculta mientras hay búsqueda o filtros activos, para que los resultados queden arriba. En celular, carrusel horizontal |
+| Panel de filtros | Sección, colección, tipo, nivel y etiquetas (las 8 más usadas visibles, el resto tras "Ver más"); "Solo mis guardados" si el visitante guardó algo. Fijo al hacer scroll en escritorio; plegable en celular. Cada opción muestra cuántos recursos quedarían |
+| Catálogo | Rejilla de tarjetas (imagen o emoji, tipo, sección, título, resumen). En celular, tarjetas horizontales compactas |
+
+Reglas de filtrado: **O** dentro de una misma faceta, **Y** entre facetas distintas. La búsqueda y los filtros se combinan. Con búsqueda, el orden es por relevancia; sin ella, por `orden`. Todo el estado vive en la URL, así que una vista filtrada se puede compartir.
+
+Las tarjetas se generan en el HTML (SEO y uso sin JavaScript); el navegador solo las oculta o reordena. Cuando el catálogo supere unos pocos cientos de recursos, se evalúa paginar o cargar por bloques.
+
 
 - Pagefind indexa solo el `<article data-pagefind-body>` de cada ficha. Filtros: asignatura, tipo, nivel.
 - La portada filtra los resultados de Pagefind para exigir que cada término aparezca por su raíz en el texto: evita falsos positivos por coincidencias parciales.
@@ -343,6 +359,7 @@ Reglas:
 5. `robots.txt` funciona porque el sitio está en la raíz del dominio.
 6. En el plan gratuito, Pages exige repositorio público.
 7. Sin computador propio, todo se edita desde el navegador (github.com o github.dev, tecla `.` en el repositorio). La validación la hace GitHub Actions: si un recurso no cumple el esquema, el flujo falla y el sitio publicado no cambia.
+8. **Carga masiva por ZIP.** Subir por la web pierde la estructura de carpetas. Para cargar o actualizar muchos archivos, se sube un `.zip` a la raíz del repositorio: el flujo `desempaquetar.yml` lo descomprime conservando las carpetas, lo borra, confirma los cambios y lanza `publicar.yml`. Los ZIP no pueden modificar `.github/` (GitHub no permite que un flujo edite flujos): los archivos de `.github/workflows/` se crean o editan a mano desde la web.
 
 ## 20. Flujos de trabajo
 
@@ -405,6 +422,8 @@ Reglas:
 | 2026-09-30 | Marca propia neutra; Fuego y Palabra pasa a ser colección de Religión | Los colegios laicos y otras asignaturas no deben heredar una marca religiosa |
 | 2026-09-30 | Este repositorio es la fuente oficial de las apps bíblicas; el de Fuego y Palabra queda congelado | Evitar dos copias que se desalinean |
 | 2026-09-30 | Nombre provisional Aula Visual | Permite avanzar; el nombre vive en un solo archivo |
+| 2026-10-01 | Portada a ancho completo: buscador en la cabecera, recién agregados, filtros por faceta y catálogo completo; `/explorar/` se integra a la portada | Mostrar más recursos sin navegar; una sola puerta de entrada al catálogo |
+| 2026-10-01 | Campo obligatorio `fechaPublicacion` | Ordenar "Recién agregados" con un dato explícito, no inferido |
 
 ## 24. Relación con el repositorio Fuego y Palabra
 

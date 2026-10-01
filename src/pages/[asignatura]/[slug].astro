@@ -33,8 +33,8 @@ const jsonLd = {
   <main>
     <header class="ficha-cabecera">
       <p class="miga">
-        <a href={ruta(`explorar/?asignatura=${d.asignatura}`)}>{ASIGNATURAS[d.asignatura]}</a>
-        {d.coleccion && <> / <a href={ruta(`explorar/?coleccion=${d.coleccion}`)}>{COLECCIONES[d.coleccion]}</a></>}
+        <a href={ruta(`?seccion=${d.asignatura}`)}>{ASIGNATURAS[d.asignatura]}</a>
+        {d.coleccion && <> / <a href={ruta(`?coleccion=${d.coleccion}`)}>{COLECCIONES[d.coleccion]}</a></>}
         {' '}/ {TIPOS[d.tipo]}
       </p>
       <h1>{d.titulo}</h1>
@@ -53,9 +53,10 @@ const jsonLd = {
         {d.niveles.map((n) => <span hidden data-pagefind-filter={`nivel:${NIVELES[n]}`}></span>)}
         {d.coleccion && <span hidden data-pagefind-filter={`coleccion:${COLECCIONES[d.coleccion]}`}></span>}
         <span hidden data-pagefind-meta={`emoji:${d.emoji}`}></span>
+        <span hidden data-pagefind-meta={`uid:${d.uid}`}></span>
         <Content />
         {d.tags.length > 0 && (
-          <p class="etiquetas">Etiquetas: {d.tags.map((t, i) => <>{i > 0 && ' '}<a href={ruta(`explorar/?tag=${t}`)}>#{t}</a></>)}</p>
+          <p class="etiquetas">Etiquetas: {d.tags.map((t, i) => <>{i > 0 && ' '}<a href={ruta(`?tag=${t}`)}>#{t}</a></>)}</p>
         )}
         <EspacioAnuncio slot="ficha-final" />
       </article>

@@ -1,0 +1,40 @@
+---
+/* Tarjeta de recurso para la portada. Los data-* alimentan los filtros
+   del lado del navegador; el HTML completo queda en la página para SEO
+   y para quien navegue sin JavaScript. */
+import type { CollectionEntry } from 'astro:content';
+import { ASIGNATURAS, COLECCIONES, NIVELES, TIPOS } from '../data/taxonomia';
+import { rutaRecurso } from '../lib/url';
+interface Props { r: CollectionEntry<'recursos'>; destacada?: boolean; }
+const { r, destacada = false } = Astro.props;
+const d = r.data;
+---
+<li
+  class:list={['tarjeta-item', { destacada }]}
+  data-uid={d.uid}
+  data-seccion={d.asignatura}
+  data-tipo={d.tipo}
+  data-coleccion={d.coleccion ?? ''}
+  data-nivel={d.niveles.join(' ')}
+  data-tag={d.tags.join(' ')}
+  data-orden={d.orden}
+>
+  <a class="tarjeta" href={rutaRecurso(d.asignatura, r.id)}>
+    <span class="tarjeta-imagen" aria-hidden="true">
+      {d.visor.poster
+        ? <img src={d.visor.poster} alt="" loading="lazy" decoding="async" />
+        : <span class="tarjeta-emoji">{d.emoji}</span>}
+      <span class="tarjeta-tipo">{TIPOS[d.tipo]}</span>
+    </span>
+    <span class="tarjeta-cuerpo">
+      <span class="tarjeta-seccion">
+        {ASIGNATURAS[d.asignatura]}{d.coleccion && ` · ${COLECCIONES[d.coleccion]}`}
+      </span>
+      <h3>{d.titulo}</h3>
+      <span class="tarjeta-resumen">{d.resumen}</span>
+      {d.niveles.length > 0 && (
+        <span class="tarjeta-niveles">{d.niveles.map((n) => NIVELES[n]).join(' · ')}</span>
+      )}
+    </span>
+  </a>
+</li>
