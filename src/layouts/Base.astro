@@ -1,0 +1,66 @@
+---
+import '../styles/tokens.css';
+import '../styles/global.css';
+import { SITIO } from '../config/sitio';
+import { ruta } from '../lib/url';
+
+interface Props {
+  titulo: string;
+  descripcion?: string;
+  noindex?: boolean;
+  canonical?: string;
+  embed?: boolean;           // página /embed/: sin cabecera, sin pie, sin anuncios
+}
+const { titulo, descripcion = SITIO.descripcion, noindex = false, canonical, embed = false } = Astro.props;
+const tituloCompleto = titulo === SITIO.nombre ? titulo : `${titulo} · ${SITIO.nombre}`;
+const urlCanonica = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
+---
+<!doctype html>
+<html lang={SITIO.idioma} class={embed ? 'embed' : undefined}>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>{tituloCompleto}</title>
+  <meta name="description" content={descripcion} />
+  <link rel="canonical" href={urlCanonica} />
+  {noindex && <meta name="robots" content="noindex" />}
+  <meta property="og:title" content={tituloCompleto} />
+  <meta property="og:description" content={descripcion} />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content={urlCanonica} />
+  <meta name="theme-color" content="#fafaf8" />
+  <link rel="icon" href={`data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>${SITIO.emoji}</text></svg>`)}`} />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  {SITIO.analitica.goatcounter && (
+    <script is:inline async data-goatcounter={SITIO.analitica.goatcounter} src="//gc.zgo.at/count.js"></script>
+  )}
+  <slot name="head" />
+</head>
+<body>
+  {!embed && (
+    <header class="top">
+      <a class="brand" href={ruta()}>{SITIO.nombre}</a>
+      <nav aria-label="Principal">
+        <a href={ruta('explorar/')}>Explorar</a>
+        <a href={ruta('buzon/')}>Sugerencias</a>
+      </nav>
+    </header>
+  )}
+  <slot />
+  {!embed && (
+    <footer class="pie">
+      <span>{SITIO.nombre}</span>
+      <a href={ruta('buzon/')}>Enviar una sugerencia o reportar un error</a>
+      <a href={ruta('privacidad/')}>Privacidad</a>
+    </footer>
+  )}
+  {!embed && (
+    <script>
+      import { iniciarAnuncios } from '../lib/anuncios';
+      iniciarAnuncios();
+    </script>
+  )}
+</body>
+</html>
