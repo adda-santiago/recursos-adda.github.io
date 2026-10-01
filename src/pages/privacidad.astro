@@ -1,0 +1,17 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITIO } from '../config/sitio';
+---
+<Base titulo="Privacidad" descripcion="Qué datos usa este sitio y cuáles no.">
+  <main class="simple">
+    <h1>Privacidad</h1>
+    <p>{SITIO.nombre} no pide registro ni recopila datos personales. Los alumnos pueden usar todos los recursos sin cuenta.</p>
+    <p>Los recursos que guardas quedan solo en este navegador. Si borras los datos del navegador, se pierden.</p>
+    <p>{SITIO.analitica.goatcounter
+      ? 'Contamos visitas y uso de funciones de forma anónima, sin cookies de seguimiento.'
+      : 'Por ahora no se mide el uso del sitio.'}</p>
+    <p>{SITIO.anuncios.habilitados
+      ? 'El sitio muestra anuncios de Google fuera de los visores. Puedes gestionar tu consentimiento en el aviso de cookies.'
+      : 'El sitio no muestra anuncios.'}</p>
+  </main>
+</Base>

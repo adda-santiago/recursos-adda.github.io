@@ -1,0 +1,150 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import ItemRecurso from '../components/ItemRecurso.astro';
+import { SITIO } from '../config/sitio';
+import { ASIGNATURAS, TIPOS } from '../data/taxonomia';
+import { ruta, rutaRecurso } from '../lib/url';
+
+const recursos = (await getCollection('recursos', (r) => r.data.publicado))
+  .sort((a, b) => a.data.orden - b.data.orden);
+
+// Catálogo liviano para búsqueda de respaldo y "guardados": solo lo necesario.
+const catalogo = recursos.map((r) => ({
+  uid: r.data.uid,
+  t: r.data.titulo,
+  r: r.data.resumen,
+  e: r.data.emoji,
+  u: rutaRecurso(r.data.asignatura, r.id),
+  k: [r.data.titulo, r.data.resumen, ASIGNATURAS[r.data.asignatura], TIPOS[r.data.tipo], ...r.data.tags].join(' '),
+}));
+
+const porAsignatura = Object.entries(ASIGNATURAS)
+  .map(([clave, nombre]) => ({ clave, nombre, items: recursos.filter((r) => r.data.asignatura === clave) }))
+  .filter((g) => g.items.length);
+
+const sugerencias = recursos.slice(0, 4).map((r) => {
+  const t = r.data.titulo.replace(/^(El|La|Los|Las) /, '');
+  return t.charAt(0).toUpperCase() + t.slice(1);
+});
+---
+<Base titulo={SITIO.nombre}>
+  <main>
+    <section class="portada">
+      <h1>¿Qué quieres ver hoy?</h1>
+      <p class="lead">Busca un concepto y ábrelo en 3D, en el mapa o en la línea de tiempo. Listo para proyectar en la sala.</p>
+
+      <form class="buscador" role="search" data-buscador action={ruta('explorar/')}>
+        <label for="q" class="visually-hidden">Buscar un recurso</label>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="q" name="q" type="search" autocomplete="off" placeholder="Ej.: tabernáculo, reyes de Judá, Pablo" />
+      </form>
+      <p class="sugerencias">
+        Prueba con:
+        {sugerencias.map((s) => <button type="button" data-sugerencia={s}>{s}</button>)}
+      </p>
+
+      <div class="resultados" data-resultados aria-live="polite"></div>
+    </section>
+
+    <section class="seccion" data-guardados hidden>
+      <h2>Guardados en este dispositivo</h2>
+      <ul class="lista" data-lista-guardados></ul>
+    </section>
+
+    {porAsignatura.map((g) => (
+      <section class="seccion">
+        <h2>{g.nombre}</h2>
+        <ul class="lista">{g.items.map((r) => <ItemRecurso r={r} />)}</ul>
+      </section>
+    ))}
+  </main>
+
+  <script is:inline type="application/json" id="catalogo" set:html={JSON.stringify(catalogo)} />
+  <script define:vars={{ base: ruta(), buzon: ruta('buzon/') }}>
+    window.__FYP = { base, buzon };
+  </script>
+</Base>
+
+<script>
+  import { almacen } from '../lib/storage';
+  import { registrar } from '../lib/analitica';
+
+  type Item = { uid: string; t: string; r: string; e: string; u: string; k: string };
+  const catalogo: Item[] = JSON.parse(document.getElementById('catalogo')!.textContent!);
+  const { base, buzon } = (window as any).__FYP as { base: string; buzon: string };
+
+  const norm = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
+
+  const form = document.querySelector<HTMLFormElement>('[data-buscador]')!;
+  const input = form.querySelector('input')!;
+  const salida = document.querySelector<HTMLElement>('[data-resultados]')!;
+
+  // Pagefind existe solo tras `npm run build`. En `npm run dev` se usa la búsqueda local.
+  let pagefind: any = null;
+  const cargarPagefind = (async () => {
+    try {
+      pagefind = await import(/* @vite-ignore */ `${base}pagefind/pagefind.js`);
+      await pagefind.options?.({ baseUrl: base });
+    } catch { pagefind = null; }
+  })();
+
+  type Res = { url: string; titulo: string; texto: string; emoji: string };
+
+  async function buscar(q: string): Promise<Res[]> {
+    await cargarPagefind;
+    if (pagefind) {
+      const r = await pagefind.search(q);
+      const datos = await Promise.all(r.results.slice(0, 10).map((x: any) => x.data()));
+      // Pagefind es tolerante (coincidencias parciales). Exigimos que cada término
+      // aparezca (por su raíz) en el texto, para no mostrar falsos positivos.
+      const raices = norm(q).split(/\s+/).filter(Boolean).map((t) => t.slice(0, Math.max(3, Math.min(t.length, 5))));
+      return datos
+        .filter((x: any) => { const txt = norm(`${x.meta.title} ${x.content}`); return raices.every((t) => txt.includes(t)); })
+        .map((x: any) => ({ url: x.url, titulo: x.meta.title, texto: x.excerpt, emoji: x.meta.emoji || '📘' }));
+    }
+    const terminos = norm(q).split(/\s+/).filter(Boolean);
+    return catalogo
+      .filter((i) => terminos.every((t) => norm(i.k).includes(t)))
+      .map((i) => ({ url: i.u, titulo: i.t, texto: esc(i.r), emoji: i.e }));
+  }
+
+  let turno = 0;
+  async function ejecutar(q: string) {
+    const mio = ++turno;
+    q = q.trim();
+    if (!q) { salida.innerHTML = ''; return; }
+    const res = await buscar(q);
+    if (mio !== turno) return;
+    registrar('busqueda', norm(q));
+    if (!res.length) {
+      registrar('busqueda-sin-resultados', norm(q));
+      salida.innerHTML = `<div class="sin-resultados">
+        <p>No hay recursos para «${esc(q)}» todavía.</p>
+        <p><a href="${buzon}?q=${encodeURIComponent(q)}">Pide que lo agreguemos</a> o <a href="${base}explorar/">explora el catálogo</a>.</p></div>`;
+      return;
+    }
+    salida.innerHTML = `<p class="estado">${res.length} resultado${res.length > 1 ? 's' : ''}</p><ul class="lista">` +
+      res.map((x) => `<li><a class="item" href="${x.url}"><span class="emoji" aria-hidden="true">${x.emoji}</span>
+        <span><h3>${esc(x.titulo)}</h3></span><p>${x.texto}</p></a></li>`).join('') + '</ul>';
+  }
+
+  let espera: number | undefined;
+  input.addEventListener('input', () => { clearTimeout(espera); espera = window.setTimeout(() => ejecutar(input.value), 180); });
+  form.addEventListener('submit', (e) => { e.preventDefault(); ejecutar(input.value); });
+  document.querySelectorAll<HTMLButtonElement>('[data-sugerencia]').forEach((b) =>
+    b.addEventListener('click', () => { input.value = b.dataset.sugerencia!; ejecutar(input.value); input.focus(); }));
+
+  const q0 = new URLSearchParams(location.search).get('q');
+  if (q0) { input.value = q0; ejecutar(q0); }
+
+  // Guardados (hoy: este navegador; mañana: la cuenta)
+  almacen.favoritos().then((uids) => {
+    const items = uids.map((u) => catalogo.find((i) => i.uid === u)).filter(Boolean) as Item[];
+    if (!items.length) return;
+    document.querySelector<HTMLElement>('[data-lista-guardados]')!.innerHTML = items.map((i) =>
+      `<li><a class="item" href="${i.u}"><span class="emoji" aria-hidden="true">${i.e}</span><span><h3>${esc(i.t)}</h3></span><p>${esc(i.r)}</p></a></li>`).join('');
+    document.querySelector<HTMLElement>('[data-guardados]')!.hidden = false;
+  });
+</script>

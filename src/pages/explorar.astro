@@ -1,0 +1,79 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import ItemRecurso from '../components/ItemRecurso.astro';
+import EspacioAnuncio from '../components/EspacioAnuncio.astro';
+import { ASIGNATURAS, TIPOS, NIVELES } from '../data/taxonomia';
+
+const recursos = (await getCollection('recursos', (r) => r.data.publicado)).sort((a, b) => a.data.orden - b.data.orden);
+const usadas = <K extends string>(claves: K[]) => claves.filter((c, i) => claves.indexOf(c) === i);
+const asignaturas = usadas(recursos.map((r) => r.data.asignatura));
+const tipos = usadas(recursos.map((r) => r.data.tipo));
+const niveles = usadas(recursos.flatMap((r) => r.data.niveles));
+---
+<Base titulo="Explorar" descripcion="Todos los recursos, filtrados por asignatura, nivel y tipo.">
+  <main class="seccion" style="padding-top:2rem">
+    <h1 style="font-size:clamp(2rem,5vw,2.8rem);margin-bottom:1.5rem">Explorar</h1>
+
+    <div class="filtros" data-faceta="asignatura" aria-label="Asignatura">
+      <button type="button" data-valor="" aria-pressed="true">Todas las asignaturas</button>
+      {asignaturas.map((a) => <button type="button" data-valor={a} aria-pressed="false">{ASIGNATURAS[a]}</button>)}
+    </div>
+    <div class="filtros" data-faceta="tipo" aria-label="Tipo de recurso">
+      <button type="button" data-valor="" aria-pressed="true">Todos los tipos</button>
+      {tipos.map((t) => <button type="button" data-valor={t} aria-pressed="false">{TIPOS[t]}</button>)}
+    </div>
+    {niveles.length > 0 && (
+      <div class="filtros" data-faceta="nivel" aria-label="Nivel">
+        <button type="button" data-valor="" aria-pressed="true">Todos los niveles</button>
+        {niveles.map((n) => <button type="button" data-valor={n} aria-pressed="false">{NIVELES[n]}</button>)}
+      </div>
+    )}
+
+    <p class="estado" data-conteo style="font-family:var(--sans);font-size:var(--text-sm);color:var(--muted);margin-bottom:.75rem"></p>
+    <ul class="lista" data-lista>{recursos.map((r) => <ItemRecurso r={r} />)}</ul>
+    <p data-vacio hidden style="padding:1.5rem 0">Ningún recurso cumple esos filtros todavía.</p>
+    <EspacioAnuncio slot="explorar-final" />
+  </main>
+</Base>
+
+<script>
+  const estado: Record<string, string> = { asignatura: '', tipo: '', nivel: '', tag: '', coleccion: '' };
+  const params = new URLSearchParams(location.search);
+  for (const k of Object.keys(estado)) estado[k] = params.get(k) || '';
+
+  const items = [...document.querySelectorAll<HTMLElement>('[data-lista] > li')];
+  const conteo = document.querySelector<HTMLElement>('[data-conteo]')!;
+  const vacio = document.querySelector<HTMLElement>('[data-vacio]')!;
+
+  function aplicar() {
+    let n = 0;
+    for (const li of items) {
+      const ok =
+        (!estado.asignatura || li.dataset.asignatura === estado.asignatura) &&
+        (!estado.tipo || li.dataset.tipo === estado.tipo) &&
+        (!estado.nivel || (li.dataset.niveles || '').split(' ').includes(estado.nivel)) &&
+        (!estado.tag || (li.dataset.tags || '').split(' ').includes(estado.tag)) &&
+        (!estado.coleccion || li.dataset.coleccion === estado.coleccion);
+      li.hidden = !ok;
+      if (ok) n++;
+    }
+    conteo.textContent = `${n} recurso${n === 1 ? '' : 's'}`;
+    vacio.hidden = n > 0;
+    document.querySelectorAll<HTMLElement>('[data-faceta]').forEach((g) => {
+      g.querySelectorAll<HTMLButtonElement>('button').forEach((b) =>
+        b.setAttribute('aria-pressed', String(b.dataset.valor === estado[g.dataset.faceta!])));
+    });
+    const qs = new URLSearchParams(Object.entries(estado).filter(([, v]) => v)).toString();
+    history.replaceState(null, '', qs ? `?${qs}` : location.pathname);
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-faceta]').forEach((g) =>
+    g.addEventListener('click', (e) => {
+      const b = (e.target as HTMLElement).closest('button');
+      if (!b) return;
+      estado[g.dataset.faceta!] = b.dataset.valor || '';
+      aplicar();
+    }));
+  aplicar();
+</script>

@@ -1,0 +1,24 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITIO } from '../config/sitio';
+---
+<Base titulo="Sugerencias y errores" descripcion="Sugiere un recurso nuevo, reporta un error de contenido o cuéntanos cómo lo usas en clases.">
+  <main class="simple">
+    <h1>Sugerencias y errores</h1>
+    <p>Sugiere un modelo o tema nuevo, reporta un error de contenido o cuéntanos cómo usas los recursos en clases. Leemos todos los mensajes; los errores de contenido se revisan primero.</p>
+    <p>No escribas datos personales de alumnos. El correo es opcional y solo sirve para responderte.</p>
+    {SITIO.buzonUrl
+      ? <a class="boton" data-buzon href={SITIO.buzonUrl} target="_blank" rel="noopener">Abrir el formulario</a>
+      : <p style="margin-top:1.5rem;color:var(--muted)">El formulario todavía no está configurado (<code>buzonUrl</code> en <code>src/config/sitio.ts</code>).</p>}
+  </main>
+</Base>
+<script>
+  // Traspasa ?recurso= y ?q= al formulario externo para que llegue precargado
+  const a = document.querySelector<HTMLAnchorElement>('[data-buzon]');
+  if (a) {
+    const p = new URLSearchParams(location.search);
+    const url = new URL(a.href);
+    for (const k of ['recurso', 'q']) if (p.get(k)) url.searchParams.set(k, p.get(k)!);
+    a.href = url.href;
+  }
+</script>

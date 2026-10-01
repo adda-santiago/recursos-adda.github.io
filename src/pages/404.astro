@@ -1,0 +1,11 @@
+---
+import Base from '../layouts/Base.astro';
+import { ruta } from '../lib/url';
+---
+<Base titulo="Página no encontrada" noindex>
+  <main class="simple">
+    <h1>Esta página no existe</h1>
+    <p>El enlace puede estar mal escrito o el recurso cambió de lugar. Búscalo desde la portada.</p>
+    <a class="boton" href={ruta()}>Ir a la portada</a>
+  </main>
+</Base>
