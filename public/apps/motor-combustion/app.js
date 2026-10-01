@@ -2,7 +2,10 @@
    Aula Visual — Motor de combustión interna (three.js r128)
    Unidad de la escena: 1 = 1 cm. Ejes: +y arriba (eje del cilindro),
    +x hacia el escape, z = eje del cigüeñal (+z hacia el observador).
-   Motor de un cilindro, cuatro tiempos, dos árboles de levas.
+   Motor de cuatro cilindros en línea, cuatro tiempos, dos árboles de levas.
+   Los cilindros se alinean a lo largo de z: el 1 adelante (z = 0), el 4 atrás.
+   Corte escalonado: el cilindro 1 se corta por el plano z = 0 (vista de frente)
+   y los cilindros 2 a 4 por el plano x = 0 (vista de costado).
    Diámetro 8, carrera 8, biela 14, compresión ≈ 10:1.
    Ángulo del ciclo θ: 0° = PMS al inicio de la admisión; 720° por ciclo.
    El contenido está en data.js.
@@ -25,7 +28,14 @@
   const ROOF = BORE * Math.tan(ALPHA);  // altura del techo de la cámara
   const HEAD_TOP = D + 7;
   const LIFT = 0.9, RB = 1.1;           // alzada máxima y radio base de la leva
-  const Z_BELT = -7.2, Z_FLY = -9.6;
+  const W = 5.6;                        // media anchura del bloque de un cilindro
+  const PITCH = 2 * W;                  // distancia entre ejes de cilindros
+  const ZC = [0, -PITCH, -2 * PITCH, -3 * PITCH];   // eje de cada cilindro (1 → 4)
+  /* Orden de encendido 1-3-4-2: desfase del ciclo de cada cilindro respecto del 1.
+     Cilindro i: θi = θ − PHASE[i]. Los muñones 1 y 4 coinciden; 2 y 3 están a 180°. */
+  const PHASE = [0, 540, 180, 360];
+  const Z_END = ZC[3] - W;              // cara trasera del bloque
+  const Z_BELT = Z_END - 2.2, Z_FLY = Z_END - 4.8;
   const roofY = x => D + ROOF * (1 - Math.min(1, Math.abs(x) / BORE));
   const rad = d => d * Math.PI / 180;
   const mod = (a, n) => ((a % n) + n) % n;
@@ -57,14 +67,14 @@
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(40, 1, 0.5, 600);
+  const camera = new THREE.PerspectiveCamera(40, 1, 0.5, 800);
   camera.position.set(27, 22, 54);
 
   const controls = new THREE.OrbitControls(camera, canvas);
   controls.enableDamping = true;
   controls.dampingFactor = 0.08;
   controls.minDistance = 8;
-  controls.maxDistance = 140;
+  controls.maxDistance = 190;
   controls.target.set(0, 14, -1);
 
   /* ---------------- Colores y materiales ---------------- */
@@ -134,8 +144,14 @@
     volante: catMat('volante', { color: COL.volante, metalness: 0.5, roughness: 0.45 }),
     corona: catMat('volante', { color: COL.corona, metalness: 0.55, roughness: 0.4 }),
     marca: catMat('volante', { color: COL.seccion, roughness: 0.6, metalness: 0 }),
-    gas: catMat('gas', { color: 0x5aa0e0, roughness: 0.9, metalness: 0, side: DS, depthWrite: false, emissive: 0x000000 }, 0.35)
+    gas: gasMat()
   };
+  function gasMat() {
+    const m = catMat('gas', { color: 0x5aa0e0, roughness: 0.9, metalness: 0, side: DS, depthWrite: false, emissive: 0x000000 }, 0.35);
+    m.userData.gas = true;
+    return m;
+  }
+  const GAS_M = [M.gas, gasMat(), gasMat(), gasMat()];   // un material por cilindro: cada uno va en otro tiempo
 
   function setFocus(list) {
     Object.keys(CATS).forEach(cat => { catT[cat] = !list || list.includes(cat) ? 1 : 0.1; });
@@ -146,7 +162,7 @@
       catF[cat] += (t - catF[cat]) * Math.min(1, dt * 6);
       if (Math.abs(t - catF[cat]) < 0.002) catF[cat] = t;
       CATS[cat].forEach(m => {
-        if (m === M.gas) return;                         // el gas fija su opacidad en pose()
+        if (m.userData.gas) return;                      // el gas fija su opacidad en pose()
         m.opacity = m.userData.base * catF[cat];
         m.depthWrite = m.opacity > 0.6;
       });
@@ -195,18 +211,45 @@
     const f = mesh(geo, glass, V3(pos.x, pos.y, -pos.z), front);
     tag(f, 'cilindro');
   }
-  // Bloque del cilindro (y 7,5 → D)
-  const W = 5.6;
+  /* Mitad izquierda (x < 0) de los cilindros 2 a 4: la cara +x (índice 0) en x = 0 es la de corte.
+     Sin corte, la mitad derecha se dibuja traslúcida en el grupo delantero. */
+  function boxSide(x0, x1, y0, y1, z0, z1, cat) {
+    const metal = cat === 'culata' ? M.head : M.blk;
+    const sec = cat === 'culata' ? M.headSec : M.blkSec;
+    const glass = cat === 'culata' ? M.headGlass : M.blkGlass;
+    const geo = new THREE.BoxGeometry(x1 - x0, y1 - y0, z1 - z0);
+    const pos = V3((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2);
+    const mats = [x1 === 0 ? sec : metal, metal, metal, metal, metal, metal];
+    const b = mesh(geo, mats, pos, back);
+    swapMesh(b, mats, glass);
+    tag(b, 'cilindro');
+    tag(mesh(geo, glass, V3(-pos.x, pos.y, pos.z), front), 'cilindro');
+  }
+  // Cilindro 1: bloque (y 7,5 → D), cortado por z = 0
   box(-W, W, 7.5, D, -W, -BORE, 'bloque');
   box(-W, -BORE, 7.5, D, -BORE, 0, 'bloque');
   box(BORE, W, 7.5, D, -BORE, 0, 'bloque');
-  // Cárter (y −7 → 7,5)
-  box(-8, 8, -7, 7.5, -6, -5, 'bloque');
-  box(-8, -7, -7, 7.5, -5, 0, 'bloque');
-  box(7, 8, -7, 7.5, -5, 0, 'bloque');
-  box(-7, 7, -7, -6, -5, 0, 'bloque');
-  box(-7, -BORE, 6.5, 7.5, -5, 0, 'bloque');
-  box(BORE, 7, 6.5, 7.5, -5, 0, 'bloque');
+  // Cárter bajo el cilindro 1 (y −7 → 7,5)
+  box(-8, -7, -7, 7.5, -W, 0, 'bloque');
+  box(7, 8, -7, 7.5, -W, 0, 'bloque');
+  box(-7, 7, -7, -6, -W, 0, 'bloque');
+  box(-7, -BORE, 6.5, 7.5, -W, 0, 'bloque');
+  box(BORE, 7, 6.5, 7.5, -W, 0, 'bloque');
+  box(-BORE, BORE, 6.5, 7.5, -W, -BORE, 'bloque');
+  // Cilindros 2 a 4: bloque cortado por x = 0
+  ZC.slice(1).forEach(zc => {
+    boxSide(-W, -BORE, 7.5, D, zc - W, zc + W, 'bloque');
+    boxSide(-BORE, 0, 6.5, D, zc - W, zc - BORE, 'bloque');
+    boxSide(-BORE, 0, 6.5, D, zc + BORE, zc + W, 'bloque');
+    // relleno del techo de la cámara entre cilindros
+    boxSide(-BORE, 0, D, D + ROOF, zc - W, zc - BORE, 'culata');
+    boxSide(-BORE, 0, D, D + ROOF, zc + BORE, zc + W, 'culata');
+  });
+  // Cárter de los cilindros 2 a 4 y tapa trasera
+  boxSide(-8, -7, -7, 7.5, Z_END, -W, 'bloque');
+  boxSide(-7, 0, -7, -6, Z_END, -W, 'bloque');
+  boxSide(-7, -BORE, 6.5, 7.5, Z_END, -W, 'bloque');
+  boxSide(-8, 0, -7, 7.5, Z_END - 0.8, Z_END, 'bloque');
   // Camisa del cilindro (superficie interior)
   {
     const h = D - 6.5, y = 6.5 + h / 2;
@@ -214,6 +257,12 @@
     swapMesh(bk, M.camisa, M.blkGlass);
     tag(bk, 'cilindro');
     tag(mesh(new THREE.CylinderGeometry(BORE, BORE, h, 48, 1, true, -Math.PI / 2, Math.PI), M.blkGlass, V3(0, y, 0), front), 'cilindro');
+    ZC.slice(1).forEach(zc => {
+      const b = mesh(new THREE.CylinderGeometry(BORE, BORE, h, 48, 1, true, Math.PI, Math.PI), M.camisa, V3(0, y, zc), back);
+      swapMesh(b, M.camisa, M.blkGlass);
+      tag(b, 'cilindro');
+      tag(mesh(new THREE.CylinderGeometry(BORE, BORE, h, 48, 1, true, 0, Math.PI), M.blkGlass, V3(0, y, zc), front), 'cilindro');
+    });
   }
 
   /* Culata: perfil en el plano xy extruido en z, con la cámara de techo inclinado
@@ -259,11 +308,35 @@
     tag(b, 'cilindro');
     tag(mesh(geo, M.headGlass, V3(0, 0, 0), front), 'cilindro');
   });
-  // Conductos exteriores: múltiple de admisión y tubo de escape
-  [[-1, M.conducto], [1, M.escape]].forEach(([s, mat]) => {
-    const p = mesh(new THREE.CylinderGeometry(1.15, 1.15, 4, 24, 1, true), mat, V3(s * (HW + 2), D + 2.8, 0), engine);
+  // Culata de los cilindros 2 a 4: mitad izquierda opaca; mitad derecha solo traslúcida y sin corte
+  const cutOnly = [];
+  {
+    const depth = -W - Z_END;
+    const leftTop = new THREE.Shape([P2(-HW, HEAD_TOP), ...admTop.slice().reverse(), P2(0, D + ROOF), P2(0, HEAD_TOP)]);
+    const rightTop = new THREE.Shape([P2(0, HEAD_TOP), P2(0, D + ROOF), ...escTop, P2(HW, HEAD_TOP)]);
+    const ext = sh => new THREE.ExtrudeGeometry(sh, { depth, bevelEnabled: false, curveSegments: 4 });
+    [headShapes[0], leftTop].forEach(sh => {
+      const b = mesh(ext(sh), M.head, V3(0, 0, Z_END), back);
+      swapMesh(b, M.head, M.headGlass);
+      tag(b, 'cilindro');
+    });
+    [headShapes[1], rightTop].forEach(sh => tag(mesh(ext(sh), M.headGlass, V3(0, 0, Z_END), front), 'cilindro'));
+    // cara de corte de la culata en x = 0
+    const plate = mesh(new THREE.PlaneGeometry(depth, HEAD_TOP - D - ROOF), M.headSec, V3(0.01, (HEAD_TOP + D + ROOF) / 2, Z_END + depth / 2), back);
+    plate.rotation.y = Math.PI / 2;
+    cutOnly.push(plate);
+    tag(plate, 'cilindro');
+  }
+  // Conductos exteriores: múltiple de admisión y tubos de escape, uno por cilindro
+  ZC.forEach(zc => [[-1, M.conducto], [1, M.escape]].forEach(([s, mat]) => {
+    const p = mesh(new THREE.CylinderGeometry(1.15, 1.15, 4, 24, 1, true), mat, V3(s * (HW + 2), D + 2.8, zc), engine);
     p.rotation.z = Math.PI / 2;
     tag(p, 'valvulas');
+  }));
+  // colector de admisión y de escape que unen los cuatro conductos
+  [[-1, M.conducto], [1, M.escape]].forEach(([s, mat]) => {
+    const len = -ZC[3] + 2.4;
+    tag(cylZ(1.35, len, 24, mat, s * (HW + 4.3), D + 2.8, ZC[3] / 2, engine), 'valvulas');
   });
 
   /* ---------------- Pistón ---------------- */
@@ -287,25 +360,36 @@
   const pistonCut = buildPiston(true), pistonFull = buildPiston(false);
   pistonG.add(pistonCut, pistonFull);
   tag(cylZ(0.65, 7.4, 20, M.pasador, 0, 0, 0, pistonG), 'piston');
+  const pistons = [pistonG];
+  ZC.slice(1).forEach(zc => {
+    const g = new THREE.Group();
+    g.position.z = zc;
+    engine.add(g);
+    g.add(buildPiston(false));
+    tag(cylZ(0.65, 7.4, 20, M.pasador, 0, 0, 0, g), 'piston');
+    pistons.push(g);
+  });
 
   /* ---------------- Biela ---------------- */
-  const rodG = new THREE.Group();
-  engine.add(rodG);
-  {
+  const rods = ZC.map(zc => {
+    const rodG = new THREE.Group();
+    rodG.userData.z = zc;
+    engine.add(rodG);
     cylZ(1.75, 1.2, 32, M.biela, 0, 0, 0, rodG);
     const shank = new THREE.Shape([P2(-0.7, 1.2), P2(0.7, 1.2), P2(0.42, LROD - 0.6), P2(-0.42, LROD - 0.6)]);
     const sg = new THREE.ExtrudeGeometry(shank, { depth: 0.8, bevelEnabled: false });
     sg.translate(0, 0, -0.4);
     mesh(sg, M.biela, null, rodG);
     cylZ(1.0, 1.0, 24, M.biela, 0, LROD, 0, rodG);
-    tag(rodG, 'biela');
-  }
+    return tag(rodG, 'biela');
+  });
 
   /* ---------------- Cigüeñal, polea y volante ---------------- */
   const crankG = new THREE.Group();
   engine.add(crankG);
   {
-    cylZ(1.2, 15.2, 28, M.ciguenal, 0, 0, -2.6, crankG);                      // eje (z −10,2 → 5)
+    const zA = 4, zB = Z_FLY - 0.6;
+    cylZ(1.2, zA - zB, 28, M.ciguenal, 0, 0, (zA + zB) / 2, crankG);          // eje de punta a punta
     const web = new THREE.Shape();
     web.moveTo(-1.7, R);
     web.absarc(0, R, 1.7, Math.PI, 0, true);
@@ -315,8 +399,15 @@
     web.lineTo(-2.4, 0.6);
     web.closePath();
     const wg = new THREE.ExtrudeGeometry(web, { depth: 0.8, bevelEnabled: false, curveSegments: 16 });
-    [-1.5, 0.7].forEach(z => mesh(wg, M.ciguenal, V3(0, 0, z), crankG));
-    cylZ(1.0, 3.0, 24, M.ciguenal, 0, R, 0, crankG);                          // muñequilla
+    // un codo por cilindro: brazos, contrapesos y muñequilla, girados según el desfase
+    ZC.forEach((zc, i) => {
+      const th = new THREE.Group();
+      th.position.z = zc;
+      th.rotation.z = rad(PHASE[i] % 360);
+      crankG.add(th);
+      [-1.5, 0.7].forEach(z => mesh(wg, M.ciguenal, V3(0, 0, z), th));
+      cylZ(1.0, 3.0, 24, M.ciguenal, 0, R, 0, th);                            // muñequilla
+    });
     tag(crankG, 'biela');
   }
   const crankPulley = new THREE.Group();
@@ -343,7 +434,6 @@
   }
 
   /* ---------------- Válvulas, resortes y levas ---------------- */
-  const valveObjs = {};
   const springGeo = (() => {
     const pts = [];
     const turns = 5.5, n = 220;
@@ -353,55 +443,68 @@
   const SPRING_Y0 = (HEAD_TOP - (D + ROOF * (1 - 1.8 / BORE))) / Math.cos(ALPHA);   // apoyo del resorte en la culata
   const RETAINER = 8.6, STEM_TOP = 9.6;
 
+  const cams = {};
+  const valves = [];
   Object.entries(VALVES).forEach(([k, v]) => {
     const st = seat[k];
-    const g = new THREE.Group();
-    g.position.set(st.S.x, st.S.y, 0);
-    g.rotation.z = -v.side * ALPHA;
-    engine.add(g);
-    const moving = new THREE.Group();
-    g.add(moving);
-    mesh(new THREE.CylinderGeometry(v.r, v.r, 0.2, 40), M.valvula, V3(0, 0.1, 0), moving);
-    mesh(new THREE.CylinderGeometry(0.32, v.r - 0.05, 0.6, 40), M.valvula, V3(0, 0.5, 0), moving);
-    mesh(new THREE.CylinderGeometry(0.3, 0.3, STEM_TOP - 0.8, 16), M.valvula, V3(0, 0.8 + (STEM_TOP - 0.8) / 2 - 0.4, 0), moving);
-    mesh(new THREE.CylinderGeometry(0.95, 0.95, 0.25, 28), M.resorte, V3(0, RETAINER + 0.125, 0), moving);
-    mesh(new THREE.CylinderGeometry(0.98, 0.98, 0.6, 28), M.valvula, V3(0, STEM_TOP - 0.3, 0), moving);  // taqué
-    const spring = mesh(springGeo, M.resorte, V3(0, SPRING_Y0, 0), g);
-    tag(g, 'valvulas');
+    // Una válvula por cilindro (motor de dos válvulas por cilindro)
+    ZC.forEach((zc, i) => {
+      const g = new THREE.Group();
+      g.position.set(st.S.x, st.S.y, zc);
+      g.rotation.z = -v.side * ALPHA;
+      engine.add(g);
+      const moving = new THREE.Group();
+      g.add(moving);
+      mesh(new THREE.CylinderGeometry(v.r, v.r, 0.2, 40), M.valvula, V3(0, 0.1, 0), moving);
+      mesh(new THREE.CylinderGeometry(0.32, v.r - 0.05, 0.6, 40), M.valvula, V3(0, 0.5, 0), moving);
+      mesh(new THREE.CylinderGeometry(0.3, 0.3, STEM_TOP - 0.8, 16), M.valvula, V3(0, 0.8 + (STEM_TOP - 0.8) / 2 - 0.4, 0), moving);
+      mesh(new THREE.CylinderGeometry(0.95, 0.95, 0.25, 28), M.resorte, V3(0, RETAINER + 0.125, 0), moving);
+      mesh(new THREE.CylinderGeometry(0.98, 0.98, 0.6, 28), M.valvula, V3(0, STEM_TOP - 0.3, 0), moving);  // taqué
+      const spring = mesh(springGeo, M.resorte, V3(0, SPRING_Y0, 0), g);
+      tag(g, 'valvulas');
+      valves.push({ k, v, i, moving, spring });
+    });
 
-    // Árbol de levas: el perfil se genera con la misma función de alzada que mueve la válvula
+    // Árbol de levas: una leva por cilindro. El perfil se genera con la misma función de alzada
+    // que mueve la válvula, y cada leva se gira la mitad del desfase de su cilindro.
     const C = st.S.clone().addScaledVector(st.u, STEM_TOP + RB);
     const gamma = Math.atan2(-st.u.y, -st.u.x);
     const camG = new THREE.Group();
     camG.position.set(C.x, C.y, 0);
     engine.add(camG);
     const prof = [];
-    for (let i = 0; i < 180; i++) {
-      const psi = i * Math.PI * 2 / 180;
+    for (let j = 0; j < 180; j++) {
+      const psi = j * Math.PI * 2 / 180;
       const r = RB + LIFT * liftFrac(2 * psi * 180 / Math.PI, v);
       prof.push(P2(r * Math.cos(psi), r * Math.sin(psi)));
     }
     const lg = new THREE.ExtrudeGeometry(new THREE.Shape(prof), { depth: 1.4, bevelEnabled: false });
     lg.translate(0, 0, -0.7);
-    mesh(lg, M.leva, null, camG);
-    cylZ(0.6, 9.8, 20, M.leva, 0, 0, -2.3, camG);                       // eje (z −7,2 → 2,6)
+    ZC.forEach((zc, i) => {
+      const lobe = mesh(lg, M.leva, V3(0, 0, zc), camG);
+      lobe.rotation.z = rad(PHASE[i] / 2);
+    });
+    const zA = 2.6, zB = Z_BELT;
+    cylZ(0.6, zA - zB, 20, M.leva, 0, 0, (zA + zB) / 2, camG);                // eje de punta a punta
     tag(camG, 'distribucion');
     const pul = new THREE.Group();
     camG.add(pul);
     cylZ(3.2, 1.0, 56, M.polea, 0, 0, Z_BELT, pul);
     mesh(new THREE.BoxGeometry(0.4, 1.4, 1.08), M.poleaMarca, V3(0, 2.5, Z_BELT), pul);
     tag(pul, 'distribucion');
-    // soporte de la leva sobre la culata (solo atrás)
-    const tower = mesh(new THREE.BoxGeometry(2.2, C.y - HEAD_TOP, 0.9), M.head, V3(C.x, (C.y + HEAD_TOP) / 2, -3.2), back);
-    swapMesh(tower, M.head, M.headGlass);
-    tag(tower, 'distribucion');
+    // soportes del árbol sobre la culata, entre cilindros (solo atrás)
+    ZC.forEach(zc => {
+      const tower = mesh(new THREE.BoxGeometry(2.2, C.y - HEAD_TOP, 0.9), M.head, V3(C.x, (C.y + HEAD_TOP) / 2, zc - 3.2), back);
+      swapMesh(tower, M.head, M.headGlass);
+      tag(tower, 'distribucion');
+    });
 
-    valveObjs[k] = { v, moving, spring, camG, gamma, C };
+    cams[k] = { v, camG, gamma, C };
   });
 
   /* Correa de distribución: envolvente de las tres poleas */
   const beltPts = (() => {
-    const circles = [[0, 0, 1.6], [valveObjs.adm.C.x, valveObjs.adm.C.y, 3.2], [valveObjs.esc.C.x, valveObjs.esc.C.y, 3.2]];
+    const circles = [[0, 0, 1.6], [cams.adm.C.x, cams.adm.C.y, 3.2], [cams.esc.C.x, cams.esc.C.y, 3.2]];
     const pts = [];
     circles.forEach(([x, y, r]) => { for (let i = 0; i < 120; i++) { const a = i * Math.PI * 2 / 120; pts.push([x + (r + 0.12) * Math.cos(a), y + (r + 0.12) * Math.sin(a)]); } });
     pts.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
@@ -432,37 +535,39 @@
   for (let k = 0; k < 40; k++) teeth.push(mesh(new THREE.BoxGeometry(0.3, 0.3, 0.95), M.poleaMarca, null, beltG));
   tag(beltG, 'distribucion');
 
-  /* ---------------- Bujía e inyector ---------------- */
-  const plugG = new THREE.Group();
-  engine.add(plugG);
-  {
+  /* ---------------- Bujías e inyectores (uno por cilindro) ---------------- */
+  const plugs = [], injectors = [], sprays = [], sparks = [];
+  const sprayMat = new THREE.MeshBasicMaterial({ color: 0xe0b04a, transparent: true, opacity: 0.6, depthWrite: false });
+  ZC.forEach(zc => {
     const yb = D + ROOF;
+    const plugG = new THREE.Group();
+    plugG.position.z = zc;
+    engine.add(plugG);
     mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.45, 8), M.bujiaMetal, V3(0, yb - 0.2, 0), plugG);       // electrodo central
     mesh(new THREE.BoxGeometry(0.12, 0.12, 0.5), M.bujiaMetal, V3(0.18, yb - 0.38, 0), plugG).rotation.y = Math.PI / 2;
     mesh(new THREE.CylinderGeometry(0.6, 0.6, HEAD_TOP - 0.7 - yb, 20), M.bujiaMetal, V3(0, (yb + HEAD_TOP - 0.7) / 2, 0), plugG); // cuerpo roscado
     mesh(new THREE.CylinderGeometry(0.95, 0.95, 1.0, 6), M.bujiaMetal, V3(0, HEAD_TOP - 0.2, 0), plugG); // hexágono
     mesh(new THREE.CylinderGeometry(0.45, 0.55, 2.6, 20), M.bujia, V3(0, HEAD_TOP + 1.6, 0), plugG);    // aislante
     mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.5, 12), M.bujiaMetal, V3(0, HEAD_TOP + 3.1, 0), plugG);
-    tag(plugG, 'bujia');
-  }
-  const injG = new THREE.Group();
-  engine.add(injG);
-  {
-    const yb = D + ROOF;
+    plugs.push(tag(plugG, 'bujia'));
+
+    const injG = new THREE.Group();
+    injG.position.z = zc;
+    engine.add(injG);
     mesh(new THREE.CylinderGeometry(0.18, 0.35, 0.5, 16), M.inyector, V3(0, yb - 0.1, 0), injG);
     mesh(new THREE.CylinderGeometry(0.55, 0.55, HEAD_TOP - yb + 3, 20), M.inyector, V3(0, (yb + HEAD_TOP + 3) / 2 + 0.15, 0), injG);
     mesh(new THREE.CylinderGeometry(0.3, 0.3, 1.0, 12), M.bujiaMetal, V3(-0.55, HEAD_TOP + 2.4, 0), injG).rotation.z = Math.PI / 2;
-    tag(injG, 'bujia');
-  }
-  const sprayG = new THREE.Group();
-  injG.add(sprayG);
-  const sprayMat = new THREE.MeshBasicMaterial({ color: 0xe0b04a, transparent: true, opacity: 0.6, depthWrite: false });
-  [-50, -18, 18, 50].forEach(a => {
-    const c = mesh(new THREE.ConeGeometry(0.35, 3.2, 12, 1, true), sprayMat, null, sprayG);
-    c.geometry.translate(0, -1.6, 0);
-    c.position.set(0, D + ROOF - 0.35, 0);
-    c.rotation.z = rad(a);
-    c.rotation.x = rad(a > 0 ? 8 : -8);
+    injectors.push(tag(injG, 'bujia'));
+    const sprayG = new THREE.Group();
+    injG.add(sprayG);
+    [-50, -18, 18, 50].forEach(an => {
+      const c = mesh(new THREE.ConeGeometry(0.35, 3.2, 12, 1, true), sprayMat, null, sprayG);
+      c.geometry.translate(0, -1.6, 0);
+      c.position.set(0, D + ROOF - 0.35, 0);
+      c.rotation.z = rad(an);
+      c.rotation.x = rad(an > 0 ? 8 : -8);
+    });
+    sprays.push(sprayG);
   });
 
   /* ---------------- Gas en el cilindro ---------------- */
@@ -487,6 +592,16 @@
     r.renderOrder = 2;
     engine.add(gasG[k]);
   });
+  // cilindros 2 a 4: gas completo (el corte de costado deja verlo entero)
+  const gasCylN = [null];
+  ZC.slice(1).forEach((zc, j) => {
+    const mat = GAS_M[j + 1];
+    const c = mesh(new THREE.CylinderGeometry(BORE - 0.06, BORE - 0.06, 1, 48, 1, true), mat, V3(0, 0, zc), engine);
+    c.renderOrder = 2;
+    const r = mesh(roofGeo(0, Math.PI * 2), mat, V3(0, D, zc), engine);
+    r.renderOrder = 2;
+    gasCylN.push(c);
+  });
 
   /* Chispa y luz de la combustión */
   function glowTexture(inner, outer) {
@@ -499,11 +614,17 @@
     const t = new THREE.CanvasTexture(c);
     return t;
   }
-  const spark = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTexture('#ffffff', 'rgba(150,200,255,.9)'), transparent: true, depthWrite: false, depthTest: false }));
-  spark.position.set(0.1, D + ROOF - 0.38, 0.3);
-  spark.scale.set(1.8, 1.8, 1);
-  spark.renderOrder = 30;
-  engine.add(spark);
+  const sparkMat = new THREE.SpriteMaterial({ map: glowTexture('#ffffff', 'rgba(150,200,255,.9)'), transparent: true, depthWrite: false, depthTest: false });
+  const sparkMatDepth = sparkMat.clone();
+  sparkMatDepth.depthTest = true;                    // las chispas de 2 a 4 no se ven a través del bloque
+  ZC.forEach((zc, i) => {
+    const sp = new THREE.Sprite(i ? sparkMatDepth : sparkMat);
+    sp.position.set(0.1, D + ROOF - 0.38, zc + 0.3);
+    sp.scale.set(1.8, 1.8, 1);
+    sp.renderOrder = 30;
+    engine.add(sp);
+    sparks.push(sp);
+  });
   const fireLight = new THREE.PointLight(0xffa040, 0, 18, 2);
   fireLight.position.set(0, D - 1, 1.5);
   engine.add(fireLight);
@@ -577,7 +698,7 @@
   names.visible = false;
   scene.add(names);
   {
-    const h = 1.15, ca = valveObjs.adm.C, ce = valveObjs.esc.C;
+    const h = 1.15, ca = cams.adm.C, ce = cams.esc.C;
     label('Bujía', null, h, V3(0, HEAD_TOP + 4.6, 0), names, { cy: 0 });
     label('Leva de admisión', null, h, V3(ca.x - 1, ca.y + 2.9, 0), names, { cx: 0.85, cy: 0 });
     label('Leva de escape', null, h, V3(ce.x + 1, ce.y + 2.9, 0), names, { cx: 0.15, cy: 0 });
@@ -592,6 +713,11 @@
     label('Volante de inercia', null, h, V3(0, -6.9, Z_FLY), names, { cy: 1 });
     label('Correa de distribución', null, h, V3(-8.4, 3, Z_BELT), names, { cx: 1 });
   }
+  /* Número de cada cilindro, sobre la culata */
+  const numbers = new THREE.Group();
+  numbers.visible = false;
+  scene.add(numbers);
+  ZC.forEach((zc, i) => label(`Cilindro ${i + 1}`, null, 1.3, V3(-HW - 0.4, HEAD_TOP + 1.2, zc), numbers, { cx: 1, cy: 0 }));
 
   /* PMS / PMI y medidas */
   const lineMat = new THREE.LineBasicMaterial({ color: COL.seccion });
@@ -621,7 +747,7 @@
     const xc = W + 0.8;
     line(dims, [[xc, yBDC, 0.3], [xc, yTDC, 0.3], [xc - k, yBDC, 0.3], [xc + k, yBDC, 0.3], [xc - k, yTDC, 0.3], [xc + k, yTDC, 0.3]], lineMat);
     label('Carrera 8 cm', null, 1.0, V3(xc + 0.8, (yBDC + yTDC) / 2, 0.3), dims, { cx: 0 });
-    label('Cilindrada ≈ 402 cm³', 'π × 4² × 8', 1.6, V3(xc + 0.8, yBDC - 2.4, 0), dims, { cx: 0 });
+    label('Cilindrada ≈ 402 cm³', 'por cilindro · 4 cilindros ≈ 1,6 L', 1.6, V3(xc + 0.8, yBDC - 2.4, 0), dims, { cx: 0 });
     label('Compresión ≈ 10:1', 'cámara ≈ 45 cm³', 1.6, V3(xc + 0.8, yBDC - 5.0, 0), dims, { cx: 0 });
   }
 
@@ -714,40 +840,50 @@
     dot: document.getElementById('h-dot'), gas: document.getElementById('h-gas'),
     needle: document.getElementById('h-needle'), arcs: [...document.querySelectorAll('.hud-dial .arc')]
   };
-  let hudKey = '';
+  hud.cyls = [...document.querySelectorAll('#h-cyls span')];
+  let hudKey = '', hudCyl = '';
+  const cylTheta = (th, i) => mod(th - PHASE[i], 720);
   function pose(th, dt) {
-    const t = rad(th);
-    const px = R * Math.sin(t), py = R * Math.cos(t);
-    const yp = pinY(th);
-    crankG.rotation.z = -t;
-    pistonG.position.y = yp;
-    rodG.position.set(px, py, 0);
-    rodG.rotation.z = Math.atan2(px, yp - py);
-
-    const crown = yp + CH, h = Math.max(0.01, D - crown);
-    gasCyl.forEach(c => { c.scale.y = h; c.position.y = crown + h / 2; });
+    crankG.rotation.z = -rad(th);
+    ZC.forEach((zc, i) => {
+      const tk = cylTheta(th, i), t = rad(tk);
+      const px = R * Math.sin(t), py = R * Math.cos(t);
+      const yp = pinY(tk);
+      pistons[i].position.y = yp;
+      rods[i].position.set(px, py, zc);
+      rods[i].rotation.z = Math.atan2(px, yp - py);
+      const crown = yp + CH, h = Math.max(0.01, D - crown);
+      (i === 0 ? gasCyl : [gasCylN[i]]).forEach(c => { c.scale.y = h; c.position.y = crown + h / 2; });
+    });
 
     const lifts = {};
-    Object.entries(valveObjs).forEach(([k, o]) => {
-      const lf = liftFrac(th, o.v);
-      lifts[k] = lf;
+    valves.forEach(o => {
+      const lf = liftFrac(cylTheta(th, o.i), o.v);
+      if (o.i === 0) lifts[o.k] = lf;
       o.moving.position.y = -LIFT * lf;
       o.spring.scale.y = (RETAINER - LIFT * lf) - SPRING_Y0;
-      o.camG.rotation.z = o.gamma - rad(th / 2);
     });
+    Object.values(cams).forEach(o => { o.camG.rotation.z = o.gamma - rad(th / 2); });
 
     teeth.forEach((m, k) => m.position.copy(beltAt(k * beltTotal / teeth.length - 1.6 * rad(total))));
 
-    // gas, chispa e inyección
-    const g = gasAt(th);
-    M.gas.color.copy(g.col);
-    M.gas.emissive.copy(g.col).multiplyScalar(g.em);
-    M.gas.opacity = g.op * catF.gas;
-    const sparkOn = mode === 'otto' && th >= 346 && th <= 355;
-    spark.visible = sparkOn;
-    if (sparkOn) { const s = 1.3 + Math.random() * 1.1; spark.scale.set(s, s, 1); }
-    sprayG.visible = mode === 'diesel' && th >= 346 && th <= 376;
-    if (sprayG.visible) sprayMat.opacity = 0.35 + 0.35 * Math.sin(Math.PI * (th - 346) / 30);
+    // gas, chispa e inyección en cada cilindro, según su propio tiempo
+    let g = null;
+    ZC.forEach((zc, i) => {
+      const tk = cylTheta(th, i);
+      const gi = gasAt(tk);
+      if (i === 0) g = gi;
+      const m = GAS_M[i];
+      m.color.copy(gi.col);
+      m.emissive.copy(gi.col).multiplyScalar(gi.em);
+      m.opacity = gi.op * catF.gas;
+      const sparkOn = mode === 'otto' && tk >= 346 && tk <= 355;
+      sparks[i].visible = sparkOn;
+      if (sparkOn) { const s = 1.3 + Math.random() * 1.1; sparks[i].scale.set(s, s, 1); }
+      const sprayOn = mode === 'diesel' && tk >= 346 && tk <= 376;
+      sprays[i].visible = sprayOn;
+      if (sprayOn) sprayMat.opacity = 0.35 + 0.35 * Math.sin(Math.PI * (tk - 346) / 30);
+    });
     fireLight.intensity = g.em * 1.1;
     fireLight.color.copy(g.col);
 
@@ -773,12 +909,22 @@
       hud.num.textContent = ph + 1;
       hud.num.style.background = `var(${PHASES[ph].c})`;
       hud.name.textContent = PHASES[ph].n;
-      hud.turn.textContent = `Cigüeñal · vuelta ${th < 360 ? 1 : 2} de 2`;
+      hud.turn.textContent = `Cilindro 1 · cigüeñal, vuelta ${th < 360 ? 1 : 2} de 2`;
       hud.valves.textContent = `Admisión ${lifts.adm > 0.02 ? 'abierta' : 'cerrada'} · escape ${lifts.esc > 0.02 ? 'abierta' : 'cerrada'}`;
       hud.gas.textContent = gasText(th);
       hud.arcs.forEach((a, i) => a.classList.toggle('off', i !== ph));
     }
     hud.dot.style.background = '#' + g.col.getHexString();
+    const cylKey = ZC.map((_, i) => Math.min(3, Math.floor(cylTheta(th, i) / 180))).join('');
+    if (cylKey !== hudCyl) {
+      hudCyl = cylKey;
+      hud.cyls.forEach((el, i) => {
+        const p = +cylKey[i];
+        el.style.background = `var(${PHASES[p].c})`;
+        el.title = `Cilindro ${i + 1}: ${PHASES[p].n.toLowerCase()}`;
+        el.querySelector('b').textContent = PHASES[p].n.slice(0, 3);
+      });
+    }
   }
 
   /* ---------------- Botones de la escena ---------------- */
@@ -797,13 +943,14 @@
     front.visible = !on;
     pistonCut.visible = on; pistonFull.visible = !on;
     gasG.cut.visible = on; gasG.full.visible = !on;
+    cutOnly.forEach(m => { m.visible = on; });
     cutBtn.setAttribute('aria-pressed', String(on));
   }
   cutBtn.addEventListener('click', () => setCut(!cut));
   function setMode(m) {
     mode = m;
-    plugG.visible = m === 'otto';
-    injG.visible = m === 'diesel';
+    plugs.forEach(o => { o.visible = m === 'otto'; });
+    injectors.forEach(o => { o.visible = m === 'diesel'; });
     hudKey = '';
   }
 
@@ -891,6 +1038,7 @@
     const namesOn = namesUser || show.includes('nombres');
     const dimsOn = dimsUser || show.includes('medidas');
     names.visible = namesOn;
+    numbers.visible = namesOn || show.includes('numeros');
     dims.visible = dimsOn;
     pms.visible = dimsOn || show.includes('pms');
     namesBtn.setAttribute('aria-pressed', String(namesOn));

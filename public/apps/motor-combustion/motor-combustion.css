@@ -336,3 +336,15 @@ body.motor { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) { .hud-needle { transition: none; } }
 /* La ficha no debe tapar el indicador superior */
 @media (min-width: 761px) { .motor .tb-detail { max-height: calc(100% - 10rem); } }
+
+/* Tiempo de cada uno de los cuatro cilindros */
+.hud-cyls { display: flex; gap: .25rem; margin-top: .35rem !important; }
+.hud-cyls span {
+  display: inline-flex; align-items: center; gap: .25rem;
+  font-size: .68rem; font-weight: 600; color: #fff;
+  background: var(--t-adm); border-radius: 4px; padding: .1rem .35rem .1rem .2rem;
+  transition: background-color .2s ease;
+}
+.hud-cyls i { font-style: normal; background: rgba(0, 0, 0, .22); border-radius: 3px; padding: 0 .22rem; }
+.hud-cyls b { font-weight: 600; }
+@media (max-width: 760px) { .hud-cyls span { font-size: .62rem; } }

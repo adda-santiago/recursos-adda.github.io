@@ -1,6 +1,6 @@
 # Directrices del proyecto — Aula Visual (nombre provisional)
 
-Versión 1.4 · 1 de octubre de 2026
+Versión 1.5 · 1 de octubre de 2026
 
 Este documento es la fuente de verdad del proyecto. Cualquier decisión nueva que contradiga algo de aquí se registra en la bitácora (§23) y se actualiza la sección correspondiente. Si el código y este documento no coinciden, se corrige uno de los dos; no se deja la diferencia.
 
@@ -441,6 +441,7 @@ Reglas:
 | 2026-10-01 | Patrón "ruta de aprendizaje" con pregunta Para pensar por estación | Convertir el modelo en secuencia didáctica, no solo en objeto para mirar |
 | 2026-10-01 | La ruta de aprendizaje pasa a ser obligatoria en todo modelo 3D nuevo | Consistencia didáctica entre asignaturas; el profesor encuentra siempre la misma estructura |
 | 2026-10-01 | Motor de combustión interna (Tecnología): corte, ciclo Otto animado con indicador de estado y comparación con el diésel | Primer recurso de Tecnología; valida el patrón de ruta en un mecanismo que se mueve, no solo en un objeto estático |
+| 2026-10-01 | El motor de combustión pasa a cuatro cilindros en línea (orden 1-3-4-2) con corte en escalón e indicador del tiempo de cada cilindro | Mostrar cómo se reparten las explosiones y por qué un motor de varios cilindros gira más parejo; es el motor que los alumnos conocen |
 
 ## 24. Relación con el repositorio Fuego y Palabra
 

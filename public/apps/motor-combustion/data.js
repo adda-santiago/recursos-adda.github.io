@@ -6,10 +6,11 @@
      focus: categorías resaltadas (el resto se atenúa)
        'bloque' | 'culata' | 'piston' | 'biela' | 'ciguenal' | 'valvulas'
        'levas' | 'distribucion' | 'bujia' | 'volante' | 'gas'
-     show: grupos auxiliares visibles  'nombres' | 'pms' | 'medidas'
+     show: grupos auxiliares visibles  'nombres' | 'numeros' | 'pms' | 'medidas'
      range [a, b] y speed (°/s): tramo del ciclo que se repite (opcional)
    Ángulo del ciclo: 0° = PMS al inicio de la admisión; un ciclo = 720°
-   (dos vueltas del cigüeñal).
+   (dos vueltas del cigüeñal). El ángulo es el del cilindro 1; los otros tres
+   van desfasados según el orden de encendido 1-3-4-2.
    ========================================================== */
 window.MOTOR_DATA = {
   STATIONS: [
@@ -19,11 +20,11 @@ window.MOTOR_DATA = {
       rows: [
         ['Qué es', 'Una máquina que quema combustible dentro de un cilindro y transforma la energía liberada en movimiento de rotación'],
         ['Dónde se usa', 'Automóviles, motos, cortadoras de pasto, generadores, lanchas y maquinaria agrícola'],
-        ['En el modelo', 'Un motor de gasolina de un cilindro, cortado por la mitad para ver su interior']
+        ['En el modelo', 'Un motor de gasolina de cuatro cilindros en línea, con un corte en escalón: el cilindro 1 cortado de frente y los cilindros 2, 3 y 4 cortados de costado']
       ],
-      desc: 'El motor repite sin parar un ciclo de cuatro tiempos: admisión, compresión, explosión y escape. Recorre la ruta en orden: primero las piezas, después cómo se coordinan y, al final, en la pestaña Procesos, el ciclo paso a paso y la diferencia con el motor diésel. El indicador de arriba muestra en qué tiempo va el motor.',
+      desc: 'El motor repite sin parar un ciclo de cuatro tiempos: admisión, compresión, explosión y escape. Recorre la ruta en orden: primero las piezas, después cómo se coordinan y, al final, en la pestaña Procesos, el ciclo paso a paso y la diferencia con el motor diésel. El indicador de arriba muestra en qué tiempo va el cilindro 1 y, en la última línea, en qué tiempo va cada uno de los cuatro cilindros.',
       think: '¿Por qué se le llama motor de combustión «interna»? ¿Cómo sería uno de combustión externa?',
-      view: { t: [0, 14.5, -1], p: [30, 26, 66] }, show: ['nombres']
+      view: { t: [0, 13, -16], p: [62, 40, 84] }, show: ['nombres']
     },
     {
       id: 'cilindro', num: 1, n: 'Cilindro y culata', ref: 'Donde ocurre la combustión',
@@ -34,7 +35,7 @@ window.MOTOR_DATA = {
       ],
       desc: 'El bloque y la culata son piezas separadas, unidas con pernos y con una junta entre ellas que sella la cámara. Las caras rojas muestran por dónde se cortó el modelo para ver su interior.',
       think: 'Si el cilindro no estuviera bien sellado, ¿qué pasaría con el empuje de los gases al quemarse?',
-      view: { t: [0, 18, 0], p: [12, 22, 32] }, focus: ['bloque', 'culata', 'gas']
+      view: { t: [0, 17, 0], p: [15, 23, 42] }, focus: ['bloque', 'culata', 'gas']
     },
     {
       id: 'piston', num: 2, n: 'El pistón', ref: 'Recibe el empuje de los gases',
@@ -73,13 +74,13 @@ window.MOTOR_DATA = {
     {
       id: 'distribucion', num: 5, n: 'Levas y distribución', ref: 'Giran a la mitad de velocidad',
       rows: [
-        ['Levas', 'Salientes de un eje que, al girar, empujan las válvulas en el momento justo'],
+        ['Levas', 'Salientes de un eje que, al girar, empujan las válvulas en el momento justo. Cada árbol tiene una leva por cilindro, giradas entre sí'],
         ['Correa', 'Une el cigüeñal con los árboles de levas para que giren siempre sincronizados. En otros motores es una cadena o un tren de engranajes'],
         ['Relación 2 a 1', 'La polea de las levas tiene el doble de diámetro que la del cigüeñal: el cigüeñal da dos vueltas por cada vuelta de las levas']
       ],
       desc: 'Este conjunto se llama distribución porque reparte en el tiempo la apertura y el cierre de las válvulas. Si la correa se corta, el motor se detiene, y en muchos motores las válvulas pueden chocar con el pistón: por eso se cambia según el plan de mantenimiento del fabricante.',
       think: 'Si un ciclo completo dura dos vueltas del cigüeñal, ¿por qué las levas deben girar a la mitad de velocidad?',
-      view: { t: [0, 16, -7], p: [-42, 26, -54] }, focus: ['levas', 'distribucion', 'valvulas']
+      view: { t: [0, 16, -41], p: [-42, 26, -88] }, focus: ['levas', 'distribucion', 'valvulas']
     },
     {
       id: 'bujia', num: 6, n: 'La bujía', ref: 'El encendido',
@@ -93,21 +94,33 @@ window.MOTOR_DATA = {
       view: { t: [0, 23.5, 0], p: [4, 26, 19] }, focus: ['bujia', 'gas'], range: [300, 420], speed: 30
     },
     {
-      id: 'volante', num: 7, n: 'El volante de inercia', ref: 'Un solo tiempo empuja',
+      id: 'volante', num: 7, n: 'El volante de inercia', ref: 'Suaviza el giro',
       rows: [
-        ['El problema', 'De los cuatro tiempos, solo la explosión entrega energía; los otros tres la consumen'],
+        ['El problema', 'En cada cilindro, de los cuatro tiempos solo la explosión entrega energía; los otros tres la consumen'],
         ['La solución', 'Un disco pesado unido al cigüeñal que acumula energía cinética y mantiene el giro entre una explosión y la siguiente'],
         ['Corona', 'El borde dentado donde engrana el motor de arranque para poner en marcha el motor']
       ],
-      desc: 'Por eso los motores de varios cilindros funcionan más suave: en uno de cuatro cilindros hay una explosión cada media vuelta del cigüeñal, en vez de una cada dos vueltas. En el modelo, el volante y la correa de distribución están en la parte de atrás.',
-      think: 'En este motor de un cilindro, ¿cuántas vueltas da el cigüeñal entre una explosión y la siguiente?',
-      view: { t: [0, 1, -8], p: [-24, 8, -30] }, focus: ['volante', 'ciguenal']
+      desc: 'El volante empuja al cigüeñal entre una explosión y la siguiente. Con un solo cilindro tendría que hacerlo durante una vuelta y media; con cuatro, las explosiones se turnan y el empuje es mucho más parejo, así que el volante puede ser más liviano.',
+      think: 'Con un solo cilindro hay una explosión cada dos vueltas del cigüeñal. ¿Cada cuánto hay una explosión en este motor de cuatro cilindros?',
+      view: { t: [0, 1, -44], p: [-26, 8, -70] }, focus: ['volante', 'ciguenal']
     },
     {
-      id: 'medidas', num: 8, n: 'Cilindrada y compresión', ref: 'Los números de un motor',
+      id: 'cilindros', num: 8, n: 'Cuatro cilindros en línea', ref: 'Orden de encendido 1-3-4-2',
+      rows: [
+        ['Disposición', 'Cuatro cilindros iguales, uno detrás del otro, que mueven un mismo cigüeñal'],
+        ['Cigüeñal', 'Tiene un codo por cilindro. Los pistones 1 y 4 suben y bajan juntos; el 2 y el 3, también, pero al revés que el 1 y el 4'],
+        ['Orden de encendido', '1-3-4-2: cada media vuelta del cigüeñal hay una explosión en un cilindro distinto'],
+        ['En cada instante', 'Cada cilindro está en un tiempo distinto: uno aspira, otro comprime, otro empuja y otro expulsa']
+      ],
+      desc: 'Mira el corte de costado y la última línea del indicador: los colores del gas muestran en qué tiempo va cada cilindro. Si el 1 y el 4 se encendieran juntos, el empuje llegaría de a dos y el motor vibraría más; el orden 1-3-4-2 reparte las explosiones de forma pareja y equilibrada a lo largo del cigüeñal.',
+      think: 'Los pistones 1 y 4 bajan al mismo tiempo. Si el cilindro 1 está en explosión, ¿en qué tiempo está el cilindro 4?',
+      view: { t: [0, 12, -21], p: [104, 34, -6] }, show: ['numeros'], focus: ['piston', 'biela', 'ciguenal', 'gas', 'bloque', 'culata']
+    },
+    {
+      id: 'medidas', num: 9, n: 'Cilindrada y compresión', ref: 'Los números de un motor',
       rows: [
         ['Diámetro y carrera', '8 cm y 8 cm en este modelo'],
-        ['Cilindrada', 'El volumen que barre el pistón entre el PMI y el PMS: π × (4 cm)² × 8 cm ≈ 402 cm³. Cuatro cilindros iguales sumarían unos 1600 cm³ (1,6 litros)'],
+        ['Cilindrada', 'El volumen que barre un pistón entre el PMI y el PMS: π × (4 cm)² × 8 cm ≈ 402 cm³. Los cuatro cilindros suman ≈ 1608 cm³: es un motor de 1,6 litros'],
         ['Compresión', 'Volumen total dividido por el volumen de la cámara: (402 + 45) ÷ 45 ≈ 10. Se escribe 10:1'],
         ['Escala', '1 unidad del modelo = 1 cm']
       ],
@@ -116,7 +129,7 @@ window.MOTOR_DATA = {
       view: { t: [2.5, 15, 0], p: [4, 17, 48] }, show: ['medidas']
     },
     {
-      id: 'energia', num: 9, n: 'De la energía química al movimiento', ref: 'Transformaciones de la energía',
+      id: 'energia', num: 10, n: 'De la energía química al movimiento', ref: 'Transformaciones de la energía',
       rows: [
         ['Química → térmica', 'Al quemarse, el combustible libera la energía guardada en sus enlaces químicos y los gases se calientan'],
         ['Térmica → mecánica', 'Los gases calientes se expanden, empujan el pistón y hacen girar el cigüeñal'],
@@ -128,7 +141,7 @@ window.MOTOR_DATA = {
       view: { t: [0, 16, 0], p: [18, 20, 44] }
     },
     {
-      id: 'historia', num: 10, n: 'Otto, Benz y Diesel', ref: '1862–1897',
+      id: 'historia', num: 11, n: 'Otto, Benz y Diesel', ref: '1862–1897',
       rows: [
         ['El principio', 'Alphonse Beau de Rochas describió el ciclo de cuatro tiempos en 1862'],
         ['Primer motor', 'Nikolaus Otto construyó el primer motor práctico de cuatro tiempos en 1876, en la fábrica Deutz, en Alemania. Por eso se habla del ciclo Otto'],
@@ -193,12 +206,13 @@ window.MOTOR_DATA = {
           n: 'El ciclo completo', ref: 'Dos vueltas del cigüeñal',
           rows: [
             ['Duración', 'Dos vueltas del cigüeñal: media vuelta por tiempo'],
-            ['Trabajo', 'Un solo tiempo empuja: el de explosión'],
+            ['Trabajo', 'En cada cilindro, un solo tiempo empuja: el de explosión'],
+            ['Cuatro cilindros', 'Las explosiones se turnan en orden 1-3-4-2: hay una en cada media vuelta del cigüeñal'],
             ['En la realidad', 'A 3000 revoluciones por minuto, cada cilindro completa 25 ciclos por segundo']
           ],
-          desc: 'En el modelo, un ciclo dura unos ocho segundos para poder seguirlo. Observa cómo se coordinan el pistón, las válvulas, las levas y la bujía.',
+          desc: 'En el modelo, un ciclo dura unos ocho segundos para poder seguirlo. Observa cómo se coordinan el pistón, las válvulas, las levas y la bujía del cilindro 1, y gira la vista hacia el costado para ver a los otros tres cilindros trabajando por turnos.',
           think: 'A 3000 revoluciones por minuto, ¿cuántas veces salta la chispa de la bujía en un minuto?',
-          range: [0, 720], loop: true, view: { t: [0, 15, -1], p: [14, 20, 54] }
+          range: [0, 720], loop: true, view: { t: [0, 14, -14], p: [48, 30, 62] }
         }
       ]
     },
