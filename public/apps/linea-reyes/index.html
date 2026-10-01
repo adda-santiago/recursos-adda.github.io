@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reyes, jueces y profetas de Israel · Fuego y Palabra</title>
+<meta name="theme-color" content="#fafaf8">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%94%A5%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/app.css">
+<link rel="stylesheet" href="../assets/css/linea-de-tiempo.css">
+</head>
+<body class="app-timeline">
+
+<header>
+  <div class="topbar">
+    <a class="mark" href="../../">Fuego y Palabra</a>
+    <label class="toggle toggle-compact">
+      <input type="checkbox" id="headerToggle">
+      <span class="switch"></span>
+      Ocultar cabecera
+    </label>
+  </div>
+
+  <div id="headerBody">
+    <h1>Reyes, jueces y profetas de Israel</h1>
+    <p class="subtitle">Los profetas del <strong>Reino del Sur (Judá)</strong> aparecen sobre su línea de reyes, y los profetas
+    del <strong>Reino del Norte (Israel)</strong> aparecen bajo la suya. El ancho de cada caja es proporcional a los años
+    de reinado o ministerio. Cronología de referencia: Edwin Thiele; donde hay corregencias o debate cronológico, se indica
+    en el detalle (+) de cada entrada.</p>
+
+    <div class="controls-row">
+      <label class="toggle">
+        <input type="checkbox" id="jpToggle" checked>
+        <span class="switch"></span>
+        <span class="swatch-dot" style="background:var(--judge)"></span>
+        Jueces y Profetas
+      </label>
+      <label class="toggle">
+        <input type="checkbox" id="ctxToggle" checked>
+        <span class="switch"></span>
+        <span class="swatch-dot" style="background:var(--ctx-empire)"></span>
+        Contexto histórico global
+      </label>
+    </div>
+
+    <div class="legend">
+      <div class="legend-group">
+        <span class="legend-label">Reino</span>
+        <span class="swatch"><span class="dot" style="background:var(--unido)"></span>Unido</span>
+        <span class="swatch"><span class="dot" style="background:var(--judah)"></span>Judá (Sur)</span>
+        <span class="swatch"><span class="dot" style="background:var(--israel)"></span>Israel (Norte)</span>
+      </div>
+      <div class="legend-group">
+        <span class="legend-label">Evaluación</span>
+        <span class="pill" style="background:var(--good)">✓ Bueno</span>
+        <span class="pill" style="background:var(--bad)">✕ Malo</span>
+        <span class="pill" style="background:var(--mixed);color:#2E2410">≈ Mixto</span>
+      </div>
+      <div class="legend-group">
+        <span class="legend-label">Otros</span>
+        <span class="swatch"><span class="licon" style="color:var(--judge)">⚖</span>Juez</span>
+        <span class="swatch"><span class="licon" style="color:var(--prophet)">✎</span>Profeta</span>
+        <span class="swatch"><span class="licon" style="color:var(--ctx-empire)">♜</span>Imperio</span>
+        <span class="swatch"><span class="licon" style="color:var(--ctx-culture)">✦</span>Cultural</span>
+        <span class="swatch"><span class="licon" style="color:var(--ctx-event)">▲</span>Evento</span>
+      </div>
+    </div>
+    <p class="hint">Desplázate horizontalmente y haz clic en una caja para ver el detalle. La cinta lateral de color indica el reino o la línea; las cajas muy angostas muestran su nombre al pasar el cursor.</p>
+  </div>
+</header>
+
+<div class="timeline-wrap">
+  <div id="timeline">
+    <div class="ruler" id="ruler"></div>
+    <div class="milestones" id="milestones"></div>
+    <div id="guides"></div>
+
+    <div class="lane row-extra row-jp-south" id="rowJPSouth">
+      <span class="lane-ribbon">Profetas y jueces · Sur</span>
+    </div>
+    <div class="lane row-kings row-judah" id="rowJudah">
+      <span class="lane-ribbon">Unido / Judá (Sur)</span>
+    </div>
+    <div class="lane row-kings row-israel" id="rowIsrael">
+      <span class="lane-ribbon">Israel (Norte)</span>
+    </div>
+    <div class="lane row-extra row-jp-north" id="rowJPNorth">
+      <span class="lane-ribbon">Profetas · Norte</span>
+    </div>
+    <div class="lane row-extra row-context" id="rowContext">
+      <span class="lane-ribbon">Contexto histórico</span>
+    </div>
+  </div>
+</div>
+
+<div class="fixed-scrollbar" id="fixedScrollbar"><div class="fixed-scrollbar-inner" id="fixedScrollbarInner"></div></div>
+
+<footer>
+  Fuentes: Jueces, 1–2 Samuel, 1–2 Reyes, 1–2 Crónicas y libros proféticos (RVR/NVI). Cronología de referencia: Edwin R. Thiele, "The Mysterious Numbers of the Hebrew Kings". Contexto histórico: fuentes generales de historia del Cercano Oriente antiguo.
+  <span class="credit">Diseñado por Cristóbal Alarcón.</span>
+</footer>
+
+<div class="overlay" id="overlay">
+  <div class="modal" id="modalBox">
+    <button class="modal-close" id="closeBtn" aria-label="Cerrar">✕</button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+<script src="../visor-bridge.js"></script>
+</body>
+</html>
