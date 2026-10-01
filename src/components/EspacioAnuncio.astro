@@ -1,0 +1,11 @@
+---
+/* Espacio reservado para un anuncio. Solo se renderiza si los anuncios
+   están habilitados; aun así queda oculto hasta que el navegador confirme
+   que la cuenta no tiene plan sin anuncios. NUNCA ubicar dentro de <Visor>. */
+import { SITIO } from '../config/sitio';
+interface Props { slot: string; }
+const { slot } = Astro.props;
+---
+{SITIO.anuncios.habilitados && (
+  <aside class="anuncio" data-anuncio={slot} aria-label="Publicidad" hidden data-pagefind-ignore></aside>
+)}

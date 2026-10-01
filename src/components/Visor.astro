@@ -1,0 +1,169 @@
+---
+/*
+ * Contrato común del visor (DIRECTRICES §6). Toda página que muestre un recurso
+ * usa este componente, sin importar el motor:
+ *   - Pantalla completa (API nativa, con respaldo CSS para iPhone)
+ *   - Restaurar vista
+ *   - Compartir / insertar (solo si se pasa `compartir`)
+ *   - Guardar en el dispositivo (solo en ficha)
+ * Motores: 'legado' (app existente en iframe), 'model-viewer' (.glb simple),
+ * 'three' (reservado para escenas nativas; aún no implementado).
+ * NUNCA poner anuncios dentro de este componente.
+ */
+import type { CollectionEntry } from 'astro:content';
+import { ruta, rutaRecurso, rutaEmbed } from '../lib/url';
+import Compartir from './Compartir.astro';
+
+interface Props { r: CollectionEntry<'recursos'>; modo: 'ficha' | 'embed'; }
+const { r, modo } = Astro.props;
+const d = r.data;
+const srcLegado = d.visor.motor === 'legado' && d.visor.ruta ? ruta(`apps/${d.visor.ruta}/`) : null;
+const urlFicha = new URL(rutaRecurso(d.asignatura, r.id), Astro.site).href;
+const urlEmbed = new URL(rutaEmbed(r.id), Astro.site).href;
+if (d.visor.motor === 'three') throw new Error(`[${r.id}] El motor "three" nativo aún no está implementado; usa "legado".`);
+---
+<section class="visor" data-visor data-uid={d.uid} data-motor={d.visor.motor} aria-label={`Visor: ${d.titulo}`}>
+  <div class="visor-lienzo">
+    {srcLegado && (
+      <iframe src={srcLegado} title={d.titulo} allow="fullscreen" allowfullscreen loading="eager"></iframe>
+    )}
+    {d.visor.motor === 'model-viewer' && (
+      <model-viewer
+        src={d.visor.modelo}
+        poster={d.visor.poster}
+        alt={d.titulo}
+        camera-controls
+        touch-action="pan-y"
+        reveal="auto"
+        loading="lazy"
+        style="width:100%;height:100%;background:transparent"
+      >
+        {d.hotspots.filter((h) => h.posicion).map((h) => (
+          <button class="hotspot" slot={`hotspot-${h.id}`} data-position={h.posicion!.join(' ')} title={h.titulo}>
+            <span class="visually-hidden">{h.titulo}</span>
+          </button>
+        ))}
+      </model-viewer>
+    )}
+    <div class="visor-carga" data-carga>Cargando {d.titulo.toLowerCase()}…</div>
+  </div>
+
+  <div class="visor-barra">
+    <button type="button" class="principal" data-accion="completa">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+      <span>Pantalla completa</span>
+    </button>
+    <button type="button" data-accion="restaurar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+      Restaurar vista
+    </button>
+    {modo === 'ficha' && (
+      <button type="button" data-accion="guardar" aria-pressed="false" data-fuera-pantalla>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4z"/></svg>
+        <span>Guardar</span>
+      </button>
+    )}
+    <button type="button" class="derecha" data-accion="compartir" data-fuera-pantalla>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg>
+      Compartir
+    </button>
+    {modo === 'embed' && (
+      <a class="origen" href={urlFicha} target="_blank" rel="noopener" data-fuera-pantalla>Abrir ficha completa ↗</a>
+    )}
+  </div>
+  <Compartir titulo={d.titulo} url={urlFicha} embed={urlEmbed} />
+</section>
+
+{d.visor.motor === 'model-viewer' && (
+  <script is:inline type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@4/dist/model-viewer.min.js"></script>
+)}
+
+<script>
+  import { almacen } from '../lib/storage';
+  import { registrar } from '../lib/analitica';
+
+  type FS = HTMLElement & { webkitRequestFullscreen?: () => void };
+
+  document.querySelectorAll<HTMLElement>('[data-visor]').forEach((visor) => {
+    const uid = visor.dataset.uid!;
+    const iframe = visor.querySelector('iframe');
+    const mv = visor.querySelector('model-viewer') as (HTMLElement & Record<string, any>) | null;
+    const carga = visor.querySelector<HTMLElement>('[data-carga]')!;
+    const btnCompleta = visor.querySelector<HTMLButtonElement>('[data-accion="completa"]')!;
+    const btnGuardar = visor.querySelector<HTMLButtonElement>('[data-accion="guardar"]');
+    const dialogo = visor.querySelector<HTMLDialogElement>('dialog')!;
+
+    registrar('abrir-recurso', uid);
+
+    // --- Carga ---
+    const listo = () => { carga.hidden = true; };
+    iframe?.addEventListener('load', listo);
+    mv?.addEventListener('load', listo);
+    window.addEventListener('message', (e) => {
+      if (e.origin === location.origin && e.data?.tipo === 'fyp:lista' && e.source === iframe?.contentWindow) listo();
+    });
+    setTimeout(listo, 15000); // nunca dejar la pantalla de carga pegada
+
+    // --- Pantalla completa ---
+    const enCompleta = () => document.fullscreenElement === visor || visor.classList.contains('pseudo-completa');
+    const pseudo = (activar: boolean) => {
+      visor.classList.toggle('pseudo-completa', activar);
+      document.body.classList.toggle('bloqueado', activar);
+      actualizarBoton();
+    };
+    const actualizarBoton = () => {
+      const corto = window.innerWidth < 480;
+      btnCompleta.querySelector('span')!.textContent = enCompleta()
+        ? (corto ? 'Salir' : 'Salir de pantalla completa')
+        : 'Pantalla completa';
+    };
+    btnCompleta.addEventListener('click', () => {
+      if (enCompleta()) {
+        if (document.fullscreenElement) document.exitFullscreen();
+        else pseudo(false);
+        return;
+      }
+      registrar('pantalla-completa', uid);
+      const el = visor as FS;
+      if (el.requestFullscreen) el.requestFullscreen().catch(() => pseudo(true));
+      else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+      else pseudo(true); // iPhone Safari: sin Fullscreen API para elementos que no son video
+    });
+    document.addEventListener('fullscreenchange', actualizarBoton);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && visor.classList.contains('pseudo-completa')) pseudo(false);
+    });
+
+    // --- Restaurar vista ---
+    visor.querySelector('[data-accion="restaurar"]')!.addEventListener('click', () => {
+      registrar('restaurar-vista', uid);
+      if (iframe?.contentWindow) iframe.contentWindow.postMessage({ tipo: 'fyp:restaurar' }, location.origin);
+      if (mv) {
+        mv.cameraOrbit = mv.getAttribute('camera-orbit') || 'auto auto auto';
+        mv.cameraTarget = mv.getAttribute('camera-target') || 'auto auto auto';
+        mv.fieldOfView = 'auto';
+        mv.jumpCameraToGoal?.();
+      }
+    });
+
+    // --- Guardar (local hoy, cuenta mañana) ---
+    if (btnGuardar) {
+      const pintar = (on: boolean) => {
+        btnGuardar.setAttribute('aria-pressed', String(on));
+        btnGuardar.querySelector('span')!.textContent = on ? 'Guardado' : 'Guardar';
+      };
+      almacen.esFavorito(uid).then(pintar);
+      btnGuardar.addEventListener('click', async () => {
+        const on = await almacen.alternarFavorito(uid);
+        pintar(on);
+        if (on) registrar('guardar-favorito', uid);
+      });
+    }
+
+    // --- Compartir ---
+    visor.querySelector('[data-accion="compartir"]')!.addEventListener('click', () => {
+      if (enCompleta()) return;
+      dialogo.showModal();
+    });
+  });
+</script>
