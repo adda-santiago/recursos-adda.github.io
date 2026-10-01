@@ -1,6 +1,6 @@
 # Directrices del proyecto — Aula Visual (nombre provisional)
 
-Versión 1.3 · 1 de octubre de 2026
+Versión 1.4 · 1 de octubre de 2026
 
 Este documento es la fuente de verdad del proyecto. Cualquier decisión nueva que contradiga algo de aquí se registra en la bitácora (§23) y se actualiza la sección correspondiente. Si el código y este documento no coinciden, se corrige uno de los dos; no se deja la diferencia.
 
@@ -88,6 +88,7 @@ No hay base de datos ni servidor propio. El contenido vive en archivos Markdown 
 │  │  ├─ assets/css/         tokens.css, app.css y CSS por app (legado)
 │  │  ├─ visor-bridge.js     contrato visor ↔ app (§6)
 │  │  ├─ atlas/ linea-reyes/ genealogias/ tabernaculo/ templo-salomon/
+│  │  ├─ adn/ motor-combustion/
 │  └─ robots.txt
 ├─ src/
 │  ├─ config/sitio.ts        nombre, buzón, anuncios, analítica
@@ -156,7 +157,7 @@ El "modo pizarra" de la especificación original **es** la pantalla completa: no
 
 | Motor | Cuándo usarlo | Estado |
 |---|---|---|
-| `legado` | Apps existentes que corren como página propia en `public/apps/` | En uso: atlas, línea de reyes, genealogías, tabernáculo, templo de Salomón |
+| `legado` | Apps que corren como página propia en `public/apps/` | En uso: atlas, línea de reyes, genealogías, tabernáculo, templo de Salomón, ADN, motor de combustión |
 | `model-viewer` | Un solo `.glb` con hotspots (la mayoría de ciencias: célula, órgano, motor) | Implementado en el visor, **sin probar aún con un modelo real** |
 | `three` | Escenas compuestas, recorridos narrativos, comparaciones, modelos procedurales | Reservado. El build falla a propósito si un recurso lo declara antes de implementarlo |
 
@@ -381,15 +382,17 @@ Reglas:
 3. Declarar `window.fypReset` con la vista inicial.
 4. Crear la ficha en `src/content/recursos/` con `visor.motor: legado`, `visor.ruta: {slug}` y, si corresponde, `coleccion`.
 
-### Ruta de aprendizaje (patrón para modelos 3D educativos)
+### Ruta de aprendizaje (obligatoria en todo modelo 3D)
 
-Los modelos 3D con recorrido siguen el patrón del tabernáculo y del ADN: panel lateral con dos pestañas (estaciones y procesos), ficha flotante con título, filas de datos, explicación y navegación Anterior/Siguiente, y cámara que viaja a cada estación. Reglas:
+**Todo modelo 3D nuevo incluye una ruta de aprendizaje.** Un modelo sin ruta no se publica. Siguen el patrón del tabernáculo, del ADN y del motor de combustión: panel lateral con dos pestañas (estaciones y procesos), ficha flotante con título, filas de datos, explicación y navegación Anterior/Siguiente, y cámara que viaja a cada estación. Reglas:
 
 - El contenido va en `data.js`, separado del motor (`app.js`), para que un profesor pueda revisar o corregir textos sin tocar el 3D.
 - Cada estación de una ruta escolar cierra con una pregunta **Para pensar**, sin la respuesta escrita en la misma ficha.
 - La ruta va de lo simple a lo complejo: piezas, ensamblaje, escala y contexto histórico.
 - Las piezas que se muestran separadas de la escena principal usan materiales propios, para no atenuarse cuando se resalta una categoría.
 - Lo que el modelo simplifica se declara en la sección «Qué es simplificación» de la ficha.
+- Si el modelo representa un proceso que avanza en el tiempo (un ciclo, una reacción), la escena muestra un indicador de estado con lo que está pasando en ese momento, y cada paso de Procesos repite solo su tramo. Referencia: el indicador del ciclo del motor de combustión.
+- Las estaciones pueden mostrar grupos auxiliares (nombres, medidas) y fijar un tramo de animación; los botones de la escena permiten activarlos también a mano.
 
 ### Pendiente de migración
 
@@ -436,6 +439,8 @@ Los modelos 3D con recorrido siguen el patrón del tabernáculo y del ADN: panel
 | 2026-10-01 | Campo obligatorio `fechaPublicacion` | Ordenar "Recién agregados" con un dato explícito, no inferido |
 | 2026-10-01 | Primer recurso fuera de Religión: El ADN (Biología), con ruta de aprendizaje y replicación | Validar que la plataforma escala a otras asignaturas con el mismo contrato de visor |
 | 2026-10-01 | Patrón "ruta de aprendizaje" con pregunta Para pensar por estación | Convertir el modelo en secuencia didáctica, no solo en objeto para mirar |
+| 2026-10-01 | La ruta de aprendizaje pasa a ser obligatoria en todo modelo 3D nuevo | Consistencia didáctica entre asignaturas; el profesor encuentra siempre la misma estructura |
+| 2026-10-01 | Motor de combustión interna (Tecnología): corte, ciclo Otto animado con indicador de estado y comparación con el diésel | Primer recurso de Tecnología; valida el patrón de ruta en un mecanismo que se mueve, no solo en un objeto estático |
 
 ## 24. Relación con el repositorio Fuego y Palabra
 
