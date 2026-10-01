@@ -1,4 +1,3 @@
-[DIRECTRICES.md](https://github.com/user-attachments/files/32865652/DIRECTRICES.md)
 # Directrices del proyecto — Aula Visual (nombre provisional)
 
 Versión 1.1 · 30 de septiembre de 2026
