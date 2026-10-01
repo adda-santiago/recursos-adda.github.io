@@ -1,6 +1,6 @@
 # Directrices del proyecto — Aula Visual (nombre provisional)
 
-Versión 1.2 · 1 de octubre de 2026
+Versión 1.3 · 1 de octubre de 2026
 
 Este documento es la fuente de verdad del proyecto. Cualquier decisión nueva que contradiga algo de aquí se registra en la bitácora (§23) y se actualiza la sección correspondiente. Si el código y este documento no coinciden, se corrige uno de los dos; no se deja la diferencia.
 
@@ -381,6 +381,16 @@ Reglas:
 3. Declarar `window.fypReset` con la vista inicial.
 4. Crear la ficha en `src/content/recursos/` con `visor.motor: legado`, `visor.ruta: {slug}` y, si corresponde, `coleccion`.
 
+### Ruta de aprendizaje (patrón para modelos 3D educativos)
+
+Los modelos 3D con recorrido siguen el patrón del tabernáculo y del ADN: panel lateral con dos pestañas (estaciones y procesos), ficha flotante con título, filas de datos, explicación y navegación Anterior/Siguiente, y cámara que viaja a cada estación. Reglas:
+
+- El contenido va en `data.js`, separado del motor (`app.js`), para que un profesor pueda revisar o corregir textos sin tocar el 3D.
+- Cada estación de una ruta escolar cierra con una pregunta **Para pensar**, sin la respuesta escrita en la misma ficha.
+- La ruta va de lo simple a lo complejo: piezas, ensamblaje, escala y contexto histórico.
+- Las piezas que se muestran separadas de la escena principal usan materiales propios, para no atenuarse cuando se resalta una categoría.
+- Lo que el modelo simplifica se declara en la sección «Qué es simplificación» de la ficha.
+
 ### Pendiente de migración
 
 - **Templo de Herodes** (`herodes/`): no estaba en el repositorio de Fuego y Palabra. Incorporarlo aquí con el procedimiento anterior.
@@ -424,6 +434,8 @@ Reglas:
 | 2026-09-30 | Nombre provisional Aula Visual | Permite avanzar; el nombre vive en un solo archivo |
 | 2026-10-01 | Portada a ancho completo: buscador en la cabecera, recién agregados, filtros por faceta y catálogo completo; `/explorar/` se integra a la portada | Mostrar más recursos sin navegar; una sola puerta de entrada al catálogo |
 | 2026-10-01 | Campo obligatorio `fechaPublicacion` | Ordenar "Recién agregados" con un dato explícito, no inferido |
+| 2026-10-01 | Primer recurso fuera de Religión: El ADN (Biología), con ruta de aprendizaje y replicación | Validar que la plataforma escala a otras asignaturas con el mismo contrato de visor |
+| 2026-10-01 | Patrón "ruta de aprendizaje" con pregunta Para pensar por estación | Convertir el modelo en secuencia didáctica, no solo en objeto para mirar |
 
 ## 24. Relación con el repositorio Fuego y Palabra
 
