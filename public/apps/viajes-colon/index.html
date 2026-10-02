@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Los viajes de Colón · Aula Visual</title>
+  <meta name="description" content="Mapa interactivo de los cuatro viajes de Cristóbal Colón (1492–1504) con una ruta de aprendizaje: objetivos, tecnología, vientos, pueblos del Caribe, Tordesillas e intercambio colombino.">
+  <meta name="theme-color" content="#fafaf8">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9B%B5%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Inter:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="viajes-colon.css">
+</head>
+<body class="colon">
+  <div class="tb-app">
+    <aside class="tb-panel">
+      <header class="tb-head">
+        <a class="brand" href="../../">Aula Visual</a>
+        <h1>Los viajes de Colón</h1>
+        <p class="lead">Cuatro cruces del Atlántico entre 1492 y 1504: por qué se hicieron, con qué medios, qué encontraron y qué cambiaron.</p>
+      </header>
+      <div class="tabs" role="tablist" aria-label="Recorridos">
+        <button class="tab" id="tab-ruta" role="tab" type="button" aria-selected="true">Ruta de aprendizaje</button>
+        <button class="tab" id="tab-proc" role="tab" type="button" aria-selected="false">Viajes</button>
+      </div>
+      <ol class="stations" id="stations" aria-label="Ruta de aprendizaje de los viajes de Colón"></ol>
+      <div class="ceremonies" id="processes" hidden></div>
+    </aside>
+
+    <main class="tb-stage" id="stage">
+      <div id="map" role="application" aria-label="Mapa del océano Atlántico y el Caribe con las rutas de Colón. Toca un punto para ver qué pasó ahí."></div>
+      <div class="tb-legend" id="legend" aria-label="Colores del mapa"></div>
+      <div class="tb-hud" id="hud" aria-live="polite" hidden>
+        <p class="hud-voy"><i></i><span></span></p>
+        <p class="hud-date"></p>
+        <p class="hud-place"></p>
+        <div class="hud-bar"></div>
+      </div>
+      <div class="tb-toolbar" role="toolbar" aria-label="Controles del mapa">
+        <button class="btn" id="t-winds" type="button" aria-pressed="false">Vientos</button>
+        <button class="btn" id="t-names" type="button" aria-pressed="false">Nombres</button>
+        <button class="btn" id="t-sat" type="button" aria-pressed="false">Satélite</button>
+        <button class="btn" id="t-home" type="button">Vista general</button>
+      </div>
+      <p class="tb-fallback" id="fallback" hidden>No se pudo cargar el mapa. Revisa tu conexión y vuelve a abrir la página.</p>
+    </main>
+
+    <article class="tb-detail" id="detail" aria-live="polite">
+      <p class="kicker" id="d-kicker" hidden></p>
+      <h2 id="d-title"></h2>
+      <p class="ref" id="d-ref"></p>
+      <dl id="d-rows"></dl>
+      <p class="desc" id="d-desc"></p>
+      <p class="pensar" id="d-think" hidden><strong>Para pensar</strong><span></span></p>
+      <nav class="tb-nav" aria-label="Recorrido">
+        <button class="linkbtn" id="prev" type="button">Anterior</button>
+        <span class="pos" id="d-pos"></span>
+        <button class="linkbtn" id="next" type="button">Siguiente</button>
+      </nav>
+    </article>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+  <script src="../visor-bridge.js"></script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 # Directrices del proyecto — Aula Visual (nombre provisional)
 
-Versión 1.5 · 1 de octubre de 2026
+Versión 1.6 · 2 de octubre de 2026
 
 Este documento es la fuente de verdad del proyecto. Cualquier decisión nueva que contradiga algo de aquí se registra en la bitácora (§23) y se actualiza la sección correspondiente. Si el código y este documento no coinciden, se corrige uno de los dos; no se deja la diferencia.
 
@@ -88,7 +88,7 @@ No hay base de datos ni servidor propio. El contenido vive en archivos Markdown 
 │  │  ├─ assets/css/         tokens.css, app.css y CSS por app (legado)
 │  │  ├─ visor-bridge.js     contrato visor ↔ app (§6)
 │  │  ├─ atlas/ linea-reyes/ genealogias/ tabernaculo/ templo-salomon/
-│  │  ├─ adn/ motor-combustion/
+│  │  ├─ adn/ motor-combustion/ viajes-colon/
 │  └─ robots.txt
 ├─ src/
 │  ├─ config/sitio.ts        nombre, buzón, anuncios, analítica
@@ -157,7 +157,7 @@ El "modo pizarra" de la especificación original **es** la pantalla completa: no
 
 | Motor | Cuándo usarlo | Estado |
 |---|---|---|
-| `legado` | Apps que corren como página propia en `public/apps/` | En uso: atlas, línea de reyes, genealogías, tabernáculo, templo de Salomón, ADN, motor de combustión |
+| `legado` | Apps que corren como página propia en `public/apps/` | En uso: atlas, línea de reyes, genealogías, tabernáculo, templo de Salomón, ADN, motor de combustión, viajes de Colón |
 | `model-viewer` | Un solo `.glb` con hotspots (la mayoría de ciencias: célula, órgano, motor) | Implementado en el visor, **sin probar aún con un modelo real** |
 | `three` | Escenas compuestas, recorridos narrativos, comparaciones, modelos procedurales | Reservado. El build falla a propósito si un recurso lo declara antes de implementarlo |
 
@@ -393,6 +393,7 @@ Reglas:
 - Lo que el modelo simplifica se declara en la sección «Qué es simplificación» de la ficha.
 - Si el modelo representa un proceso que avanza en el tiempo (un ciclo, una reacción), la escena muestra un indicador de estado con lo que está pasando en ese momento, y cada paso de Procesos repite solo su tramo. Referencia: el indicador del ciclo del motor de combustión.
 - Las estaciones pueden mostrar grupos auxiliares (nombres, medidas) y fijar un tramo de animación; los botones de la escena permiten activarlos también a mano.
+- **Mapas con recorridos** (viajes, rutas, campañas) usan el mismo patrón con Leaflet: la pestaña Procesos se llama según el contenido (por ejemplo, Viajes), la cámara es el encuadre del mapa (`view` como límites sur-oeste y norte-este), cada paso redibuja solo su tramo y el indicador de estado muestra recorrido, fecha, lugar y avance. Referencia: `viajes-colon/`.
 
 ### Pendiente de migración
 
@@ -442,6 +443,9 @@ Reglas:
 | 2026-10-01 | La ruta de aprendizaje pasa a ser obligatoria en todo modelo 3D nuevo | Consistencia didáctica entre asignaturas; el profesor encuentra siempre la misma estructura |
 | 2026-10-01 | Motor de combustión interna (Tecnología): corte, ciclo Otto animado con indicador de estado y comparación con el diésel | Primer recurso de Tecnología; valida el patrón de ruta en un mecanismo que se mueve, no solo en un objeto estático |
 | 2026-10-01 | El motor de combustión pasa a cuatro cilindros en línea (orden 1-3-4-2) con corte en escalón e indicador del tiempo de cada cilindro | Mostrar cómo se reparten las explosiones y por qué un motor de varios cilindros gira más parejo; es el motor que los alumnos conocen |
+| 2026-10-02 | Primer recurso de Historia: los viajes de Colón (mapa Leaflet con ruta de aprendizaje de diez estaciones y los cuatro viajes paso a paso) | Validar el patrón de ruta en un mapa; el OA 1 de 5° básico pide explicar objetivos, rutas, tecnología, dificultades y contexto, que el mapa recorre en ese orden |
+| 2026-10-02 | La ruta de aprendizaje se extiende a los mapas con recorridos | Misma estructura para el profesor en todos los recursos que se recorren por pasos, no solo en los 3D |
+| 2026-10-02 | Primer código de OA cargado en una ficha (HI05 OA 01), verificado en curriculumnacional.cl | Aplicar la regla de §9: el OA se copia desde la fuente oficial |
 
 ## 24. Relación con el repositorio Fuego y Palabra
 
