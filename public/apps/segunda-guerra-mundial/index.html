@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>La Segunda Guerra Mundial · Presentación</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,400&display=swap">
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+  <a class="marca" href="../../">Aula Visual</a>
+  <p class="girar">Gira el teléfono para ver la presentación más grande.</p>
+
+  <main id="escenario" class="escenario" aria-roledescription="presentación" aria-label="La Segunda Guerra Mundial">
+    <div id="lienzo" class="lienzo"></div>
+  </main>
+
+  <div class="progreso" aria-hidden="true"><div id="progreso-barra"></div></div>
+
+  <nav id="controles" class="controles" aria-label="Controles de la presentación">
+    <button type="button" data-accion="anterior" aria-label="Anterior" title="Anterior (←)">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <span id="contador" class="contador">1 / 1</span>
+    <button type="button" data-accion="siguiente" aria-label="Siguiente" title="Siguiente (→ o espacio)">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+    </button>
+    <span class="separador" aria-hidden="true"></span>
+    <button type="button" data-accion="indice" title="Índice (I)">Índice</button>
+    <button type="button" data-accion="notas" title="Notas en esta pantalla (N)">Notas</button>
+    <button type="button" data-accion="presentador" title="Abrir vista del presentador en otra ventana (P)">Presentador</button>
+    <button type="button" data-accion="tema" aria-label="Cambiar entre fondo claro y oscuro" title="Fondo claro u oscuro (T)">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" class="relleno"/></svg>
+    </button>
+    <button type="button" data-accion="completa" id="btn-completa" aria-label="Pantalla completa" title="Pantalla completa (F)">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+    </button>
+    <button type="button" data-accion="ayuda" aria-label="Atajos de teclado" title="Atajos de teclado (?)">?</button>
+  </nav>
+
+  <aside id="panel-indice" class="panel panel-indice" hidden aria-label="Índice de diapositivas">
+    <div class="panel-cabecera">
+      <h2>Índice</h2>
+      <button type="button" data-accion="cerrar" aria-label="Cerrar índice">Cerrar</button>
+    </div>
+    <div id="indice-lista"></div>
+  </aside>
+
+  <aside id="panel-notas" class="panel panel-notas" hidden aria-label="Notas del presentador">
+    <div class="panel-cabecera">
+      <h2>Notas</h2>
+      <button type="button" data-accion="cerrar" aria-label="Cerrar notas">Cerrar</button>
+    </div>
+    <p class="aviso">Estas notas se ven en la pantalla proyectada. Con dos pantallas, usa la vista del presentador (P).</p>
+    <div id="notas-texto" class="notas-texto"></div>
+  </aside>
+
+  <aside id="panel-ayuda" class="panel panel-ayuda" hidden aria-label="Atajos de teclado">
+    <div class="panel-cabecera">
+      <h2>Atajos de teclado</h2>
+      <button type="button" data-accion="cerrar" aria-label="Cerrar atajos">Cerrar</button>
+    </div>
+    <dl class="atajos">
+      <dt>→ &nbsp;espacio&nbsp; Av Pág</dt><dd>Avanzar</dd>
+      <dt>← &nbsp;Re Pág</dt><dd>Retroceder</dd>
+      <dt>Inicio &nbsp;Fin</dt><dd>Primera o última diapositiva</dd>
+      <dt>B &nbsp;o&nbsp; .</dt><dd>Pantalla negra</dd>
+      <dt>F</dt><dd>Pantalla completa</dd>
+      <dt>I</dt><dd>Índice</dd>
+      <dt>N</dt><dd>Notas en esta pantalla</dd>
+      <dt>P</dt><dd>Vista del presentador</dd>
+      <dt>T</dt><dd>Fondo claro u oscuro</dd>
+    </dl>
+    <p class="aviso">Con un presentador inalámbrico, los botones de avanzar y retroceder funcionan sin configurar nada.</p>
+  </aside>
+
+  <div id="negro" class="negro" hidden></div>
+  <div id="anuncio" class="solo-lectores" aria-live="polite"></div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+  <script src="../visor-bridge.js"></script>
+</body>
+</html>
