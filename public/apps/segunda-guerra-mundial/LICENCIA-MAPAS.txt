@@ -1,0 +1,12 @@
+Geometría de mapas (mapas.js)
+
+Las fronteras de 1938 provienen del proyecto «historical-basemaps» de André Ourednik
+(https://github.com/aourednik/historical-basemaps), distribuido bajo la licencia
+GNU General Public License v3.0 (https://www.gnu.org/licenses/gpl-3.0.html).
+
+mapas.js es una obra derivada de esos datos: fue simplificada, proyectada a coordenadas SVG
+y se agregaron trazados aproximados del frente del Este (1941–1943). Se distribuye bajo la
+misma licencia GPL-3.0. El script que la genera está documentado en el encabezado del archivo.
+
+Esta licencia aplica solo a mapas.js. El resto de la presentación tiene su propia licencia,
+indicada en la ficha del recurso.

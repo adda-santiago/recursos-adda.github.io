@@ -48,14 +48,26 @@
       return '<div class="pendiente"><strong>Imagen pendiente</strong><span>' + desc + '</span></div>';
     }
     var etiqueta = img.tipo === 'ilustracion' ? '<span class="etiqueta-ia">Ilustración generada con IA</span>' : '';
-    var credito = img.credito ? '<figcaption>' + esc(img.credito) + '</figcaption>' : '';
-    return '<figure class="figura">' + etiqueta +
+    var credito = img.credito && img.tipo !== 'ilustracion' ? '<figcaption>' + esc(img.credito) + '</figcaption>' : '';
+    return '<figure class="figura' + (img.ajuste === 'completa' ? ' figura-completa' : '') + '">' + etiqueta +
       '<img src="' + esc(img.src) + '" alt="' + esc(img.alt) + '" loading="lazy" decoding="async">' +
       credito + '</figure>';
   }
 
   function htmlFuente(d) {
     return d.fuente ? '<p class="fuente">Fuente: ' + esc(d.fuente) + '</p>' : '';
+  }
+
+  function cabecera(d) {
+    return '<header class="cabecera">' +
+      '<h2 class="titulo">' + esc(d.titulo) + '</h2>' +
+      (d.subtitulo ? '<p class="subtitulo">' + esc(d.subtitulo) + '</p>' : '') +
+      '</header>';
+  }
+
+  function numero(v) {
+    if (v < 1) return Math.round(v * 1000) + ' mil';
+    return String(v).replace('.', ',');
   }
 
   var PLANTILLAS = {
@@ -88,18 +100,146 @@
 
     puntos: function (d) {
       var items = (d.pasos || []).map(function (p, i) {
-        return '<li data-paso="' + (i + 1) + '">' +
+        return '<li data-paso="' + (i + 1) + '" data-rotulo="' + esc(p.t) + '">' +
           '<span class="p-t">' + esc(p.t) + '</span>' +
           (p.d ? '<span class="p-d">' + esc(p.d) + '</span>' : '') +
           '</li>';
       }).join('');
-      return '<header class="cabecera">' +
-          '<h2 class="titulo">' + esc(d.titulo) + '</h2>' +
-          (d.subtitulo ? '<p class="subtitulo">' + esc(d.subtitulo) + '</p>' : '') +
-        '</header>' +
-        '<ol class="puntos">' + items + '</ol>' +
-        '<div class="col-imagen">' + htmlImagen(d.imagen) + '</div>' +
+      var cierre = d.cierre
+        ? '<p class="cierre" data-paso="' + ((d.pasos || []).length + 1) + '" data-rotulo="Cierre">' + esc(d.cierre) + '</p>'
+        : '';
+      return cabecera(d) +
+        '<div class="col-texto"><ol class="puntos">' + items + '</ol>' + cierre + '</div>' +
+        (d.imagen ? '<div class="col-imagen">' + htmlImagen(d.imagen) + '</div>' : '') +
         htmlFuente(d);
+    },
+
+    tabla: function (d) {
+      var cols = d.columnas || [];
+      var html = '<div class="tabla" style="grid-template-columns: 200px repeat(' + cols.length + ', 1fr)">';
+      html += '<div class="tabla-esquina"></div>';
+      cols.forEach(function (c, j) {
+        html += '<div class="tabla-col-titulo" data-paso="' + (j + 1) + '" data-rotulo="' + esc(c.titulo) + '">' + esc(c.titulo) + '</div>';
+      });
+      (d.filas || []).forEach(function (f, i) {
+        html += '<div class="tabla-fila-titulo">' + esc(f) + '</div>';
+        cols.forEach(function (c, j) {
+          html += '<div class="tabla-celda" data-paso="' + (j + 1) + '">' + esc(c.celdas[i] || '') + '</div>';
+        });
+      });
+      return cabecera(d) + html + '</div>' + htmlFuente(d);
+    },
+
+    linea: function (d) {
+      var carriles = d.carriles || [];
+      var izq = carriles[0] ? carriles[0].id : '', der = carriles[1] ? carriles[1].id : '';
+      var html = '<div class="linea">' +
+        '<div class="linea-carril">' + esc(carriles[0] ? carriles[0].titulo : '') + '</div><div></div>' +
+        '<div class="linea-carril">' + esc(carriles[1] ? carriles[1].titulo : '') + '</div>';
+      (d.eventos || []).forEach(function (e, i) {
+        var txt = '<span class="linea-evento">' + esc(e.t) + '</span>';
+        html += '<div class="linea-fila" data-paso="' + (i + 1) + '" data-rotulo="' + esc(e.fecha + ': ' + e.t) + '">' +
+          '<div class="linea-izq">' + (e.carril === izq ? txt : '') + '</div>' +
+          '<div class="linea-fecha"><span>' + esc(e.fecha) + '</span></div>' +
+          '<div class="linea-der">' + (e.carril === der ? txt : '') + '</div>' +
+          '</div>';
+      });
+      return cabecera(d) + html + '</div>' + htmlFuente(d);
+    },
+
+    mapa: function (d, idx) {
+      var M = window.MAPAS && window.MAPAS[d.mapa];
+      var C = D.mapas && D.mapas[d.mapa];
+      if (!M || !C) return cabecera(d) + '<p class="subtitulo">Falta la geometría del mapa «' + esc(d.mapa) + '» (mapas.js).</p>';
+      var svg = '<svg class="mapa-svg mapa-' + esc(d.mapa) + '" viewBox="0 0 ' + M.ancho + ' ' + M.alto + '" role="img" aria-label="Mapa: ' + esc(d.titulo) + '">' +
+        '<defs><clipPath id="clip-urss-' + idx + '"><path d="' + (M.paises.urss || '') + '"/></clipPath></defs>' +
+        '<path class="tierra" d="' + M.base + '"/>';
+      Object.keys(M.paises).forEach(function (id) {
+        svg += '<path class="pais" data-pais="' + id + '" d="' + M.paises[id] + '"/>';
+      });
+      Object.keys(M.frentes || {}).forEach(function (k) {
+        svg += '<g class="frente" data-frente="' + k + '"><path class="frente-zona" clip-path="url(#clip-urss-' + idx + ')" d="' + M.frentes[k].zona + '"/>' +
+          '<path class="frente-linea" d="' + M.frentes[k].linea + '"/></g>';
+      });
+      svg += '</svg>';
+
+      var leyenda = C.leyenda.map(function (l) {
+        return '<li><svg viewBox="0 0 20 14" aria-hidden="true"><rect class="e-' + l.estado + '" width="20" height="14"/></svg>' + esc(l.texto) + '</li>';
+      }).join('');
+      if (C.frente) leyenda += '<li><svg viewBox="0 0 20 14" aria-hidden="true"><line x1="0" y1="7" x2="20" y2="7" class="frente-linea"/></svg>Frente del Este (aproximado)</li>';
+
+      var etiquetas = '';
+      for (var k = d.desde; k <= d.hasta; k++) etiquetas += '<span>' + esc(C.etapas[k].etiqueta) + '</span>';
+
+      return '<div class="mapa-lienzo">' + svg + '</div>' +
+        '<div class="mapa-lado">' +
+          '<h2 class="titulo">' + esc(d.titulo) + '</h2>' +
+          '<p class="mapa-etapa" aria-live="polite"></p>' +
+          '<p class="mapa-texto"></p>' +
+          '<div class="mapa-control" data-interactivo>' +
+            '<input type="range" min="' + d.desde + '" max="' + d.hasta + '" step="1" value="' + d.desde + '" aria-label="Etapa del mapa">' +
+            '<div class="mapa-etiquetas">' + etiquetas + '</div>' +
+          '</div>' +
+          '<ul class="leyenda">' + leyenda + '</ul>' +
+          (d.lateral ? '<p class="mapa-lateral">' + esc(d.lateral) + '</p>' : '') +
+          '<p class="mapa-nota">' + esc(C.nota || '') + '</p>' +
+        '</div>' + htmlFuente(d);
+    },
+
+    paneles: function (d) {
+      var html = '<div class="paneles">';
+      (d.paneles || []).forEach(function (p, i) {
+        html += '<article class="panel-item" data-paso="' + (i + 1) + '" data-rotulo="' + esc(p.titulo) + '">' +
+          '<p class="panel-lugar">' + esc(p.lugar) + '</p>' +
+          '<h3>' + esc(p.titulo) + '</h3>' +
+          '<p class="panel-fecha">' + esc(p.fecha) + '</p>' +
+          '<p class="panel-texto">' + esc(p.texto) + '</p>' +
+          '<p class="panel-resultado">' + esc(p.resultado) + '</p>' +
+          '</article>';
+      });
+      return cabecera(d) + html + '</div>' + htmlFuente(d);
+    },
+
+    debate: function (d) {
+      var hechos = (d.hechos || []).map(function (h) { return '<p>' + esc(h) + '</p>'; }).join('');
+      var cols = d.columnas || [];
+      var html = '<div class="debate-hechos">' + hechos + '</div><div class="debate">';
+      cols.forEach(function (c, j) {
+        html += '<div class="debate-col"><h3>' + esc(c.titulo) + '</h3><ul>';
+        c.items.forEach(function (it, i) {
+          var paso = i * cols.length + j + 1;
+          html += '<li data-paso="' + paso + '" data-rotulo="' + esc(c.titulo + ': ' + it) + '">' + esc(it) + '</li>';
+        });
+        html += '</ul></div>';
+      });
+      return cabecera(d) + html + '</div>' + htmlFuente(d);
+    },
+
+    cifras: function (d) {
+      var tope = 0;
+      (d.barras || []).forEach(function (b) { tope = Math.max(tope, b.max || b.min); });
+      var filas = (d.barras || []).map(function (b) {
+        var wMin = (b.min / tope) * 100;
+        var wMax = ((b.max || b.min) / tope) * 100;
+        var valor = b.max ? numero(b.min) + ' – ' + numero(b.max) : numero(b.min);
+        return '<div class="cifra-fila">' +
+          '<span class="cifra-nombre">' + esc(b.nombre) + '</span>' +
+          '<span class="cifra-pista"><i class="cifra-rango" style="--w:' + wMax.toFixed(2) + '%"></i><i class="cifra-barra" style="--w:' + wMin.toFixed(2) + '%"></i></span>' +
+          '<span class="cifra-valor">' + valor + '</span>' +
+          '</div>';
+      }).join('');
+      return cabecera(d) +
+        '<p class="cifras-unidad">' + esc(d.unidad || '') + '</p>' +
+        '<div class="cifras" data-paso="1" data-rotulo="Mostrar las cifras">' + filas + '</div>' +
+        (d.remate ? '<p class="cifras-remate" data-paso="2" data-rotulo="Remate">' + esc(d.remate) + '</p>' : '') +
+        htmlFuente(d);
+    },
+
+    preguntas: function (d) {
+      var items = (d.preguntas || []).map(function (q, i) {
+        return '<li data-paso="' + (i + 1) + '" data-rotulo="' + esc(q) + '">' + esc(q) + '</li>';
+      }).join('');
+      return cabecera(d) + '<ol class="preguntas">' + items + '</ol>' + htmlFuente(d);
     }
   };
 
@@ -120,8 +260,9 @@
       sec.setAttribute('aria-hidden', 'true');
       sec.dataset.transicion = d.transicion || 'normal';
       sec.dataset.tono = d.tono || 'normal';
+      if (d.layout === 'puntos' && !d.imagen) sec.classList.add('sin-imagen');
       sec.innerHTML = plantilla
-        ? plantilla(d)
+        ? plantilla(d, i)
         : '<h2 class="titulo">' + esc(d.titulo) + '</h2><p class="subtitulo">Layout «' + esc(d.layout) + '» aún no implementado.</p>';
       lienzo.appendChild(sec);
       secciones.push(sec);
@@ -130,6 +271,11 @@
       sec.querySelectorAll('[data-paso]').forEach(function (el) {
         max = Math.max(max, parseInt(el.dataset.paso, 10) || 0);
       });
+      if (d.layout === 'mapa') {
+        max = d.hasta - d.desde;
+        var rango = sec.querySelector('input[type="range"]');
+        if (rango) rango.addEventListener('input', function () { ir(i, parseInt(rango.value, 10) - d.desde); });
+      }
       totalPasos.push(max);
     });
   }
@@ -145,6 +291,21 @@
       if (items) html += '<h3 class="indice-acto">' + esc(acto.titulo) + '</h3>' + items;
     });
     $('#indice-lista').innerHTML = html;
+  }
+
+  function patrones() {
+    var ns = 'http://www.w3.org/2000/svg';
+    var svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('class', 'patrones');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.innerHTML =
+      '<defs>' +
+        '<pattern id="patron-ocupado" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">' +
+          '<rect width="7" height="7" style="fill: var(--eje-claro)"/><rect width="2.6" height="7" style="fill: var(--eje)"/></pattern>' +
+        '<pattern id="patron-ruptura" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">' +
+          '<rect width="7" height="7" style="fill: var(--neutral)"/><rect width="2.6" height="7" style="fill: var(--aliados)"/></pattern>' +
+      '</defs>';
+    document.body.appendChild(svg);
   }
 
   /* ---------- Escala del lienzo ---------- */
@@ -194,6 +355,8 @@
       el.classList.toggle('visible', parseInt(el.dataset.paso, 10) <= paso);
     });
 
+    if (S[actual].layout === 'mapa') pintarMapa(sec, S[actual], paso);
+
     if (cambioDiapo && sec.classList.contains('diapo-portada')) {
       // Reinicia la animación sin que se vea retroceder.
       sec.classList.add('reiniciar');
@@ -217,6 +380,39 @@
       $('#anuncio').textContent = 'Diapositiva ' + (actual + 1) + ' de ' + S.length + ': ' + S[actual].titulo;
       document.title = S[actual].titulo + ' · ' + D.titulo;
     }
+  }
+
+  function pintarMapa(sec, d, p) {
+    var C = D.mapas && D.mapas[d.mapa];
+    if (!C) return;
+    var etapa = d.desde + p;
+    sec.querySelectorAll('.pais').forEach(function (el) {
+      var seq = C.paises[el.dataset.pais];
+      el.setAttribute('class', 'pais ' + (seq ? 'e-' + seq.charAt(etapa) : 'sin'));
+    });
+    var frente = C.frente ? C.frente[etapa] : null;
+    sec.querySelectorAll('.frente').forEach(function (g) {
+      g.classList.toggle('visible', g.dataset.frente === frente);
+    });
+    sec.querySelector('.mapa-etapa').textContent = C.etapas[etapa].etiqueta;
+    sec.querySelector('.mapa-texto').textContent = C.etapas[etapa].texto;
+    var rango = sec.querySelector('input[type="range"]');
+    if (rango) rango.value = etapa;
+    sec.querySelectorAll('.mapa-etiquetas span').forEach(function (sp, k) {
+      sp.classList.toggle('activa', k === p);
+    });
+  }
+
+  function rotuloPaso(i, p) {
+    var d = S[i];
+    if (d.layout === 'mapa') {
+      var C = D.mapas[d.mapa];
+      return C ? 'Etapa ' + C.etapas[d.desde + p].etiqueta : '';
+    }
+    var el = secciones[i] && secciones[i].querySelector('[data-paso="' + p + '"]');
+    if (!el) return '';
+    var t = el.dataset.rotulo || el.textContent.trim();
+    return t.length > 90 ? t.slice(0, 88) + '…' : t;
   }
 
   function leerHash() {
@@ -391,8 +587,8 @@
     $('#vp-num').textContent = (actual + 1) + ' de ' + S.length;
     $('#vp-previsto').textContent = 'minuto ' + Math.round(minutosHasta(actual));
     $('#vp-paso').textContent = totalPasos[actual]
-      ? 'Aparición ' + paso + ' de ' + totalPasos[actual] +
-        (paso < totalPasos[actual] ? '. Siguiente clic: «' + S[actual].pasos[paso].t + '»' : '. Todo visible.')
+      ? 'Paso ' + paso + ' de ' + totalPasos[actual] +
+        (paso < totalPasos[actual] ? '. Siguiente clic: «' + rotuloPaso(actual, paso + 1) + '»' : '. Todo visible.')
       : 'Sin apariciones por clic.';
     $('#vp-notas').innerHTML = parrafos(d.notas);
     var prox = S[actual + 1];
@@ -472,6 +668,7 @@
     var x0 = null, y0 = null, deslizo = false;
 
     escenario.addEventListener('pointerdown', function (e) {
+      if (e.target.closest('[data-interactivo]')) { x0 = null; return; }
       x0 = e.clientX; y0 = e.clientY; deslizo = false;
     });
     escenario.addEventListener('pointerup', function (e) {
@@ -525,6 +722,7 @@
     actual = limitar(leerHash());
     pintarPresentador();
   } else {
+    patrones();
     construir();
     construirIndice();
     enlazarControles();
