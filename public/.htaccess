@@ -1,0 +1,29 @@
+# Aula Visual — configuración del servidor (Hostinger / LiteSpeed)
+# Este archivo vive en public/ y Astro lo copia a dist/ en cada build.
+
+Options -Indexes
+ErrorDocument 404 /404.html
+
+RewriteEngine On
+
+# Forzar HTTPS
+RewriteCond %{HTTPS} !=on
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Dominio temporal de Hostinger: no indexar (se desactiva solo con el dominio definitivo)
+RewriteCond %{HTTP_HOST} hostingersite\.com$ [NC]
+RewriteRule ^ - [E=DOMINIO_TEMPORAL:1]
+
+<IfModule mod_headers.c>
+  Header always set X-Robots-Tag "noindex, nofollow" env=DOMINIO_TEMPORAL
+
+  # HTML, JS, CSS e índice de búsqueda: revalidar siempre
+  <FilesMatch "\.(html|js|mjs|css|json|wasm|pf_meta|pf_index|pf_fragment)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+
+  # Imágenes, fuentes y modelos: una semana
+  <FilesMatch "\.(png|jpe?g|webp|avif|gif|svg|ico|woff2?|ttf|glb|gltf|ktx2|bin)$">
+    Header set Cache-Control "public, max-age=604800"
+  </FilesMatch>
+</IfModule>
