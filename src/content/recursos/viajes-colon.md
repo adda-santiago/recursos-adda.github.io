@@ -26,6 +26,7 @@ fuentes:
 revision:
   estado: borrador
 fechaPublicacion: 2026-10-02
+publicado: false
 orden: 6
 ---
 
