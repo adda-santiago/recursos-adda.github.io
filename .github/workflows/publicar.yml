@@ -16,8 +16,8 @@ jobs:
   hostinger:
     runs-on: ubuntu-latest
     env:
-      SITE_URL: https://brown-kangaroo-423495.hostingersite.com
-      BASE_PATH: /
+      SITE_URL: https://adda-santiago.github.io
+      BASE_PATH: /recursos-biblicos/
     steps:
       - uses: actions/checkout@v4
 
