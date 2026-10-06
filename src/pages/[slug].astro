@@ -1,0 +1,95 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Visor from '../components/Visor.astro';
+import { EPOCAS, LIBROS, SLUGS_RESERVADOS, TESTAMENTOS, TIPOS } from '../data/taxonomia';
+import { ruta } from '../lib/url';
+
+export async function getStaticPaths() {
+  const recursos = await getCollection('recursos', (r) => r.data.publicado);
+  for (const r of recursos) {
+    if (SLUGS_RESERVADOS.includes(r.id)) throw new Error(`[${r.id}] Ese nombre de archivo está reservado; renombra la ficha.`);
+  }
+  return recursos.map((r) => ({ params: { slug: r.id }, props: { r } }));
+}
+const { r } = Astro.props;
+const d = r.data;
+const { Content, headings } = await render(r);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'LearningResource',
+  name: d.titulo,
+  description: d.resumen,
+  inLanguage: 'es',
+  learningResourceType: TIPOS[d.tipo],
+  about: ['Biblia', ...d.libros.map((l) => LIBROS[l])],
+  keywords: [...d.epocas.map((e) => EPOCAS[e]), ...d.tags].join(', '),
+  isAccessibleForFree: true,
+  license: d.licencia.contenido,
+};
+---
+<Base titulo={d.titulo} descripcion={d.resumen}>
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(jsonLd)} />
+  <main>
+    <header class="ficha-cabecera">
+      <p class="miga">
+        {d.testamento.map((t, i) => <>{i > 0 && ' · '}<a href={ruta(`?testamento=${t}`)}>{TESTAMENTOS[t]}</a></>)}
+        {' '}/ <a href={ruta(`?tipo=${d.tipo}`)}>{TIPOS[d.tipo]}</a>
+      </p>
+      <h1>{d.titulo}</h1>
+      <p class="resumen">{d.resumen}</p>
+      <p class="meta">
+        {d.epocas.map((e) => <a class="chip" href={ruta(`?epoca=${e}`)}>{EPOCAS[e]}</a>)}
+      </p>
+    </header>
+
+    <Visor r={r} modo="ficha" />
+
+    <div class="ficha-cuerpo">
+      <article class="articulo" data-pagefind-body>
+        {d.testamento.map((t) => <span hidden data-pagefind-filter={`testamento:${TESTAMENTOS[t]}`}></span>)}
+        {d.libros.map((l) => <span hidden data-pagefind-filter={`libro:${LIBROS[l]}`}></span>)}
+        {d.epocas.map((e) => <span hidden data-pagefind-filter={`epoca:${EPOCAS[e]}`}></span>)}
+        <span hidden data-pagefind-filter={`tipo:${TIPOS[d.tipo]}`}></span>
+        <span hidden data-pagefind-meta={`emoji:${d.emoji}`}></span>
+        <span hidden data-pagefind-meta={`uid:${d.uid}`}></span>
+        <Content />
+        {d.tags.length > 0 && (
+          <p class="etiquetas">Etiquetas: {d.tags.map((t, i) => <>{i > 0 && ' '}<a href={ruta(`?tag=${t}`)}>#{t}</a></>)}</p>
+        )}
+      </article>
+
+      <aside class="lateral">
+        {headings.filter((h) => h.depth === 2).length > 1 && (
+          <nav aria-label="En esta ficha">
+            <h2>En esta ficha</h2>
+            <ul>{headings.filter((h) => h.depth === 2).map((h) => <li><a href={`#${h.slug}`}>{h.text}</a></li>)}</ul>
+          </nav>
+        )}
+        {d.libros.length > 0 && (
+          <div>
+            <h2>Libros</h2>
+            <p>{d.libros.map((l, i) => <>{i > 0 && ', '}<a href={ruta(`?libro=${l}`)}>{LIBROS[l]}</a></>)}</p>
+          </div>
+        )}
+        {d.visor.escala && <div><h2>Escala</h2><p>{d.visor.escala}</p></div>}
+        <div>
+          <h2>Fuentes</h2>
+          <ul>{d.fuentes.map((f) => <li>{f}</li>)}</ul>
+        </div>
+        <div>
+          <h2>Licencia y revisión</h2>
+          <p>{d.licencia.contenido}{d.licencia.modelo && ` · ${d.licencia.modelo}`}</p>
+          {d.licencia.atribucion && <p>{d.licencia.atribucion}</p>}
+          <p class={d.revision.estado === 'borrador' ? 'estado-borrador' : undefined}>
+            {d.revision.estado === 'revisado'
+              ? `Revisado${d.revision.revisor ? ` por ${d.revision.revisor}` : ''}${d.revision.fecha ? `, ${d.revision.fecha.toLocaleDateString('es-CL')}` : ''}`
+              : 'Ficha en revisión'}
+          </p>
+        </div>
+        <p><a href={ruta(`buzon/?recurso=${d.uid}`)}>Reportar un error en este recurso</a></p>
+      </aside>
+    </div>
+  </main>
+</Base>

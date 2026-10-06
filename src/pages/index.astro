@@ -2,18 +2,18 @@
 /*
  * Portada = buscador + catálogo completo.
  * - El buscador vive en la cabecera (Base.astro) y aquí filtra en vivo.
- * - Sin búsqueda, el catálogo se filtra por sección, colección, tipo, nivel y etiquetas.
- * - "Recién agregados" aparece entre la cabecera y el catálogo, y se oculta
- *   mientras hay búsqueda o filtros activos para que los resultados queden arriba.
- * Estado en la URL: ?q=&seccion=&coleccion=&tipo=&nivel=&tag=&guardados=1
+ * - El catálogo se filtra por testamento, libro, época, tipo y etiquetas (DIRECTRICES §9).
+ * - Los filtros ocupan la columna izquierda desde arriba; a la derecha van
+ *   "Recién agregados" y el catálogo. "Recién agregados" se oculta mientras hay
+ *   búsqueda o filtros activos para que los resultados queden arriba.
+ * Estado en la URL: ?q=&testamento=&libro=&epoca=&tipo=&tag=&guardados=1
  * (valores múltiples separados por coma).
  */
 import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import TarjetaRecurso from '../components/TarjetaRecurso.astro';
-import EspacioAnuncio from '../components/EspacioAnuncio.astro';
 import { SITIO } from '../config/sitio';
-import { ASIGNATURAS, COLECCIONES, NIVELES, TIPOS } from '../data/taxonomia';
+import { EPOCAS, LIBROS, TESTAMENTOS, TIPOS } from '../data/taxonomia';
 import { ruta, rutaRecurso } from '../lib/url';
 
 const recursos = (await getCollection('recursos', (r) => r.data.publicado))
@@ -32,68 +32,70 @@ const contarTags = new Map<string, number>();
 recursos.forEach((r) => r.data.tags.forEach((t) => contarTags.set(t, (contarTags.get(t) ?? 0) + 1)));
 const tags = [...contarTags.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([t]) => ({ valor: t, nombre: `#${t}` }));
 
+// Solo se muestran las facetas con al menos un valor en uso
 const facetas = [
-  { clave: 'seccion', titulo: 'Sección', items: opciones(ASIGNATURAS, recursos.map((r) => r.data.asignatura)) },
-  { clave: 'coleccion', titulo: 'Colección', items: opciones(COLECCIONES, recursos.map((r) => r.data.coleccion ?? '')) },
+  { clave: 'testamento', titulo: 'Testamento', items: opciones(TESTAMENTOS, recursos.flatMap((r) => r.data.testamento)) },
+  { clave: 'epoca', titulo: 'Época', items: opciones(EPOCAS, recursos.flatMap((r) => r.data.epocas)) },
+  { clave: 'libro', titulo: 'Libro', items: opciones(LIBROS, recursos.flatMap((r) => r.data.libros)) },
   { clave: 'tipo', titulo: 'Tipo de recurso', items: opciones(TIPOS, recursos.map((r) => r.data.tipo)) },
-  { clave: 'nivel', titulo: 'Nivel', items: opciones(NIVELES, recursos.flatMap((r) => r.data.niveles)) },
   { clave: 'tag', titulo: 'Etiquetas', items: tags },
 ].filter((f) => f.items.length > 0);
 
-const VISIBLES_TAGS = 8;
+// Facetas largas: las primeras opciones visibles, el resto tras "Ver más"
+const VISIBLES: Record<string, number> = { libro: 8, tag: 8 };
+const extra = (clave: string, i: number) => VISIBLES[clave] !== undefined && i >= VISIBLES[clave];
 
 // Catálogo liviano para la búsqueda de respaldo (sin Pagefind, p. ej. en `npm run dev`)
 const catalogo = recursos.map((r) => ({
   uid: r.data.uid,
-  u: rutaRecurso(r.data.asignatura, r.id),
-  k: [r.data.titulo, r.data.resumen, ASIGNATURAS[r.data.asignatura], TIPOS[r.data.tipo],
-      r.data.coleccion ? COLECCIONES[r.data.coleccion] : '', ...r.data.tags].join(' '),
+  u: rutaRecurso(r.id),
+  k: [r.data.titulo, r.data.resumen, TIPOS[r.data.tipo], ...r.data.testamento.map((t) => TESTAMENTOS[t]),
+      ...r.data.libros.map((l) => LIBROS[l]), ...r.data.epocas.map((e) => EPOCAS[e]), ...r.data.tags].join(' '),
 }));
 ---
 <Base titulo={SITIO.nombre}>
   <main class="inicio" data-inicio>
-    <section class="recientes" data-recientes aria-labelledby="titulo-recientes">
-      <h2 id="titulo-recientes" class="titulo-bloque">Recién agregados</h2>
-      <ul class="rejilla rejilla-recientes">
-        {recientes.map((r) => <TarjetaRecurso r={r} destacada />)}
-      </ul>
-    </section>
-
-    <div class="catalogo">
-      <details class="panel-filtros" data-panel-filtros open>
-        <summary>Filtros <span class="contador-filtros" data-contador-filtros></span></summary>
-        <div class="filtros-cuerpo">
-          <div class="filtros-cabecera">
-            <h2 class="titulo-bloque">Filtrar</h2>
-            <button type="button" class="limpiar" data-limpiar hidden>Limpiar</button>
-          </div>
-
-          <fieldset class="faceta" data-guardados-faceta hidden>
-            <label class="opcion">
-              <input type="checkbox" data-solo-guardados />
-              <span>Solo mis guardados</span>
-              <span class="cuenta" data-cuenta-guardados></span>
-            </label>
-          </fieldset>
-
-          {facetas.map((f) => (
-            <fieldset class="faceta" data-faceta={f.clave}>
-              <legend>{f.titulo}</legend>
-              {f.items.map((o, i) => (
-                <label class="opcion" hidden={f.clave === 'tag' && i >= VISIBLES_TAGS ? true : undefined} data-extra={f.clave === 'tag' && i >= VISIBLES_TAGS ? '' : undefined}>
-                  <input type="checkbox" value={o.valor} />
-                  <span>{o.nombre}</span>
-                  <span class="cuenta" data-cuenta></span>
-                </label>
-              ))}
-              {f.clave === 'tag' && f.items.length > VISIBLES_TAGS && (
-                <button type="button" class="ver-mas" data-ver-mas>Ver {f.items.length - VISIBLES_TAGS} más</button>
-              )}
-            </fieldset>
-          ))}
-          <EspacioAnuncio slot="inicio-lateral" />
+    <details class="panel-filtros" data-panel-filtros open>
+      <summary>Filtros <span class="contador-filtros" data-contador-filtros></span></summary>
+      <div class="filtros-cuerpo">
+        <div class="filtros-cabecera">
+          <h2 class="titulo-bloque">Filtrar</h2>
+          <button type="button" class="limpiar" data-limpiar hidden>Limpiar</button>
         </div>
-      </details>
+
+        <fieldset class="faceta" data-guardados-faceta hidden>
+          <label class="opcion">
+            <input type="checkbox" data-solo-guardados />
+            <span>Solo mis guardados</span>
+            <span class="cuenta" data-cuenta-guardados></span>
+          </label>
+        </fieldset>
+
+        {facetas.map((f) => (
+          <fieldset class="faceta" data-faceta={f.clave}>
+            <legend>{f.titulo}</legend>
+            {f.items.map((o, i) => (
+              <label class="opcion" hidden={extra(f.clave, i) ? true : undefined} data-extra={extra(f.clave, i) ? '' : undefined}>
+                <input type="checkbox" value={o.valor} />
+                <span>{o.nombre}</span>
+                <span class="cuenta" data-cuenta></span>
+              </label>
+            ))}
+            {VISIBLES[f.clave] !== undefined && f.items.length > VISIBLES[f.clave] && (
+              <button type="button" class="ver-mas" data-ver-mas>Ver {f.items.length - VISIBLES[f.clave]} más</button>
+            )}
+          </fieldset>
+        ))}
+      </div>
+    </details>
+
+    <div class="inicio-contenido">
+      <section class="recientes" data-recientes aria-labelledby="titulo-recientes">
+        <h2 id="titulo-recientes" class="titulo-bloque">Recién agregados</h2>
+        <ul class="rejilla rejilla-recientes">
+          {recientes.map((r) => <TarjetaRecurso r={r} destacada />)}
+        </ul>
+      </section>
 
       <section class="panel-resultados" aria-labelledby="titulo-catalogo">
         <div class="resultados-cabecera">
@@ -110,7 +112,6 @@ const catalogo = recursos.map((r) => ({
             <button type="button" class="enlace" data-limpiar>quita los filtros</button>.
           </p>
         </div>
-        <EspacioAnuncio slot="inicio-final" />
       </section>
     </div>
   </main>
@@ -132,7 +133,7 @@ const catalogo = recursos.map((r) => ({
   const norm = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
   const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
 
-  const CLAVES = ['seccion', 'coleccion', 'tipo', 'nivel', 'tag'] as const;
+  const CLAVES = ['testamento', 'libro', 'epoca', 'tipo', 'tag'] as const;
   type Clave = (typeof CLAVES)[number];
 
   const form = document.querySelector<HTMLFormElement>('[data-buscador]')!;
@@ -288,14 +289,14 @@ const catalogo = recursos.map((r) => ({
   });
   soloGuardados.addEventListener('change', () => { estado.guardados = soloGuardados.checked; pintar(); });
 
-  document.querySelector<HTMLButtonElement>('[data-ver-mas]')?.addEventListener('click', (e) => {
+  document.querySelectorAll<HTMLButtonElement>('[data-ver-mas]').forEach((boton) => boton.addEventListener('click', (e) => {
     const b = e.currentTarget as HTMLButtonElement;
     const fs = b.closest('fieldset')!;
     const ocultos = fs.querySelectorAll<HTMLElement>('[data-extra]');
     const mostrar = [...ocultos].some((l) => l.hidden);
     ocultos.forEach((l) => { l.hidden = !mostrar; });
     b.textContent = mostrar ? 'Ver menos' : `Ver ${ocultos.length} más`;
-  });
+  }));
 
   botonesLimpiar.forEach((b) => b.addEventListener('click', () => {
     CLAVES.forEach((c) => estado.filtros[c].clear());

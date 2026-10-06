@@ -3,11 +3,11 @@ uid: arbol-genealogico
 titulo: Árbol genealógico
 resumen: De Adán a Jesús por Mateo y por Lucas, y la línea de los sumos sacerdotes de Israel.
 emoji: 🌳
-asignatura: religion
-niveles: []
-coleccion: fuego-y-palabra
+testamento: [antiguo, nuevo]
+libros: [genesis, rut, 1-cronicas, mateo, lucas]
+epocas: [creacion, patriarcas, exodo, jueces, monarquia-unida, monarquia-dividida, exilio, retorno, intertestamentario, vida-de-jesus]
 tipo: genealogia
-tags: [genealogias, antiguo-testamento, nuevo-testamento, sacerdocio]
+tags: [genealogias, sacerdocio]
 visor:
   motor: legado
   ruta: genealogias

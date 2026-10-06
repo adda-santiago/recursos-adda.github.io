@@ -6,8 +6,9 @@ export function ruta(p = ''): string {
   return BASE + p.replace(/^\//, '');
 }
 
-export function rutaRecurso(asignatura: string, slug: string): string {
-  return ruta(`${asignatura}/${slug}/`);
+// Ficha de un recurso: /{slug}/ (desde la v2.1; antes /{asignatura}/{slug}/)
+export function rutaRecurso(slug: string): string {
+  return ruta(`${slug}/`);
 }
 
 export function rutaEmbed(slug: string): string {

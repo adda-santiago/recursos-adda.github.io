@@ -19,7 +19,7 @@ img, svg { max-width: 100%; height: auto; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
 
 /* ---------- Cabecera (ancho completo, buscador a la izquierda) ---------- */
-:root { --margen: clamp(1rem, 3vw, 2.5rem); --alto-cabecera: 4.25rem; }
+:root { --margen: clamp(1rem, 3vw, 2.5rem); --alto-cabecera: 5rem; }
 .top {
   position: sticky; top: 0; z-index: 50;
   display: grid; grid-template-columns: auto minmax(0, 40rem) 1fr; align-items: center; gap: 1.5rem;
@@ -29,13 +29,20 @@ img, svg { max-width: 100%; height: auto; }
   border-bottom: 1px solid var(--line);
   font-family: var(--sans); font-size: var(--text-sm);
 }
-.brand { display: inline-flex; align-items: center; gap: .6rem; font-family: var(--sans); font-weight: 500; color: var(--ink); text-decoration: none; white-space: nowrap; }
-.brand::before { content: ""; width: .5rem; height: .5rem; border-radius: 50%; background: var(--accent); }
+/* Marca: símbolo (logo o emoji) + nombre. El símbolo tiene tamaño fijo para que
+   cambiar el emoji por un logo (SITIO.logo) no mueva nada de la cabecera. */
+.brand { display: inline-flex; align-items: center; gap: .7rem; color: var(--ink); text-decoration: none; white-space: nowrap; }
+.brand-marca { flex: 0 0 auto; display: grid; place-items: center; width: 2.75rem; height: 2.75rem; font-size: 1.75rem; line-height: 1; }
+.brand-marca img { width: 100%; height: 100%; object-fit: contain; }
+.brand-nombre { font-family: var(--serif); font-size: clamp(1.4rem, 2.2vw, 1.85rem); font-weight: 500; letter-spacing: -0.015em; line-height: 1; }
+.brand:hover .brand-nombre { color: var(--accent); }
 .top nav { display: flex; gap: 1.25rem; justify-self: end; }
 .top nav a { color: var(--muted); text-decoration: none; white-space: nowrap; }
 .top nav a:hover { color: var(--ink); }
 @media (max-width: 640px) {
   .top { grid-template-columns: 1fr auto; gap: .6rem 1rem; }
+  .brand-marca { width: 2.25rem; height: 2.25rem; font-size: 1.45rem; }
+  .brand-nombre { font-size: 1.35rem; }
   .top .buscador { grid-column: 1 / -1; grid-row: 2; }
 }
 
@@ -61,8 +68,9 @@ img, svg { max-width: 100%; height: auto; }
 .recientes[hidden] { display: none; }
 .recientes .titulo-bloque { margin-bottom: .9rem; }
 
-.catalogo { display: grid; grid-template-columns: 15rem minmax(0, 1fr); gap: 2.5rem; align-items: start; }
-@media (max-width: 899px) { .catalogo { grid-template-columns: minmax(0, 1fr); gap: 1rem; } }
+.inicio { display: grid; grid-template-columns: 15rem minmax(0, 1fr); gap: 2.5rem; align-items: start; }
+@media (max-width: 899px) { .inicio { grid-template-columns: minmax(0, 1fr); gap: 1rem; } }
+.inicio-contenido { min-width: 0; }
 
 /* Panel de filtros */
 .panel-filtros { position: sticky; top: calc(var(--alto-cabecera) + 1rem); max-height: calc(100vh - var(--alto-cabecera) - 2rem); overflow-y: auto; font-family: var(--sans); font-size: var(--text-sm); }

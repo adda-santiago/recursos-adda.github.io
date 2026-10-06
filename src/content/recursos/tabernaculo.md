@@ -3,11 +3,11 @@ uid: tabernaculo
 titulo: El tabernáculo
 resumen: El santuario del desierto en 3D, del atrio al arca, con las ceremonias paso a paso.
 emoji: ⛺
-asignatura: religion
-niveles: []
-coleccion: fuego-y-palabra
+testamento: [antiguo, nuevo]
+libros: [exodo, levitico, numeros, hebreos]
+epocas: [exodo]
 tipo: 3d
-tags: [antiguo-testamento, exodo, santuario, sacrificios, levitico]
+tags: [exodo, santuario, sacrificios, levitico]
 visor:
   motor: legado
   ruta: tabernaculo

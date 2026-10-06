@@ -18,7 +18,7 @@ interface Props { r: CollectionEntry<'recursos'>; modo: 'ficha' | 'embed'; }
 const { r, modo } = Astro.props;
 const d = r.data;
 const srcLegado = d.visor.motor === 'legado' && d.visor.ruta ? ruta(`apps/${d.visor.ruta}/`) : null;
-const urlFicha = new URL(rutaRecurso(d.asignatura, r.id), Astro.site).href;
+const urlFicha = new URL(rutaRecurso(r.id), Astro.site).href;
 const urlEmbed = new URL(rutaEmbed(r.id), Astro.site).href;
 if (d.visor.motor === 'three') throw new Error(`[${r.id}] El motor "three" nativo aún no está implementado; usa "legado".`);
 ---

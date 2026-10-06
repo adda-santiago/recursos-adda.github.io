@@ -1,21 +1,21 @@
 ---
+/* Ítem de lista compacta (sin uso actual en las páginas; se conserva para listas futuras). */
 import type { CollectionEntry } from 'astro:content';
-import { ASIGNATURAS, COLECCIONES, NIVELES, TIPOS } from '../data/taxonomia';
+import { EPOCAS, TESTAMENTOS, TIPOS } from '../data/taxonomia';
 import { rutaRecurso } from '../lib/url';
 interface Props { r: CollectionEntry<'recursos'>; }
 const { r } = Astro.props;
 const d = r.data;
 ---
-<li data-uid={d.uid} data-asignatura={d.asignatura} data-tipo={d.tipo} data-niveles={d.niveles.join(' ')} data-tags={d.tags.join(' ')} data-coleccion={d.coleccion ?? ''}>
-  <a class="item" href={rutaRecurso(d.asignatura, r.id)}>
+<li data-uid={d.uid} data-testamento={d.testamento.join(' ')} data-tipo={d.tipo} data-epoca={d.epocas.join(' ')} data-tags={d.tags.join(' ')}>
+  <a class="item" href={rutaRecurso(r.id)}>
     <span class="emoji" aria-hidden="true">{d.emoji}</span>
     <span><h3>{d.titulo}</h3></span>
     <p>{d.resumen}</p>
     <span class="meta">
       <span class="chip">{TIPOS[d.tipo]}</span>
-      <span class="chip">{ASIGNATURAS[d.asignatura]}</span>
-      {d.coleccion && <span class="chip">{COLECCIONES[d.coleccion]}</span>}
-      {d.niveles.map((n) => <span class="chip">{NIVELES[n]}</span>)}
+      {d.testamento.map((t) => <span class="chip">{TESTAMENTOS[t]}</span>)}
+      {d.epocas.map((e) => <span class="chip">{EPOCAS[e]}</span>)}
     </span>
   </a>
 </li>

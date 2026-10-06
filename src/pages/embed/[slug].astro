@@ -1,5 +1,5 @@
 ---
-/* Visor limpio para insertar en otras plataformas. Sin cabecera, sin pie y SIN anuncios.
+/* Visor limpio para insertar en otras páginas. Sin cabecera ni pie.
    noindex + canonical a la ficha: el SEO se concentra en la ficha. */
 import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
@@ -11,7 +11,7 @@ export async function getStaticPaths() {
   return recursos.map((r) => ({ params: { slug: r.id }, props: { r } }));
 }
 const { r } = Astro.props;
-const canonical = new URL(rutaRecurso(r.data.asignatura, r.id), Astro.site).href;
+const canonical = new URL(rutaRecurso(r.id), Astro.site).href;
 ---
 <Base titulo={r.data.titulo} descripcion={r.data.resumen} embed noindex canonical={canonical}>
   <Visor r={r} modo="embed" />

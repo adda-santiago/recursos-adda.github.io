@@ -3,23 +3,27 @@
    del lado del navegador; el HTML completo queda en la página para SEO
    y para quien navegue sin JavaScript. */
 import type { CollectionEntry } from 'astro:content';
-import { ASIGNATURAS, COLECCIONES, NIVELES, TIPOS } from '../data/taxonomia';
+import { EPOCAS, TESTAMENTOS, TIPOS } from '../data/taxonomia';
 import { rutaRecurso } from '../lib/url';
 interface Props { r: CollectionEntry<'recursos'>; destacada?: boolean; }
 const { r, destacada = false } = Astro.props;
 const d = r.data;
+// Épocas: si son muchas (recursos transversales) se muestra el rango
+const epocas = d.epocas.length > 2
+  ? `${EPOCAS[d.epocas[0]]} – ${EPOCAS[d.epocas[d.epocas.length - 1]]}`
+  : d.epocas.map((e) => EPOCAS[e]).join(' · ');
 ---
 <li
   class:list={['tarjeta-item', { destacada }]}
   data-uid={d.uid}
-  data-seccion={d.asignatura}
+  data-testamento={d.testamento.join(' ')}
+  data-libro={d.libros.join(' ')}
+  data-epoca={d.epocas.join(' ')}
   data-tipo={d.tipo}
-  data-coleccion={d.coleccion ?? ''}
-  data-nivel={d.niveles.join(' ')}
   data-tag={d.tags.join(' ')}
   data-orden={d.orden}
 >
-  <a class="tarjeta" href={rutaRecurso(d.asignatura, r.id)}>
+  <a class="tarjeta" href={rutaRecurso(r.id)}>
     <span class="tarjeta-imagen" aria-hidden="true">
       {d.visor.poster
         ? <img src={d.visor.poster} alt="" loading="lazy" decoding="async" />
@@ -28,13 +32,11 @@ const d = r.data;
     </span>
     <span class="tarjeta-cuerpo">
       <span class="tarjeta-seccion">
-        {ASIGNATURAS[d.asignatura]}{d.coleccion && ` · ${COLECCIONES[d.coleccion]}`}
+        {d.testamento.map((t) => TESTAMENTOS[t]).join(' · ')}
       </span>
       <h3>{d.titulo}</h3>
       <span class="tarjeta-resumen">{d.resumen}</span>
-      {d.niveles.length > 0 && (
-        <span class="tarjeta-niveles">{d.niveles.map((n) => NIVELES[n]).join(' · ')}</span>
-      )}
+      {epocas && <span class="tarjeta-niveles">{epocas}</span>}
     </span>
   </a>
 </li>

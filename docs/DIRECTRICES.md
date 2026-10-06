@@ -1,10 +1,12 @@
 # Directrices del proyecto — Recursos bíblicos interactivos
 
-Versión 2.0 · 6 de octubre de 2026
+Versión 2.1 · 6 de octubre de 2026
 
 Este documento es la fuente de verdad del proyecto. Cualquier decisión nueva que contradiga algo de aquí se registra en la bitácora (§23) y se actualiza la sección correspondiente. Si el código y este documento no coinciden, se corrige uno de los dos; no se deja la diferencia. Mientras una diferencia esté en proceso de corregirse, la sección lo indica como **pendiente de implementar**.
 
 **Cambio de la versión 2.0:** el proyecto deja de ser una plataforma escolar con fines comerciales y pasa a ser un recurso de la iglesia para el estudio bíblico, sin anuncios ni planes pagados.
+
+**Cambio de la versión 2.1:** nombre visible *Recursos Bíblicos*; taxonomía bíblica implementada (testamento, época, libro); las fichas pasan a `/{slug}/`.
 
 ---
 
@@ -16,7 +18,7 @@ Queda dentro del alcance: recursos visuales interactivos sobre la Biblia y su co
 
 **Antecedente.** El proyecto nace de Fuego y Palabra (`crist-alarc/Fuego-y-Palabra`). Este repositorio es la fuente oficial de todas sus apps (§24).
 
-**Recursos no bíblicos.** El ADN, el motor de combustión y los viajes de Colón se crearon cuando el proyecto apuntaba a colegios. Quedan ocultos (`publicado: false`), sin borrarse, por si se retoman en otro proyecto.
+**Recursos no bíblicos.** El ADN, el motor de combustión, los viajes de Colón y la Segunda Guerra Mundial se crearon cuando el proyecto apuntaba a colegios. Quedan ocultos (`publicado: false`), sin borrarse, por si se retoman en otro proyecto.
 
 Queda fuera: anuncios y cualquier forma de monetización, cuentas de usuario, evaluaciones calificadas, foros o comentarios públicos, contenido generado por usuarios.
 
@@ -42,7 +44,9 @@ Queda fuera: anuncios y cualquier forma de monetización, cuentas de usuario, ev
 
 **Decidido:** el sitio tiene identidad bíblica; ya no se busca una marca neutra.
 
-**Pendiente (§22):** el nombre visible. Mientras se decide, se mantiene el que esté en `src/config/sitio.ts`. El nombre visible vive solo ahí (`SITIO.nombre` y `SITIO.emoji` para el favicon); no se escribe en ningún otro lugar.
+**Nombre visible:** *Recursos Bíblicos*, con 📖 como favicon. Vive solo en `src/config/sitio.ts` (`SITIO.nombre` y `SITIO.emoji`); no se escribe en ningún otro lugar.
+
+**Logo:** la cabecera muestra un símbolo de tamaño fijo junto al nombre. Mientras no haya logo, el símbolo es el emoji. Para usar un logo, se sube el archivo a `public/` (formato cuadrado, SVG o PNG de al menos 128 × 128 px) y se escribe su nombre en `SITIO.logo` (por ejemplo, `'logo.svg'`). No hay que tocar la cabecera.
 
 **Publicación:** organización de GitHub `adda-santiago`, repositorio `recursos-biblicos`, sitio en `https://adda-santiago.github.io/recursos-biblicos/`.
 
@@ -93,7 +97,7 @@ No hay base de datos ni servidor propio. El contenido vive en archivos Markdown 
 │  │  ├─ assets/css/         tokens.css, app.css y CSS por app (legado)
 │  │  ├─ visor-bridge.js     contrato visor ↔ app (§6)
 │  │  ├─ atlas/ linea-reyes/ genealogias/ tabernaculo/ templo-salomon/
-│  │  ├─ adn/ motor-combustion/ viajes-colon/   (fichas ocultas, §1)
+│  │  ├─ adn/ motor-combustion/ viajes-colon/ segunda-guerra-mundial/   (fichas ocultas, §1)
 │  └─ robots.txt             sin efecto mientras el sitio esté en subcarpeta (§19)
 ├─ src/
 │  ├─ config/sitio.ts        nombre, buzón, analítica (anuncios: inactivo, a eliminar)
@@ -103,7 +107,7 @@ No hay base de datos ni servidor propio. El contenido vive en archivos Markdown 
 │  ├─ lib/                   url, storage, analitica (anuncios y cuenta: inactivos, a eliminar)
 │  ├─ components/            Visor, Compartir, ItemRecurso (EspacioAnuncio: inactivo, a eliminar)
 │  ├─ layouts/Base.astro
-│  ├─ pages/                 portada, explorar, [asignatura]/[slug], embed/[slug], buzón, privacidad, 404
+│  ├─ pages/                 portada, [slug] (ficha), [asignatura]/[slug] (redirecciones), embed/[slug], explorar, buzón, privacidad, 404
 │  └─ styles/                tokens.css, global.css
 └─ .github/workflows/        publicar.yml, desempaquetar.yml
 ```
@@ -114,9 +118,10 @@ Todas cuelgan de la base `/recursos-biblicos/`.
 
 | Ruta | Contenido | Indexable |
 |---|---|---|
-| `/?q=&seccion=&coleccion=&tipo=&nivel=&tag=&guardados=1` | Portada = catálogo completo: recién agregados, filtros y búsqueda. Valores múltiples separados por coma. Las facetas cambian al implementar §9 | Sí |
-| `/explorar/` | Redirección a la portada (conserva los parámetros; `asignatura` pasa a `seccion`) | No |
-| `/{asignatura}/{slug}/` | Ficha: visor + artículo + fuentes | Sí (única página indexada por Pagefind) |
+| `/?q=&testamento=&epoca=&libro=&tipo=&tag=&guardados=1` | Portada = catálogo completo: recién agregados, filtros y búsqueda. Valores múltiples separados por coma | Sí |
+| `/explorar/` | Redirección a la portada (enlaces antiguos) | No |
+| `/{slug}/` | Ficha: visor + artículo + fuentes | Sí (única página indexada por Pagefind) |
+| `/religion/{slug}/` | Redirección a `/{slug}/` (URL de las fichas hasta la v2.0) | No |
 | `/embed/{slug}/` | Visor limpio para insertar | No (`noindex`, canonical a la ficha) |
 | `/apps/{app}/` | App legada cruda | No (`<meta name="robots" content="noindex">` en cada app) |
 | `/buzon/`, `/privacidad/` | Páginas de servicio | Sí |
@@ -125,6 +130,7 @@ Reglas de rutas:
 
 - **Nunca escribir rutas absolutas a mano.** Todo pasa por `ruta()`, `rutaRecurso()` y `rutaEmbed()` de `src/lib/url.ts`. Las URL completas (canonical, compartir, embed) se arman con `new URL(ruta(...), Astro.site)`, nunca concatenando texto.
 - El `slug` es el nombre del archivo Markdown. Puede cambiar, pero si cambia se agrega una redirección estática en `public/{ruta-antigua}/index.html`. GitHub Pages no permite redirecciones 301.
+- Hay slugs reservados porque chocan con páginas o carpetas del sitio (`apps`, `embed`, `buzon`, `privacidad`, `explorar`, `pagefind`, `404`, `_astro`, `religion`). La lista vive en `SLUGS_RESERVADOS` (`src/data/taxonomia.ts`) y el build falla si una ficha publicada usa uno.
 - El `uid` no cambia jamás (§8).
 
 ### Comandos
@@ -194,26 +200,23 @@ Estos valores son una estimación inicial, no un benchmark publicado. Se ajustan
 
 Cada recurso es un archivo `src/content/recursos/{slug}.md`. El esquema está en `src/content.config.ts` y **el build falla si un recurso no lo cumple**.
 
-Esquema vigente en el código:
-
 | Campo | Obligatorio | Regla |
 |---|---|---|
 | `uid` | Sí | Minúsculas, números y guiones. **Inmutable.** Los favoritos lo referencian |
 | `titulo` | Sí | Como lo buscaría un miembro de la iglesia ("El tabernáculo", no "Modelo 3D #12") |
 | `resumen` | Sí | ≤ 180 caracteres. Se usa en búsqueda, listas y meta descripción |
 | `emoji` | No | Un emoji representativo |
-| `asignatura` | Sí | Valor de `ASIGNATURAS`. Los recursos bíblicos usan `religion`. **Se reemplaza al implementar §9** |
-| `niveles` | No | En desuso; se deja vacío. Se elimina al implementar §9 |
-| `oa` | No | En desuso; se deja vacío. Se elimina al implementar §9 |
+| `testamento` | Sí, si está publicado | Uno o ambos de `TESTAMENTOS` (§9) |
+| `epocas` | Sí, si está publicado | Uno o más de `EPOCAS` (§9) |
+| `libros` | No | Valores de `LIBROS` (§9). Libros donde el tema es central, no toda mención |
 | `tipo` | Sí | Valor de `TIPOS` |
-| `tags` | No | Minúsculas con guiones, sin `#` |
-| `coleccion` | No | Valor de `COLECCIONES`. Los recursos bíblicos usan `fuego-y-palabra` |
+| `tags` | No | Minúsculas con guiones, sin `#`. No repiten lo que ya dicen testamento, época o libro |
 | `visor.motor` | Sí | `legado`, `model-viewer` o `three` |
 | `visor.ruta` / `visor.modelo` / `visor.poster` | Según motor | Carpeta en `public/apps/`, o URL absoluta (con `https://`) del `.glb` y su póster. Una ruta que empiece con `/` se rompe en la subcarpeta |
 | `visor.escala` | Recomendado | Obligatorio para todo 3D nuevo |
 | `hotspots` | No | `id`, `titulo`, `texto`, `posicion [x,y,z]` |
 | `licencia.contenido` | Sí | Licencia del texto y la app |
-| `licencia.modelo`, `licencia.atribucion` | Si el modelo es de terceros | Texto exacto que exige la licencia |
+| `licencia.modelo`, `licencia.atribucion` | Si el modelo o las teselas son de terceros | Texto exacto que exige la licencia |
 | `fuentes` | Sí (≥ 1) | Citas bíblicas, bibliografía o repositorio de origen |
 | `revision.estado` | Sí | `borrador` o `revisado` |
 | `revision.revisor`, `revision.fecha` | Al pasar a `revisado` | Quién revisó y cuándo |
@@ -221,21 +224,29 @@ Esquema vigente en el código:
 | `orden` | No | Orden editorial en el catálogo |
 | `publicado` | No | `false` oculta el recurso sin borrarlo. Si no está, el recurso se publica |
 
+Los campos de la etapa escolar (`asignatura`, `niveles`, `oa`, `coleccion`) ya no existen en el esquema. Si quedan en una ficha oculta, el build los ignora.
+
 ## 9. Taxonomía
 
-Vocabulario controlado en `src/data/taxonomia.ts`. Agregar un valor es una decisión editorial: se registra en la bitácora.
-
-**Taxonomía objetivo — pendiente de implementar** en `taxonomia.ts`, `content.config.ts`, la portada y Pagefind:
+Vocabulario controlado en `src/data/taxonomia.ts`. Agregar un valor es una decisión editorial: se registra en la bitácora. El orden de cada lista es el orden en que se muestran los filtros.
 
 | Faceta | Valores | Regla |
 |---|---|---|
 | `testamento` | `antiguo`, `nuevo` | Un recurso puede tener ambos |
-| `libros` | Los 66 libros, con identificador fijo en minúsculas y guiones (`genesis`, `1-reyes`, `cantares`, `apocalipsis`) | Libros donde el tema del recurso aparece de forma central, no toda mención |
-| `epoca` | `origenes-y-patriarcas`, `exodo-y-desierto`, `conquista-y-jueces`, `reino-unido`, `reino-dividido`, `exilio-y-retorno`, `intertestamentario`, `vida-de-jesus`, `iglesia-primitiva` | Uno o más. Un recurso transversal (atlas, genealogías) puede tener varias |
+| `epocas` | `creacion`, `patriarcas`, `exodo`, `jueces`, `monarquia-unida`, `monarquia-dividida`, `exilio`, `retorno`, `intertestamentario`, `vida-de-jesus`, `iglesia-primitiva` | Uno o más. Coinciden con las franjas del árbol genealógico (`public/apps/genealogias/epocas.js`), que junta en una sola franja la vida de Jesús y la iglesia primitiva. Un recurso transversal (atlas, genealogías) lleva todas las que recorre |
+| `libros` | Los 66 libros del canon protestante, con identificador fijo en minúsculas y guiones (`genesis`, `1-reyes`, `cantares`, `apocalipsis`) | Libros donde el tema del recurso es central, no toda mención |
 | `tipo` | modelo 3D, mapa, línea de tiempo, árbol genealógico, interactivo | Se mantiene |
-| `tags` | Libres, en minúsculas con guiones | Antes de crear uno, revisar si ya existe una variante (`antiguo-testamento`, no `at`) |
+| `tags` | Libres, en minúsculas con guiones | Antes de crear uno, revisar si ya existe una variante. No se usan para testamento, época ni libro |
 
-Mientras no se implemente, los recursos siguen con `asignatura: religion` y `coleccion: fuego-y-palabra`, y los libros, épocas y personajes se cargan como tags.
+Asignación actual:
+
+| Recurso | Testamento | Épocas | Libros |
+|---|---|---|---|
+| Atlas bíblico | Antiguo, Nuevo | Patriarcas a iglesia primitiva | Génesis, Éxodo, Números, Josué, 1 y 2 Reyes, Hechos |
+| Reyes, jueces y profetas | Antiguo | Conquista y jueces a retorno | Jueces, 1 y 2 Samuel, 1 y 2 Reyes, 1 y 2 Crónicas |
+| Árbol genealógico | Antiguo, Nuevo | Creación a vida de Jesús | Génesis, Rut, 1 Crónicas, Mateo, Lucas |
+| El tabernáculo | Antiguo, Nuevo | Éxodo y desierto | Éxodo, Levítico, Números, Hebreos |
+| El templo de Salomón | Antiguo | Monarquía unida | 1 Reyes, 2 Crónicas |
 
 ## 10. Sin fines comerciales
 
@@ -283,9 +294,9 @@ La portada es el catálogo completo, a ancho de pantalla:
 
 | Zona | Comportamiento |
 |---|---|
-| Cabecera fija | Marca, buscador arriba a la izquierda (presente en todas las páginas; desde otra página envía a la portada con `?q=`) y Sugerencias |
-| Recién agregados | Los 4 recursos con `fechaPublicacion` más reciente. Se oculta mientras hay búsqueda o filtros activos, para que los resultados queden arriba. En celular, carrusel horizontal |
-| Panel de filtros | Hoy: sección, colección, tipo, nivel y etiquetas. Al implementar §9: testamento, libro, época, tipo y etiquetas. Las 8 opciones más usadas visibles, el resto tras "Ver más"; "Solo mis guardados" si el visitante guardó algo. Fijo al hacer scroll en escritorio; plegable en celular. Cada opción muestra cuántos recursos quedarían |
+| Cabecera fija | Marca (símbolo + nombre en serif grande), buscador (presente en todas las páginas; desde otra página envía a la portada con `?q=`) y Sugerencias |
+| Panel de filtros | Columna izquierda desde arriba, a la altura de "Recién agregados". Testamento, época, libro, tipo y etiquetas. En libro y etiquetas, 8 opciones visibles y el resto tras "Ver más"; "Solo mis guardados" si el visitante guardó algo. Fijo al hacer scroll en escritorio; plegable en celular, antes de "Recién agregados". Cada opción muestra cuántos recursos quedarían |
+| Recién agregados | Columna derecha, arriba del catálogo. Los 4 recursos con `fechaPublicacion` más reciente. Se oculta mientras hay búsqueda o filtros activos, para que los resultados queden arriba. En celular, carrusel horizontal |
 | Catálogo | Rejilla de tarjetas (imagen o emoji, tipo, título, resumen). En celular, tarjetas horizontales compactas |
 
 Reglas de filtrado: **O** dentro de una misma faceta, **Y** entre facetas distintas. La búsqueda y los filtros se combinan. Con búsqueda, el orden es por relevancia; sin ella, por `orden`. Todo el estado vive en la URL, así que una vista filtrada se puede compartir.
@@ -388,7 +399,6 @@ Reglas:
 - **Despliegue en `adda-santiago`:** actualizar `publicar.yml`, reactivar Pages y verificar el sitio en la subcarpeta.
 - **`noindex` en las apps legadas** (§19, regla 5).
 - **Limpieza del código comercial:** eliminar `anuncios.ts`, `cuenta.ts`, `EspacioAnuncio`, `SITIO.anuncios` y la llamada a `iniciarAnuncios()`.
-- **Taxonomía bíblica** (§9): implementar en el código y migrar las fichas.
 - **Templo de Herodes** (`herodes/`): no estaba en el repositorio de Fuego y Palabra. Incorporarlo con el procedimiento anterior.
 - Revisar la respuesta en celular de las apps legadas con barra lateral fija: dentro del visor, en pantallas angostas, quedan apretadas. Solución de fondo: panel lateral colapsable por defecto bajo cierto ancho. Es prioritario, porque el estudio personal ocurre sobre todo en el celular.
 
@@ -397,7 +407,7 @@ Reglas:
 | Fase | Alcance | Criterio de salida |
 |---|---|---|
 | 0. Plataforma mínima | Astro, visor con contrato, Pagefind, apps bíblicas incorporadas, compartir, embed, buzón | **Hecho en v1.1**, salvo Herodes y buzón sin URL |
-| 1. Reorientación a la iglesia | Despliegue en `adda-santiago`, limpieza del código comercial, taxonomía bíblica, nombre visible | Sitio publicado en la URL nueva con facetas bíblicas |
+| 1. Reorientación a la iglesia | Despliegue en `adda-santiago` (hecho), nombre visible (hecho), taxonomía bíblica (hecho), limpieza del código comercial | Sitio publicado en la URL nueva con facetas bíblicas |
 | 2. Contenido | Templo de Herodes y recursos nuevos según el buzón y las búsquedas sin resultado | Usado por miembros y líderes de la iglesia |
 | 3. Crecimiento | Analítica activa, PWA con modo sin conexión, enlace directo a estaciones (`fyp:ir-a`) | Uso sostenido medible |
 
@@ -405,8 +415,8 @@ Reglas:
 
 | Decisión | Opciones | Estado |
 |---|---|---|
-| Nombre visible del sitio | Mantener el actual / Fuego y Palabra / otro nombre ligado a la iglesia | Pendiente |
 | Dominio propio | Seguir en `github.io` / dominio de la iglesia | Pendiente; decidir antes de difundir masivamente |
+| Logo | Imagen propia junto al nombre en la cabecera | Pendiente; la cabecera ya lo admite (`SITIO.logo`, §4) |
 | Traducción bíblica para citas | Reina-Valera 1909 (dominio público) / otra con permiso | RV 1909 por defecto |
 | Proveedor del buzón | Tally / Google Forms | Pendiente |
 | Almacenamiento de `.glb` | Cloudflare R2 / otro | Pendiente hasta el primer modelo pesado |
@@ -446,6 +456,14 @@ Reglas:
 | 2026-10-06 | GitHub Pages pasa a ser el hosting permanente; se descarta Hostinger | Sin uso comercial no hay restricción de Pages ni necesidad de AdSense |
 | 2026-10-06 | Apps legadas excluidas de buscadores con `meta robots noindex` | `robots.txt` no aplica en un sitio de proyecto en subcarpeta |
 | 2026-10-06 | `visor.modelo` y `visor.poster` deben ser URL absolutas | Una ruta que empiece con `/` se rompe en la subcarpeta |
+| 2026-10-06 | Nombre visible: *Recursos Bíblicos* | Coincide con el propósito y con el nombre del repositorio |
+| 2026-10-06 | La Segunda Guerra Mundial queda oculta (`publicado: false`) | No corresponde al propósito bíblico |
+| 2026-10-06 | Taxonomía bíblica implementada: testamento, época y libro reemplazan asignatura, niveles, OA y colección | Facetas que corresponden a cómo se estudia la Biblia; con un solo valor, "Sección" y "Colección" no filtraban nada |
+| 2026-10-06 | Épocas alineadas con las franjas del árbol genealógico, separando la iglesia primitiva | Un solo vocabulario de épocas en el sitio y en las apps |
+| 2026-10-06 | Las fichas pasan de `/religion/{slug}/` a `/{slug}/`, con páginas de redirección desde la URL antigua | Sin asignaturas, el segmento sobraba; se cambia ahora, antes de difundir enlaces |
+| 2026-10-06 | Testamento y época obligatorios en todo recurso publicado | Evitar fichas que no aparezcan en ningún filtro |
+| 2026-10-06 | Filtros en la columna izquierda desde arriba de la portada, junto a "Recién agregados" | Los filtros quedaban bajo los recién agregados y obligaban a bajar para usarlos |
+| 2026-10-06 | Nombre del sitio más grande, en serif, con un símbolo de tamaño fijo preparado para un logo (`SITIO.logo`) | Dar presencia a la marca y poder incorporar el logo sin rediseñar la cabecera |
 
 ## 24. Relación con el repositorio Fuego y Palabra
 
