@@ -22,8 +22,8 @@ fuentes:
 revision:
   estado: borrador
 fechaPublicacion: 2026-10-01
-publicado: false
 orden: 5
+publicado: false
 ---
 
 ## Qué muestra el modelo
