@@ -22,12 +22,12 @@
         <h1>Los viajes de Colón</h1>
         <p class="lead">Cuatro cruces del Atlántico entre 1492 y 1504: por qué se hicieron, con qué medios, qué encontraron y qué cambiaron.</p>
       </header>
-      <div class="tabs" role="tablist" aria-label="Recorridos">
-        <button class="tab" id="tab-ruta" role="tab" type="button" aria-selected="true">Ruta de aprendizaje</button>
-        <button class="tab" id="tab-proc" role="tab" type="button" aria-selected="false">Viajes</button>
+      <div class="ruta-sel">
+        <label class="ruta-label" for="ruta">Ruta de aprendizaje</label>
+        <div class="ruta-campo"><select id="ruta"></select></div>
+        <p class="ruta-info" id="ruta-info"></p>
       </div>
       <ol class="stations" id="stations" aria-label="Ruta de aprendizaje de los viajes de Colón"></ol>
-      <div class="ceremonies" id="processes" hidden></div>
     </aside>
 
     <main class="tb-stage" id="stage">

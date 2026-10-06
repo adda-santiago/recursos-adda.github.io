@@ -60,44 +60,58 @@ body.motor { overflow: hidden; }
 .tb-head h1 { font-size: clamp(2.2rem, 3.4vw, 2.8rem); margin-bottom: 1rem; }
 .tb-head .lead { color: var(--muted); font-size: 1.05rem; margin-bottom: 2.25rem; max-width: 30rem; }
 
-.tabs { display: flex; gap: 1.5rem; }
-.tab {
+/* ---------- Selector de ruta (patrón común, DIRECTRICES §20) ---------- */
+:root[data-theme="dark"] { color-scheme: dark; }
+:root[data-theme="light"] { color-scheme: light; }
+.ruta-sel { margin-bottom: 1rem; }
+.ruta-label {
+  display: block;
   font-family: var(--sans);
-  font-size: 0.9rem;
+  font-size: 0.78rem;
   font-weight: 500;
   color: var(--muted);
-  background: none;
-  border: 0;
-  border-bottom: 2px solid transparent;
-  padding: 0.5rem 0;
+  margin-bottom: 0.4rem;
+}
+.ruta-campo { position: relative; }
+.ruta-campo::after {
+  content: "";
+  position: absolute;
+  right: 0.95rem;
+  top: 50%;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-right: 1.5px solid var(--ink);
+  border-bottom: 1.5px solid var(--ink);
+  transform: translateY(-70%) rotate(45deg);
+  pointer-events: none;
+}
+.ruta-campo select {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.55rem 2.5rem 0.55rem 0.85rem;
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--muted);
+  border-radius: 8px;
   cursor: pointer;
 }
-.tab:hover { color: var(--ink); }
-.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+.ruta-campo select:hover { border-color: var(--ink); }
+.ruta-campo select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ruta-info {
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: 0.5rem;
+}
+.ruta-info:empty { display: none; }
 
 .stations { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
-.stations[hidden], .ceremonies[hidden], .cer-steps[hidden] { display: none; }
 
-.ceremonies { border-top: 1px solid var(--line); }
-.cer { border-bottom: 1px solid var(--line); }
-.cer-head {
-  display: block;
-  width: 100%;
-  padding: 0.9rem 0;
-  border: 0;
-  background: none;
-  color: inherit;
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-}
-.cer-name { display: block; font-size: 1.25rem; line-height: 1.3; }
-.cer-head .st-ref { display: block; }
-.cer-head:hover .cer-name { color: var(--accent); }
-.cer-head[aria-expanded="true"] .cer-name { color: var(--accent); }
-.cer-steps { list-style: none; margin: -0.2rem 0 0.8rem; padding: 0; }
-.cer-steps .st { padding: 0.45rem 0; }
-.cer-steps .st-name { font-size: 1.02rem; }
 .stations li { border-bottom: 1px solid var(--line); }
 
 .st {
@@ -273,8 +287,8 @@ body.motor { overflow: hidden; }
     backdrop-filter: none;
     padding: 1.5rem 1.25rem 1.25rem;
   }
-  .tabs { order: 3; margin: 0.5rem 1.25rem 0; }
-  .stations, .ceremonies { order: 4; margin: 0 1.25rem 2.5rem; }
+  .ruta-sel { order: 3; margin: 1.25rem 1.25rem 1rem; }
+  .stations { order: 4; margin: 0 1.25rem 2.5rem; }
   .tb-hint { display: none; }
   .btn { padding: 0.45rem 0.8rem; font-size: 0.8rem; }
 }

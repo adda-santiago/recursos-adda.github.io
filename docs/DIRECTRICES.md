@@ -1,12 +1,14 @@
 # Directrices del proyecto — Recursos bíblicos interactivos
 
-Versión 2.1 · 6 de octubre de 2026
+Versión 2.2 · 6 de octubre de 2026
 
 Este documento es la fuente de verdad del proyecto. Cualquier decisión nueva que contradiga algo de aquí se registra en la bitácora (§23) y se actualiza la sección correspondiente. Si el código y este documento no coinciden, se corrige uno de los dos; no se deja la diferencia. Mientras una diferencia esté en proceso de corregirse, la sección lo indica como **pendiente de implementar**.
 
 **Cambio de la versión 2.0:** el proyecto deja de ser una plataforma escolar con fines comerciales y pasa a ser un recurso de la iglesia para el estudio bíblico, sin anuncios ni planes pagados.
 
 **Cambio de la versión 2.1:** nombre visible *Recursos Bíblicos*; taxonomía bíblica implementada (testamento, época, libro); las fichas pasan a `/{slug}/`.
+
+**Cambio de la versión 2.2:** cuando un recurso tiene más de una ruta, se eligen en un selector de ruta (lista desplegable) en lugar de pestañas y acordeones (§20).
 
 ---
 
@@ -383,8 +385,14 @@ Reglas:
 
 ### Ruta de aprendizaje (obligatoria en todo modelo 3D)
 
-**Todo modelo 3D nuevo incluye una ruta de aprendizaje.** Un modelo sin ruta no se publica. Siguen el patrón del tabernáculo: panel lateral con dos pestañas (estaciones y procesos), ficha flotante con título, filas de datos, explicación y navegación Anterior/Siguiente, y cámara que viaja a cada estación. Reglas:
+**Todo modelo 3D nuevo incluye una ruta de aprendizaje.** Un modelo sin ruta no se publica. Siguen el patrón del tabernáculo: panel lateral con selector de ruta y lista de pasos, ficha flotante con título, filas de datos, explicación y navegación Anterior/Siguiente, y cámara que viaja a cada estación. Reglas:
 
+- **Selector de ruta.** Si el recurso tiene dos o más rutas (el recorrido principal más procesos, ceremonias, viajes, etc.), se eligen en una lista desplegable nativa (`<select id="ruta">`) con la etiqueta «Ruta de aprendizaje», y la lista de abajo muestra solo los pasos de la ruta elegida. Nunca se apilan rutas una tras otra.
+  - Las opciones se agrupan con `<optgroup>`: *Recorrido* para la ruta principal y un grupo con nombre según el contenido para las demás (*Ceremonias*, *Procesos*, *Viajes*). El nombre de la opción no lleva conteo de pasos.
+  - Bajo el selector, una línea breve con la referencia de la ruta (`info` o `ref`; en mapas, el color del recorrido).
+  - En código, cada ruta es `{ id, grupo, n, info, steps }` dentro de `ROUTES`. Elegir una ruta va a su primer paso; tocar un objeto de la escena o «Vista general» devuelve el selector a la ruta principal.
+  - Con una sola ruta no hay selector: solo la lista.
+  - Referencia: `tabernaculo/`. Mismo patrón en `adn/`, `motor-combustion/` y `viajes-colon/`.
 - El contenido va en `data.js`, separado del motor (`app.js`), para poder revisar o corregir textos sin tocar el 3D.
 - Cada estación cierra con una pregunta **Para pensar**, sin la respuesta escrita en la misma ficha. Sirve tanto para el estudio personal como para conversar en grupo.
 - La ruta va de lo simple a lo complejo: piezas, ensamblaje, escala y contexto histórico.
@@ -392,7 +400,7 @@ Reglas:
 - Lo que el modelo simplifica se declara en la sección «Qué es reconstrucción / limitaciones» de la ficha.
 - Si el modelo representa un proceso que avanza en el tiempo, la escena muestra un indicador de estado con lo que está pasando en ese momento, y cada paso de Procesos repite solo su tramo.
 - Las estaciones pueden mostrar grupos auxiliares (nombres, medidas) y fijar un tramo de animación; los botones de la escena permiten activarlos también a mano.
-- **Mapas con recorridos** (viajes, rutas, campañas: el éxodo, los viajes de Pablo) usan el mismo patrón con Leaflet: la pestaña Procesos se llama según el contenido (por ejemplo, Viajes), la cámara es el encuadre del mapa (`view` como límites sur-oeste y norte-este), cada paso redibuja solo su tramo y el indicador de estado muestra recorrido, fecha, lugar y avance. Referencia técnica: `viajes-colon/` (ficha oculta, la app sigue en el repositorio).
+- **Mapas con recorridos** (viajes, rutas, campañas: el éxodo, los viajes de Pablo) usan el mismo patrón con Leaflet: el grupo de rutas del selector se llama según el contenido (por ejemplo, Viajes), la cámara es el encuadre del mapa (`view` como límites sur-oeste y norte-este), cada paso redibuja solo su tramo y el indicador de estado muestra recorrido, fecha, lugar y avance. Referencia técnica: `viajes-colon/` (ficha oculta, la app sigue en el repositorio).
 
 ### Pendientes
 
@@ -463,6 +471,7 @@ Reglas:
 | 2026-10-06 | Las fichas pasan de `/religion/{slug}/` a `/{slug}/`, con páginas de redirección desde la URL antigua | Sin asignaturas, el segmento sobraba; se cambia ahora, antes de difundir enlaces |
 | 2026-10-06 | Testamento y época obligatorios en todo recurso publicado | Evitar fichas que no aparezcan en ningún filtro |
 | 2026-10-06 | Filtros en la columna izquierda desde arriba de la portada, junto a "Recién agregados" | Los filtros quedaban bajo los recién agregados y obligaban a bajar para usarlos |
+| 2026-10-06 | Selector de ruta (lista desplegable agrupada) reemplaza las pestañas y los acordeones en todo recurso con más de una ruta; aplicado en tabernáculo, ADN, motor de combustión y viajes de Colón | Con varias rutas apiladas una tras otra se perdían; el selector muestra una ruta a la vez y funciona igual en celular, teclado y proyección |
 | 2026-10-06 | Nombre del sitio más grande, en serif, con un símbolo de tamaño fijo preparado para un logo (`SITIO.logo`) | Dar presencia a la marca y poder incorporar el logo sin rediseñar la cabecera |
 
 ## 24. Relación con el repositorio Fuego y Palabra

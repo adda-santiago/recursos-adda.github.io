@@ -21,12 +21,12 @@
         <h1>El ADN</h1>
         <p class="lead">Recorre la doble hélice pieza por pieza, del nucleótido a la molécula completa, y mira cómo se copia antes de que la célula se divida.</p>
       </header>
-      <div class="tabs" role="tablist" aria-label="Recorridos">
-        <button class="tab" id="tab-ruta" role="tab" type="button" aria-selected="true">Ruta de aprendizaje</button>
-        <button class="tab" id="tab-proc" role="tab" type="button" aria-selected="false">Procesos</button>
+      <div class="ruta-sel">
+        <label class="ruta-label" for="ruta">Ruta de aprendizaje</label>
+        <div class="ruta-campo"><select id="ruta"></select></div>
+        <p class="ruta-info" id="ruta-info"></p>
       </div>
       <ol class="stations" id="stations" aria-label="Ruta de aprendizaje del ADN"></ol>
-      <div class="ceremonies" id="processes" hidden></div>
     </aside>
 
     <main class="tb-stage" id="stage">

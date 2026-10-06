@@ -157,39 +157,39 @@
     hud.querySelector('.hud-bar').innerHTML = v.steps.map((_, k) => `<b class="${k <= i ? 'on' : ''}"></b>`).join('');
   }
 
-  /* ---------------- Panel: pestañas y listas ---------------- */
+  /* ---------------- Panel: selector de ruta y lista ---------------- */
+  /* Selector de ruta (patrón común, DIRECTRICES §20): una ruta a la vez;
+     la lista muestra solo sus pasos. Cada ruta: { id, grupo, n, info, steps }. */
+  const ROUTES = [
+    { id: 'ruta', grupo: 'Recorrido', n: 'Ruta de aprendizaje', steps: STATIONS },
+    ...VOYAGES.map(v => ({ ...v, grupo: 'Viajes', info: `${v.ref} · ${v.barcos} barcos` }))
+  ];
+  const ROUTE_BY_ID = Object.fromEntries(ROUTES.map(r => [r.id, r]));
   const list = document.getElementById('stations');
-  const procBox = document.getElementById('processes');
-  const tabRuta = document.getElementById('tab-ruta');
-  const tabProc = document.getElementById('tab-proc');
+  const routeSel = document.getElementById('ruta');
+  const routeInfo = document.getElementById('ruta-info');
+  routeSel.innerHTML = [...new Set(ROUTES.map(r => r.grupo))].map(g => `<optgroup label="${g}">${
+    ROUTES.filter(r => r.grupo === g).map(r => `<option value="${r.id}">${r.n}</option>`).join('')
+  }</optgroup>`).join('');
+  routeSel.addEventListener('change', () => select(routeSel.value, 0));
   const stBtn = (tourId, i, num, name, ref) => `<button class="st" type="button" data-tour="${tourId}" data-i="${i}">
       <span class="st-num">${num ?? ''}</span>
       <span class="st-name">${esc(name)}</span>
       <span class="st-ref">${esc(ref)}</span>
     </button>`;
-  list.innerHTML = STATIONS.map((s, i) => `<li>${stBtn('ruta', i, s.num, s.short || s.n, s.ref)}</li>`).join('');
-  procBox.innerHTML = VOYAGES.map(v => `<section class="cer">
-      <button class="cer-head" type="button" data-proc="${v.id}" aria-expanded="false">
-        <span class="cer-name"><i style="background:${v.color}"></i>${v.n}</span>
-        <span class="st-ref">${v.ref} · ${v.barcos} barcos</span>
-      </button>
-      <ol class="cer-steps" hidden>${v.steps.map((s, i) => `<li>${stBtn(v.id, i, i + 1, s.n, s.ref)}</li>`).join('')}</ol>
-    </section>`).join('');
-
-  function showTab(which) {
-    const proc = which === 'proc';
-    tabRuta.setAttribute('aria-selected', String(!proc));
-    tabProc.setAttribute('aria-selected', String(proc));
-    list.hidden = proc;
-    procBox.hidden = !proc;
+  let shownRoute = null;
+  function renderRoute(t) {
+    const r = ROUTE_BY_ID[t];
+    shownRoute = t;
+    routeSel.value = t;
+    routeInfo.innerHTML = r.info ? `${r.color ? `<i style="background:${r.color}"></i>` : ''}${r.info}` : '';
+    list.innerHTML = r.steps.map((s, i) => `<li>${
+      t === 'ruta' ? stBtn(t, i, s.num, s.short || s.n, s.ref) : stBtn(t, i, i + 1, s.n, s.ref)
+    }</li>`).join('');
   }
-  tabRuta.addEventListener('click', () => { if (tour !== 'ruta') select('ruta', 0); else showTab('ruta'); });
-  tabProc.addEventListener('click', () => { if (tour === 'ruta') select(VOYAGES[0].id, 0); else showTab('proc'); });
-  document.querySelector('.tb-panel').addEventListener('click', e => {
+  list.addEventListener('click', e => {
     const b = e.target.closest('.st');
-    if (b) return select(b.dataset.tour, +b.dataset.i);
-    const h = e.target.closest('.cer-head');
-    if (h) select(h.dataset.proc, 0);
+    if (b) select(b.dataset.tour, +b.dataset.i);
   });
 
   /* ---------------- Ficha ---------------- */
@@ -213,7 +213,7 @@
     if (i !== idx) select(tour, i);
   }
   document.addEventListener('keydown', e => {
-    if (e.target.closest && e.target.closest('input, textarea')) return;
+    if (e.target.closest && e.target.closest('input, textarea, select')) return;
     if (e.key === 'ArrowRight') step(1);
     if (e.key === 'ArrowLeft') step(-1);
   });
@@ -358,14 +358,8 @@
     if (i === undefined || !items(t)[i]) return;
     tour = t; idx = i;
     const ruta = t === 'ruta';
-    showTab(ruta ? 'ruta' : 'proc');
-    document.querySelectorAll('.tb-panel .st').forEach(b =>
-      b.setAttribute('aria-current', String(b.dataset.tour === t && +b.dataset.i === i)));
-    procBox.querySelectorAll('.cer-head').forEach(h => {
-      const open = h.dataset.proc === t;
-      h.setAttribute('aria-expanded', String(open));
-      h.nextElementSibling.hidden = !open;
-    });
+    if (shownRoute !== t) renderRoute(t);
+    list.querySelectorAll('.st').forEach(b => b.setAttribute('aria-current', String(+b.dataset.i === i)));
     renderDetail();
     paint();
     frame(instant);

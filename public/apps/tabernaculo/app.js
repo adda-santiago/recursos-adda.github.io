@@ -1050,39 +1050,40 @@
     }
   });
 
-  /* ---------------- UI: pestañas, listas y ficha ---------------- */
+  /* ---------------- UI: selector de ruta, lista y ficha ----------------
+     Patrón común (DIRECTRICES §20): cada ruta es { id, grupo, n, ref, steps }.
+     El selector muestra una ruta a la vez; la lista lleva solo sus pasos. */
+  const ROUTES = [
+    { id: 'partes', grupo: 'Recorrido', n: 'Partes del tabernáculo', ref: 'Éxodo 25–40', steps: STATIONS },
+    ...CEREMONIES.map(c => ({ ...c, grupo: 'Ceremonias' }))
+  ];
+  const ROUTE_BY_ID = Object.fromEntries(ROUTES.map(r => [r.id, r]));
   const list = document.getElementById('stations');
-  const cerBox = document.getElementById('ceremonies');
-  const tabPartes = document.getElementById('tab-partes');
-  const tabCer = document.getElementById('tab-cer');
+  const routeSel = document.getElementById('ruta');
+  const routeInfo = document.getElementById('ruta-info');
+  const grupos = [...new Set(ROUTES.map(r => r.grupo))];
+  routeSel.innerHTML = grupos.map(g => `<optgroup label="${g}">${
+    ROUTES.filter(r => r.grupo === g).map(r => `<option value="${r.id}">${r.n}</option>`).join('')
+  }</optgroup>`).join('');
+  routeSel.addEventListener('change', () => select(routeSel.value, 0));
+
   const stBtn = (tourId, i, num, name, ref) => `<button class="st" type="button" data-tour="${tourId}" data-i="${i}">
       <span class="st-num">${num ?? ''}</span>
       <span class="st-name">${name}</span>
       <span class="st-ref">${ref}</span>
     </button>`;
-  list.innerHTML = STATIONS.map((s, i) => `<li>${stBtn('partes', i, s.num, s.short || s.n, s.ref)}</li>`).join('');
-  cerBox.innerHTML = CEREMONIES.map(c => `<section class="cer">
-      <button class="cer-head" type="button" data-cer="${c.id}" aria-expanded="false">
-        <span class="cer-name">${c.n}</span>
-        <span class="st-ref">${c.intro ? c.intro + ', ' : ''}${c.ref}</span>
-      </button>
-      <ol class="cer-steps" hidden>${c.steps.map((s, i) => `<li>${stBtn(c.id, i, i + 1, s.n, s.ref)}</li>`).join('')}</ol>
-    </section>`).join('');
-
-  function showTab(which) {
-    const cer = which === 'cer';
-    tabPartes.setAttribute('aria-selected', String(!cer));
-    tabCer.setAttribute('aria-selected', String(cer));
-    list.hidden = cer;
-    cerBox.hidden = !cer;
+  function renderRoute(t) {
+    const r = ROUTE_BY_ID[t];
+    routeSel.value = t;
+    routeInfo.textContent = [r.intro, r.ref].filter(Boolean).join(' · ');
+    list.setAttribute('aria-label', r.n);
+    list.innerHTML = r.steps.map((s, i) => `<li>${
+      t === 'partes' ? stBtn(t, i, s.num, s.short || s.n, s.ref) : stBtn(t, i, i + 1, s.n, s.ref)
+    }</li>`).join('');
   }
-  tabPartes.addEventListener('click', () => { if (tour !== 'partes') select('partes', 0); else showTab('partes'); });
-  tabCer.addEventListener('click', () => { if (tour === 'partes') select(CEREMONIES[0].id, 0); else showTab('cer'); });
-  document.querySelector('.tb-panel').addEventListener('click', e => {
+  list.addEventListener('click', e => {
     const b = e.target.closest('.st');
-    if (b) return select(b.dataset.tour, +b.dataset.i);
-    const h = e.target.closest('.cer-head');
-    if (h) select(h.dataset.cer, 0);
+    if (b) select(b.dataset.tour, +b.dataset.i);
   });
 
   const dKicker = document.getElementById('d-kicker');
@@ -1105,7 +1106,7 @@
     if (i !== idx) select(tour, i);
   }
   document.addEventListener('keydown', e => {
-    if (e.target.closest && e.target.closest('input, textarea, canvas')) return;
+    if (e.target.closest && e.target.closest('input, textarea, select, canvas')) return;
     if (e.key === 'ArrowRight') step(1);
     if (e.key === 'ArrowLeft') step(-1);
   });
@@ -1133,13 +1134,8 @@
     const tourChanged = t !== tour;
     tour = t; idx = i;
     const it = items(t)[i];
-    showTab(t === 'partes' ? 'partes' : 'cer');
-    document.querySelectorAll('.tb-panel .st').forEach(b => b.setAttribute('aria-current', String(b.dataset.tour === t && +b.dataset.i === i)));
-    cerBox.querySelectorAll('.cer-head').forEach(h => {
-      const open = h.dataset.cer === t;
-      h.setAttribute('aria-expanded', String(open));
-      h.nextElementSibling.hidden = !open;
-    });
+    if (tourChanged || !list.children.length) renderRoute(t);
+    list.querySelectorAll('.st').forEach(b => b.setAttribute('aria-current', String(+b.dataset.i === i)));
     renderDetail();
     if (it.covers === true) setCovers(true);
     if (it.covers === false) setCovers(false);

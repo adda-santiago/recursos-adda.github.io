@@ -21,12 +21,12 @@
         <h1>Motor de combustión</h1>
         <p class="lead">Recorre un motor de cuatro tiempos pieza por pieza, del cilindro al cigüeñal, y mira cómo transforma la energía del combustible en movimiento.</p>
       </header>
-      <div class="tabs" role="tablist" aria-label="Recorridos">
-        <button class="tab" id="tab-ruta" role="tab" type="button" aria-selected="true">Ruta de aprendizaje</button>
-        <button class="tab" id="tab-proc" role="tab" type="button" aria-selected="false">Procesos</button>
+      <div class="ruta-sel">
+        <label class="ruta-label" for="ruta">Ruta de aprendizaje</label>
+        <div class="ruta-campo"><select id="ruta"></select></div>
+        <p class="ruta-info" id="ruta-info"></p>
       </div>
       <ol class="stations" id="stations" aria-label="Ruta de aprendizaje del motor"></ol>
-      <div class="ceremonies" id="processes" hidden></div>
     </aside>
 
     <main class="tb-stage" id="stage">

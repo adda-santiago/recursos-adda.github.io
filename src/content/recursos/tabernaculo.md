@@ -42,7 +42,7 @@ Dividida en dos espacios por el velo. En el Lugar Santo estaban el candelero de 
 
 ## Las ceremonias
 
-La pestaña Ceremonias anima cuatro secuencias: el holocausto, el servicio diario, la ofrenda por el pecado y el Día de la Expiación. Cada paso lleva la cámara al lugar donde ocurría y cita el versículo correspondiente.
+El selector Ruta de aprendizaje reúne, en el grupo Ceremonias, cuatro secuencias animadas: el holocausto, el servicio diario, la ofrenda por el pecado y el Día de la Expiación. Al elegir una, la lista muestra solo sus pasos; cada paso lleva la cámara al lugar donde ocurría y cita el versículo correspondiente.
 
 ## Cómo usarlo en clases
 

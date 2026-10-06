@@ -32,7 +32,7 @@ Un tramo de 24 pares de bases de ADN en la forma B, la más común en las célul
 
 ## La ruta de aprendizaje
 
-La pestaña Ruta de aprendizaje recorre la molécula en nueve estaciones, de lo más simple a lo más complejo. Cada estación cierra con una pregunta para pensar.
+La ruta principal (Ruta de aprendizaje, en el selector) recorre la molécula en nueve estaciones, de lo más simple a lo más complejo. Cada estación cierra con una pregunta para pensar.
 
 ### Las piezas
 
@@ -48,7 +48,7 @@ Las dimensiones reales de la molécula y cómo se descubrió su estructura en 19
 
 ## La replicación
 
-La pestaña Procesos muestra en cinco pasos cómo se copia el ADN: el origen de replicación, la helicasa que abre la horquilla, el cebador y la ADN polimerasa, las hebras continua y discontinua con los fragmentos de Okazaki, y el resultado semiconservativo. En esta pestaña las hebras originales y las nuevas tienen colores distintos.
+En el selector, el grupo Procesos incluye la replicación: cinco pasos que muestran cómo se copia el ADN: el origen de replicación, la helicasa que abre la horquilla, el cebador y la ADN polimerasa, las hebras continua y discontinua con los fragmentos de Okazaki, y el resultado semiconservativo. En este proceso las hebras originales y las nuevas tienen colores distintos.
 
 ## Cómo usarlo en clases
 

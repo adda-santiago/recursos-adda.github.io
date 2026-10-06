@@ -35,7 +35,7 @@ Un indicador en la esquina muestra, para el cilindro 1, en qué tiempo va el cic
 
 ## La ruta de aprendizaje
 
-La pestaña Ruta de aprendizaje recorre el motor en once estaciones, de lo más simple a lo más complejo. Cada estación cierra con una pregunta para pensar.
+La ruta principal (Ruta de aprendizaje, en el selector) recorre el motor en once estaciones, de lo más simple a lo más complejo. Cada estación cierra con una pregunta para pensar.
 
 ### Las piezas
 
@@ -55,7 +55,7 @@ La cilindrada de cada cilindro y la del motor completo y la relación de compres
 
 ## Los procesos
 
-La pestaña Procesos muestra el ciclo de cuatro tiempos paso a paso: admisión, compresión, explosión y escape, y al final el ciclo completo en dos vueltas del cigüeñal. Cada paso repite solo su media vuelta, para observarla con calma.
+En el selector, el grupo Procesos muestra el ciclo de cuatro tiempos paso a paso: admisión, compresión, explosión y escape, y al final el ciclo completo en dos vueltas del cigüeñal. Cada paso repite solo su media vuelta, para observarla con calma.
 
 El segundo proceso cambia a un motor diésel: la bujía se reemplaza por un inyector, entra solo aire, el aire se calienta al comprimirse y el combustible se enciende solo al ser inyectado.
 

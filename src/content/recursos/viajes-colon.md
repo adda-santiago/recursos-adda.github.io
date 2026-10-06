@@ -36,7 +36,7 @@ Los cuatro viajes de Cristóbal Colón entre 1492 y 1504, cada uno con su color,
 
 ## La ruta de aprendizaje
 
-La pestaña Ruta de aprendizaje recorre el tema en diez estaciones, cada una con una pregunta para pensar. Sigue los componentes del OA 1 de 5° básico: el contexto europeo y los objetivos, la tecnología, las rutas, las dificultades y lo que vino después.
+La ruta principal (Ruta de aprendizaje, en el selector) recorre el tema en diez estaciones, cada una con una pregunta para pensar. Sigue los componentes del OA 1 de 5° básico: el contexto europeo y los objetivos, la tecnología, las rutas, las dificultades y lo que vino después.
 
 ### Por qué y con qué
 
@@ -52,11 +52,11 @@ El Tratado de Tordesillas, el intercambio colombino de plantas, animales y enfer
 
 ## Los viajes paso a paso
 
-La pestaña Viajes sigue cada expedición por sus escalas, desde el puerto de salida hasta el regreso. Cada paso redibuja solo su tramo, y un indicador en la esquina muestra el viaje, la fecha, el lugar y cuánto falta. Los nombres que Colón dio a los lugares aparecen junto al nombre actual.
+En el selector, el grupo Viajes sigue cada expedición por sus escalas, desde el puerto de salida hasta el regreso. Cada paso redibuja solo su tramo, y un indicador en la esquina muestra el viaje, la fecha, el lugar y cuánto falta. Los nombres que Colón dio a los lugares aparecen junto al nombre actual.
 
 ## Cómo usarlo en clases
 
-Proyecta la ruta en orden en una o dos clases: las estaciones 1 a 4 sirven para el contexto y los medios, y la 5 a la 10 para el encuentro y las consecuencias. El botón Vientos muestra los alisios y los vientos del oeste en cualquier momento, y Nombres agrega las etiquetas de los lugares. Para un trabajo individual, pide a los alumnos que sigan un viaje en la pestaña Viajes y completen una tabla con fechas, lugares y dificultades, que es lo que piden los indicadores de evaluación del programa.
+Proyecta la ruta en orden en una o dos clases: las estaciones 1 a 4 sirven para el contexto y los medios, y la 5 a la 10 para el encuentro y las consecuencias. El botón Vientos muestra los alisios y los vientos del oeste en cualquier momento, y Nombres agrega las etiquetas de los lugares. Para un trabajo individual, pide a los alumnos que elijan un viaje en el selector y completen una tabla con fechas, lugares y dificultades, que es lo que piden los indicadores de evaluación del programa.
 
 ## Qué es aproximación
 
