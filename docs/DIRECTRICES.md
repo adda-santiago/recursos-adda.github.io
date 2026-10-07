@@ -1,6 +1,6 @@
 # Directrices del proyecto — Recursos bíblicos interactivos
 
-Versión 2.2 · 6 de octubre de 2026
+Versión 2.3 · 7 de octubre de 2026
 
 Este documento es la fuente de verdad del proyecto. Cualquier decisión nueva que contradiga algo de aquí se registra en la bitácora (§23) y se actualiza la sección correspondiente. Si el código y este documento no coinciden, se corrige uno de los dos; no se deja la diferencia. Mientras una diferencia esté en proceso de corregirse, la sección lo indica como **pendiente de implementar**.
 
@@ -174,7 +174,7 @@ El visor nunca contiene anuncios ni elementos ajenos al recurso.
 
 | Motor | Cuándo usarlo | Estado |
 |---|---|---|
-| `legado` | Apps que corren como página propia en `public/apps/` | En uso: atlas, línea de reyes, genealogías, tabernáculo, templo de Salomón (y las apps de las fichas ocultas) |
+| `legado` | Apps que corren como página propia en `public/apps/` | En uso: atlas, línea de reyes, genealogías, tabernáculo, templo de Salomón, sumo sacerdote (y las apps de las fichas ocultas) |
 | `model-viewer` | Un solo `.glb` con hotspots (un objeto: arca, altar, lámpara, utensilio) | Implementado en el visor, **sin probar aún con un modelo real** |
 | `three` | Escenas compuestas, recorridos narrativos, comparaciones, modelos procedurales | Reservado. El build falla a propósito si un recurso lo declara antes de implementarlo |
 
@@ -323,7 +323,7 @@ Cada ficha tiene un artículo propio. Estructura recomendada de secciones H2:
 
 Además, cada ficha incluye automáticamente: JSON-LD `LearningResource`, canonical, Open Graph, fuentes, licencia, estado de revisión y enlace para reportar errores.
 
-Reglas: el artículo explica lo que se ve; no repite el resumen ni rellena para alcanzar un largo. Las citas bíblicas usan Reina-Valera 1909 (dominio público) salvo decisión en contrario (§22). Donde hay interpretaciones distintas entre tradiciones o estudiosos, la ficha lo dice.
+Reglas: el artículo explica lo que se ve; no repite el resumen ni rellena para alcanzar un largo. Las citas bíblicas usan Reina-Valera 1960 salvo indicación en contrario. La RV 1960 tiene derechos de autor: toda app y toda ficha que la cite incluye el crédito «Reina-Valera 1960 © Sociedades Bíblicas en América Latina, 1960. Renovado © Sociedades Bíblicas Unidas, 1988. Utilizado con permiso.» Las citas se copian de una fuente que identifique la edición; si no se puede confirmar el texto exacto, se parafrasea en vez de citar entre comillas. Donde hay interpretaciones distintas entre tradiciones o estudiosos, la ficha lo dice.
 
 ## 16. Compartir e insertar
 
@@ -407,6 +407,8 @@ Reglas:
 - **Despliegue en `adda-santiago`:** actualizar `publicar.yml`, reactivar Pages y verificar el sitio en la subcarpeta.
 - **`noindex` en las apps legadas** (§19, regla 5).
 - **Limpieza del código comercial:** eliminar `anuncios.ts`, `cuenta.ts`, `EspacioAnuncio`, `SITIO.anuncios` y la llamada a `iniciarAnuncios()`.
+- **El sumo sacerdote: rutas pendientes.** Labores (con el mobiliario del tabernáculo), Día de la Expiación (proceso con indicador de estado; coordinar con la ceremonia del mismo nombre en `tabernaculo/`), Sumo sacerdote, sacerdote y levita, y Las doce piedras. Al sumar la segunda ruta aparece el selector (`ROUTES` en `app.js`).
+- **Crédito de la RV 1960 en las apps existentes:** revisar las apps que citan texto bíblico y agregarles el crédito (§15).
 - **Templo de Herodes** (`herodes/`): no estaba en el repositorio de Fuego y Palabra. Incorporarlo con el procedimiento anterior.
 - Revisar la respuesta en celular de las apps legadas con barra lateral fija: dentro del visor, en pantallas angostas, quedan apretadas. Solución de fondo: panel lateral colapsable por defecto bajo cierto ancho. Es prioritario, porque el estudio personal ocurre sobre todo en el celular.
 
@@ -425,7 +427,7 @@ Reglas:
 |---|---|---|
 | Dominio propio | Seguir en `github.io` / dominio de la iglesia | Pendiente; decidir antes de difundir masivamente |
 | Logo | Imagen propia junto al nombre en la cabecera | Pendiente; la cabecera ya lo admite (`SITIO.logo`, §4) |
-| Traducción bíblica para citas | Reina-Valera 1909 (dominio público) / otra con permiso | RV 1909 por defecto |
+| Términos de cita de la RV 1960 | Verificar en el sitio de las Sociedades Bíblicas Unidas el límite de versículos citables sin permiso escrito | Pendiente; resolver antes de difundir masivamente |
 | Proveedor del buzón | Tally / Google Forms | Pendiente |
 | Almacenamiento de `.glb` | Cloudflare R2 / otro | Pendiente hasta el primer modelo pesado |
 | Destino final de los recursos no bíblicos | Mantener ocultos / borrar / mover a otro repositorio | Ocultos por ahora |
@@ -473,6 +475,9 @@ Reglas:
 | 2026-10-06 | Filtros en la columna izquierda desde arriba de la portada, junto a "Recién agregados" | Los filtros quedaban bajo los recién agregados y obligaban a bajar para usarlos |
 | 2026-10-06 | Selector de ruta (lista desplegable agrupada) reemplaza las pestañas y los acordeones en todo recurso con más de una ruta; aplicado en tabernáculo, ADN, motor de combustión y viajes de Colón | Con varias rutas apiladas una tras otra se perdían; el selector muestra una ruta a la vez y funciona igual en celular, teclado y proyección |
 | 2026-10-06 | Nombre del sitio más grande, en serif, con un símbolo de tamaño fijo preparado para un logo (`SITIO.logo`) | Dar presencia a la marca y poder incorporar el logo sin rediseñar la cabecera |
+| 2026-10-07 | Las citas bíblicas pasan a la Reina-Valera 1960 por defecto, con crédito de las Sociedades Bíblicas Unidas | Indicación del responsable del proyecto |
+| 2026-10-07 | Nuevo recurso: El sumo sacerdote (`sumo-sacerdote/`), con la ruta Vestimenta (11 estaciones en el orden de Lv 8:7-9) y alternancia entre vestiduras de oro y de lino | Explicar el sacerdocio a partir de lo que se ve, prenda por prenda |
+| 2026-10-07 | Primera figura humana detallada: Aarón como anciano con barba, sin rostro de retrato; lo que no dice el texto se declara como representación en la ficha | Dar realismo sin atribuir rasgos que el texto no da (Éx 7:7; Sal 133:2) |
 
 ## 24. Relación con el repositorio Fuego y Palabra
 
