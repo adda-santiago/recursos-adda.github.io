@@ -1,6 +1,6 @@
 # Directrices del proyecto — Recursos bíblicos interactivos
 
-Versión 2.3 · 7 de octubre de 2026
+Versión 2.4 · 8 de octubre de 2026
 
 Este documento es la fuente de verdad del proyecto. Cualquier decisión nueva que contradiga algo de aquí se registra en la bitácora (§23) y se actualiza la sección correspondiente. Si el código y este documento no coinciden, se corrige uno de los dos; no se deja la diferencia. Mientras una diferencia esté en proceso de corregirse, la sección lo indica como **pendiente de implementar**.
 
@@ -9,6 +9,8 @@ Este documento es la fuente de verdad del proyecto. Cualquier decisión nueva qu
 **Cambio de la versión 2.1:** nombre visible *Recursos Bíblicos*; taxonomía bíblica implementada (testamento, época, libro); las fichas pasan a `/{slug}/`.
 
 **Cambio de la versión 2.2:** cuando un recurso tiene más de una ruta, se eligen en un selector de ruta (lista desplegable) en lugar de pestañas y acordeones (§20).
+
+**Cambio de la versión 2.4:** nuevo tipo de recurso, la *ruta de estudio* para leer (motor compartido `ruta-estudio.js`), con componentes compartidos: burbuja de citas bíblicas, línea de tiempo, mapa de imperios y mapa base vectorial sin servicios externos (§5, §15, §20). Primer recurso: El imperio babilónico.
 
 ---
 
@@ -81,7 +83,7 @@ Reglas:
 | Búsqueda | Pagefind | Índice estático generado en el build, sin servidor, con filtros por faceta |
 | Visor 3D simple | `<model-viewer>` (Google) | Hotspots, carga diferida, gestos táctiles, AR y Draco incluidos |
 | Visor 3D complejo | Three.js | Escenas compuestas, recorridos, comparaciones a escala |
-| Mapas | Leaflet + teselas Esri | Sin clave de API |
+| Mapas | Leaflet. Recursos nuevos: mapa base vectorial propio (Natural Earth, `mapa-base.js`); apps legadas: teselas Esri | Sin clave de API y, en los recursos nuevos, sin depender de un servicio externo |
 | Hosting | GitHub Pages, organización `adda-santiago`, repositorio `recursos-biblicos` | Gratis y permanente: sin uso comercial no hace falta otro hosting. Sitio de proyecto en la subcarpeta `/recursos-biblicos/` |
 | Modelos pesados (`.glb`) | Almacenamiento externo con CDN | Pendiente hasta el primer modelo pesado (§22) |
 | CI/CD | GitHub Actions (`.github/workflows/publicar.yml`) | Build, validación del esquema y despliegue |
@@ -96,11 +98,16 @@ No hay base de datos ni servidor propio. El contenido vive en archivos Markdown 
 ├─ docs/DIRECTRICES.md       este documento
 ├─ public/
 │  ├─ apps/                  apps legadas, sin cambios de lógica
-│  │  ├─ assets/css/         tokens.css, app.css y CSS por app (legado)
+│  │  ├─ assets/css/         tokens.css, app.css y CSS por app (legado); ruta-estudio.css
+│  │  ├─ assets/js/          componentes compartidos (§20, Ruta de estudio):
+│  │  │                      ruta-estudio.js, citas.js, citas-rv1960.js, citas-rv1960-capitulos.js,
+│  │  │                      linea-tiempo.js, mapa-imperios.js, imperios-geo.js, mapa-base.js
 │  │  ├─ visor-bridge.js     contrato visor ↔ app (§6)
 │  │  ├─ atlas/ linea-reyes/ genealogias/ tabernaculo/ templo-salomon/
+│  │  ├─ imperio-babilonico/ (ruta de estudio: index.html, data.js, img/)
 │  │  ├─ adn/ motor-combustion/ viajes-colon/ segunda-guerra-mundial/   (fichas ocultas, §1)
 │  └─ robots.txt             sin efecto mientras el sitio esté en subcarpeta (§19)
+├─ geo/imperios.py          genera assets/js/imperios-geo.js (fronteras aproximadas recortadas con Natural Earth)
 ├─ src/
 │  ├─ config/sitio.ts        nombre, buzón, analítica (anuncios: inactivo, a eliminar)
 │  ├─ data/taxonomia.ts      vocabulario controlado (§9)
@@ -249,6 +256,7 @@ Asignación actual:
 | Árbol genealógico | Antiguo, Nuevo | Creación a vida de Jesús | Génesis, Rut, 1 Crónicas, Mateo, Lucas |
 | El tabernáculo | Antiguo, Nuevo | Éxodo y desierto | Éxodo, Levítico, Números, Hebreos |
 | El templo de Salomón | Antiguo | Monarquía unida | 1 Reyes, 2 Crónicas |
+| El imperio babilónico | Antiguo, Nuevo | Monarquía dividida, exilio, retorno | 2 Reyes, 2 Crónicas, Isaías, Jeremías, Lamentaciones, Ezequiel, Daniel, Habacuc, Apocalipsis |
 
 ## 10. Sin fines comerciales
 
@@ -324,6 +332,8 @@ Cada ficha tiene un artículo propio. Estructura recomendada de secciones H2:
 Además, cada ficha incluye automáticamente: JSON-LD `LearningResource`, canonical, Open Graph, fuentes, licencia, estado de revisión y enlace para reportar errores.
 
 Reglas: el artículo explica lo que se ve; no repite el resumen ni rellena para alcanzar un largo. Las citas bíblicas usan Reina-Valera 1960 salvo indicación en contrario. La RV 1960 tiene derechos de autor: toda app y toda ficha que la cite incluye el crédito «Reina-Valera 1960 © Sociedades Bíblicas en América Latina, 1960. Renovado © Sociedades Bíblicas Unidas, 1988. Utilizado con permiso.» Las citas se copian de una fuente que identifique la edición; si no se puede confirmar el texto exacto, se parafrasea en vez de citar entre comillas. Donde hay interpretaciones distintas entre tradiciones o estudiosos, la ficha lo dice.
+
+**Citas en burbuja.** En todos los recursos, cada referencia bíblica se puede tocar y muestra el texto en una burbuja (`assets/js/citas.js`): un versículo o un rango muestra esos versículos; un capítulo sin versículo («Daniel 5», «Jeremías 50–51») muestra el capítulo completo. El texto vive en el propio sitio (`citas-rv1960.js` y `citas-rv1960-capitulos.js`), nunca en un enlace externo: los recursos no dependen de otros sitios, que pueden estar bloqueados en redes laborales. Una referencia solo se vuelve burbuja si todo su texto está cargado; antes de publicar, `Citas.faltantes()` en la consola debe devolver una lista vacía. Cada versículo nuevo se copia de una fuente identificada de la RV 1960 y pasa por la revisión automática de defectos de transcripción.
 
 ## 16. Compartir e insertar
 
@@ -402,8 +412,24 @@ Reglas:
 - Las estaciones pueden mostrar grupos auxiliares (nombres, medidas) y fijar un tramo de animación; los botones de la escena permiten activarlos también a mano.
 - **Mapas con recorridos** (viajes, rutas, campañas: el éxodo, los viajes de Pablo) usan el mismo patrón con Leaflet: el grupo de rutas del selector se llama según el contenido (por ejemplo, Viajes), la cámara es el encuadre del mapa (`view` como límites sur-oeste y norte-este), cada paso redibuja solo su tramo y el indicador de estado muestra recorrido, fecha, lugar y avance. Referencia técnica: `viajes-colon/` (ficha oculta, la app sigue en el repositorio).
 
+### Ruta de estudio (recursos para leer)
+
+Distinta de la **presentación** (`segunda-guerra-mundial/`), que un profesor usa para enseñar con texto breve: la ruta de estudio es para que la persona aprenda sola, y por eso el texto es extendido. Referencia: `imperio-babilonico/`.
+
+- **Motor compartido.** `assets/js/ruta-estudio.js` y `assets/css/ruta-estudio.css`. Cada recurso tiene solo `index.html`, `data.js` (`window.RUTA_DATA`, formato descrito en el encabezado del motor) e `img/`. Excepción a la estructura de cuatro archivos: con varios recursos del mismo tipo, copiar el motor en cada carpeta haría que las copias se desalinearan.
+- **Lámina.** En escritorio, panel visual a la izquierda (imagen, mapa, tabla o pasaje, con pestañas si hay varios) y texto con desplazamiento propio a la derecha; en celular, visual arriba y texto debajo. Navegación Anterior/Siguiente y enlace propio por estación (`#ruta/numero`).
+- **Selector de rutas** como botón flotante en la esquina, que abre y oculta un panel con las rutas y sus estaciones; las rutas en preparación aparecen deshabilitadas.
+- **Línea de tiempo inferior** opcional por ruta (`linea-tiempo.js`): hitos y un marcador que se desliza a la fecha de cada estación o de cada paso del mapa.
+- **Mapas** con `mapa-imperios.js`: capas por imperio y período, lugares, trazos animados y pasos dentro de una estación. Geografía compartida en `imperios-geo.js`, generada por `geo/imperios.py`.
+- **Texto:** entre 250 y 450 palabras por estación; si necesita más, se divide. Cada estación cierra con **Para pensar**, siempre desde el texto bíblico y la línea doctrinal pentecostal clásica de las Asambleas de Dios, sin mencionarla.
+- **Historia y texto bíblico.** Cuando una fuente histórica parece diferir del relato bíblico, o dos textos bíblicos dan datos distintos, se usa el bloque de dos posturas (`posturas`) con ambas versiones y cómo se entienden; nunca se presenta el texto bíblico como error. En temas doctrinales prevalece la línea de las Asambleas de Dios.
+- **Recursos complementarios** (cada imperio, el exilio, el esquema escatológico) hablan de todos los libros donde aparece el tema, no solo del libro que los originó. Los recursos históricos incluyen además su legado (aportes, costumbres, inventos), verificado.
+- **Imágenes:** ilustraciones cinematográficas realistas generadas con IA, en 4:3, con el tema al centro; `foco` ajusta el recorte. Un objeto arqueológico real nunca se representa con una imagen generada: se usa una foto con licencia verificada o una escena que no se confunda con evidencia.
+
 ### Pendientes
 
+- **Permiso de la Sociedad Bíblica (RV 1960):** El imperio babilónico cita unos 1.450 versículos, incluidos libros completos (Lamentaciones, Habacuc). Queda con `publicado: false` hasta obtener la autorización.
+- **Burbuja de citas en las apps existentes:** agregar `citas.js` y las bases RV 1960 a las apps que citan texto bíblico (§15).
 - **Despliegue en `adda-santiago`:** actualizar `publicar.yml`, reactivar Pages y verificar el sitio en la subcarpeta.
 - **`noindex` en las apps legadas** (§19, regla 5).
 - **Limpieza del código comercial:** eliminar `anuncios.ts`, `cuenta.ts`, `EspacioAnuncio`, `SITIO.anuncios` y la llamada a `iniciarAnuncios()`.
@@ -427,7 +453,7 @@ Reglas:
 |---|---|---|
 | Dominio propio | Seguir en `github.io` / dominio de la iglesia | Pendiente; decidir antes de difundir masivamente |
 | Logo | Imagen propia junto al nombre en la cabecera | Pendiente; la cabecera ya lo admite (`SITIO.logo`, §4) |
-| Términos de cita de la RV 1960 | Verificar en el sitio de las Sociedades Bíblicas Unidas el límite de versículos citables sin permiso escrito | Pendiente; resolver antes de difundir masivamente |
+| Permiso de cita de la RV 1960 | Autorización de las Sociedades Bíblicas para citar más de unos 500 versículos y libros completos en las burbujas | En trámite (octubre de 2026); condiciona la publicación de El imperio babilónico |
 | Proveedor del buzón | Tally / Google Forms | Pendiente |
 | Almacenamiento de `.glb` | Cloudflare R2 / otro | Pendiente hasta el primer modelo pesado |
 | Destino final de los recursos no bíblicos | Mantener ocultos / borrar / mover a otro repositorio | Ocultos por ahora |
@@ -478,6 +504,13 @@ Reglas:
 | 2026-10-07 | Las citas bíblicas pasan a la Reina-Valera 1960 por defecto, con crédito de las Sociedades Bíblicas Unidas | Indicación del responsable del proyecto |
 | 2026-10-07 | Nuevo recurso: El sumo sacerdote (`sumo-sacerdote/`), con la ruta Vestimenta (11 estaciones en el orden de Lv 8:7-9) y alternancia entre vestiduras de oro y de lino | Explicar el sacerdocio a partir de lo que se ve, prenda por prenda |
 | 2026-10-07 | Primera figura humana detallada: Aarón como anciano con barba, sin rostro de retrato; lo que no dice el texto se declara como representación en la ficha | Dar realismo sin atribuir rasgos que el texto no da (Éx 7:7; Sal 133:2) |
+| 2026-10-08 | Nuevo tipo de recurso: ruta de estudio para leer, distinta de la presentación para enseñar; motor compartido `ruta-estudio.js` | Las rutas sirven al estudio personal y necesitan texto extendido; un solo motor evita copias desalineadas |
+| 2026-10-08 | Componentes compartidos en `public/apps/assets/js/`: citas, línea de tiempo, mapa de imperios y geografía | Los usarán los seis imperios, el integrador, el exilio y el estudio de Daniel |
+| 2026-10-08 | Toda cita bíblica se puede tocar y muestra el texto en una burbuja; los capítulos citados muestran el capítulo completo | Leer el pasaje sin salir del recurso |
+| 2026-10-08 | Los recursos no dependen de sitios externos: texto bíblico y mapa base viven en el propio sitio | Algunas redes laborales bloquean otros sitios |
+| 2026-10-08 | Mapa base vectorial de Natural Earth para los recursos nuevos | Sin teselas externas, funciona con internet débil y respeta el modo oscuro |
+| 2026-10-08 | Bloque de dos posturas cuando la historia o dos textos parecen diferir; en doctrina prevalece la línea de las Asambleas de Dios | Mostrar la evidencia sin contradecir el texto bíblico |
+| 2026-10-08 | Nuevo recurso: El imperio babilónico, con las rutas Historia, Sociedad y religión, y El imperio y la Biblia; oculto hasta el permiso de la Sociedad Bíblica | Primer recurso complementario para el estudio de Daniel, Reyes, Crónicas y los profetas |
 
 ## 24. Relación con el repositorio Fuego y Palabra
 
