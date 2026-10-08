@@ -1,0 +1,26 @@
+[
+ {
+  "id": "rv1960",
+  "nombre": "Reina-Valera 1960",
+  "abrev": "RV 1960",
+  "credito": "Reina-Valera 1960 © Sociedades Bíblicas en América Latina, 1960. Renovado © Sociedades Bíblicas Unidas, 1988. Utilizado con permiso.",
+  "defecto": true,
+  "versiculos": 31103
+ },
+ {
+  "id": "rv1909",
+  "nombre": "Reina-Valera 1909",
+  "abrev": "RV 1909",
+  "credito": "Reina-Valera 1909. Dominio público.",
+  "defecto": false,
+  "versiculos": 31102
+ },
+ {
+  "id": "rv1865",
+  "nombre": "Reina-Valera 1865",
+  "abrev": "RV 1865",
+  "credito": "Reina-Valera 1865. Dominio público.",
+  "defecto": false,
+  "versiculos": 31099
+ }
+]

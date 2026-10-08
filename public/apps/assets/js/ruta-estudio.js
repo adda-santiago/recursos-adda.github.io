@@ -234,5 +234,10 @@
   // Entrada: #ruta/numero
   const m = location.hash.match(/^#([\w-]+)\/(\d+)$/);
   if (m && RUTA[m[1]] && !RUTA[m[1]].pendiente) ir(m[1], Math.max(0, +m[2] - 1), true); else ir(ruta.id, 0, true);
+  // Enlaces internos o el botón Atrás cambian el #ruta/numero: se sigue la URL
+  window.addEventListener('hashchange', () => {
+    const h = location.hash.match(/^#([\w-]+)\/(\d+)$/);
+    if (h && RUTA[h[1]] && !RUTA[h[1]].pendiente && (h[1] !== ruta.id || +h[2] - 1 !== idx)) ir(h[1], Math.max(0, +h[2] - 1), true);
+  });
   window.fypReset = () => ir(activas[0].id, 0);
 })();

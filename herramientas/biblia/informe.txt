@@ -1,0 +1,22 @@
+rv1909 nm 12: versículos vacíos [16]
+rv1909 nm 29: versículos vacíos [40]
+rv1909 2co 13: versículos vacíos [14]
+rv1909 2cr 33: versículos vacíos [25]
+rv1909 hch 19: versículos vacíos [41]
+rv1909 os 11: versículos vacíos [12]
+rv1909 2s 20: versículos vacíos [26]
+rv1909 1s 23: versículos vacíos [29]
+rv1909 job 35: versículos vacíos [16]
+rv1909 job 38: versículos vacíos [39, 40, 41]
+rv1909 job 40: versículos vacíos [20, 21, 22, 23, 24]
+rv1909 jon 1: versículos vacíos [17]
+rv1909 gn: capítulos/versículos distintos de rv1960
+rv1909 sal: capítulos/versículos distintos de rv1960
+rv1909 3jn: capítulos/versículos distintos de rv1960
+rv1865 gn: capítulos/versículos distintos de rv1960
+rv1865 1s: capítulos/versículos distintos de rv1960
+rv1865 1cr: capítulos/versículos distintos de rv1960
+rv1865 2cr: capítulos/versículos distintos de rv1960
+rv1865 sal: capítulos/versículos distintos de rv1960
+rv1865 jer: capítulos/versículos distintos de rv1960
+rv1865 3jn: capítulos/versículos distintos de rv1960

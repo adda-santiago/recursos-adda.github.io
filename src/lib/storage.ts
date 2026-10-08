@@ -28,6 +28,8 @@ export interface Almacen {
   favoritos(): Promise<string[]>;
   esFavorito(uid: string): Promise<boolean>;
   alternarFavorito(uid: string): Promise<boolean>;
+  versionBiblia(): string | null;              // id de public/biblia/versiones.json; null = la versión por defecto
+  cambiarVersionBiblia(id: string): void;     // la leen también las apps (citas.js) con la misma clave
   exportar(): Promise<Record<string, unknown>>; // para migrar a la cuenta en el primer login
 }
 
@@ -46,8 +48,14 @@ export const almacenLocal: Almacen = {
     escribir('favoritos', lista);
     return i < 0;
   },
+  versionBiblia() {
+    return leer<string | null>('version-biblia', null);
+  },
+  cambiarVersionBiblia(id) {
+    escribir('version-biblia', id);
+  },
   async exportar() {
-    return { favoritos: await this.favoritos() };
+    return { favoritos: await this.favoritos(), versionBiblia: this.versionBiblia() };
   },
 };
 

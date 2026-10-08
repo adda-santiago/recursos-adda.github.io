@@ -3,6 +3,7 @@ import '../styles/tokens.css';
 import '../styles/global.css';
 import { SITIO } from '../config/sitio';
 import { ruta } from '../lib/url';
+import versiones from '../../public/biblia/versiones.json';
 
 interface Props {
   titulo: string;
@@ -40,7 +41,7 @@ const urlCanonica = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
 </head>
 <body>
   {!embed && (
-    <header class="top">
+    <header class="top no-citas">
       <a class="brand" href={ruta()}>
         <span class="brand-marca" aria-hidden="true">
           {SITIO.logo ? <img src={ruta(SITIO.logo)} alt="" width="44" height="44" /> : SITIO.emoji}
@@ -54,6 +55,13 @@ const urlCanonica = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
           placeholder="Buscar: tabernáculo, reyes de Judá, Pablo…" />
       </form>
       <nav aria-label="Principal">
+        <label class="version-biblia" title="Versión de la Biblia para las citas">
+          <span class="visually-hidden">Versión de la Biblia</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/></svg>
+          <select data-version-biblia>
+            {versiones.map(v => <option value={v.id} selected={v.defecto}>{v.abrev}</option>)}
+          </select>
+        </label>
         <a href={ruta('buzon/')}>Sugerencias</a>
       </nav>
     </header>
@@ -72,5 +80,25 @@ const urlCanonica = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
       iniciarAnuncios();
     </script>
   )}
+  {!embed && (
+    <script>
+      // Versión de la Biblia: la misma preferencia que usa la burbuja de citas en las apps (citas.js)
+      import { almacen } from '../lib/storage';
+      const sel = document.querySelector<HTMLSelectElement>('[data-version-biblia]');
+      if (sel) {
+        const actual = almacen.versionBiblia();
+        if (actual && [...sel.options].some(o => o.value === actual)) sel.value = actual;
+        sel.addEventListener('change', () => {
+          almacen.cambiarVersionBiblia(sel.value);
+          // citas.js de esta página escucha este evento; las apps en iframe reciben el evento «storage»
+          (window as any).Citas?.cambiarVersion?.(sel.value);
+        });
+        window.addEventListener('citas:version', e => { sel.value = (e as CustomEvent).detail; });
+      }
+    </script>
+  )}
+  {/* Citas bíblicas en burbuja también en las fichas y páginas del sitio (DIRECTRICES §15) */}
+  <script is:inline define:vars={{ biblia: ruta('biblia/') }}>window.CITAS_BIBLIA = biblia;</script>
+  <script is:inline src={ruta('apps/assets/js/citas.js')} defer></script>
 </body>
 </html>

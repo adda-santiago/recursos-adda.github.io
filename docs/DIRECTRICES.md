@@ -1,6 +1,6 @@
 # Directrices del proyecto — Recursos bíblicos interactivos
 
-Versión 2.4 · 8 de octubre de 2026
+Versión 2.5 · 8 de octubre de 2026
 
 Este documento es la fuente de verdad del proyecto. Cualquier decisión nueva que contradiga algo de aquí se registra en la bitácora (§23) y se actualiza la sección correspondiente. Si el código y este documento no coinciden, se corrige uno de los dos; no se deja la diferencia. Mientras una diferencia esté en proceso de corregirse, la sección lo indica como **pendiente de implementar**.
 
@@ -9,6 +9,8 @@ Este documento es la fuente de verdad del proyecto. Cualquier decisión nueva qu
 **Cambio de la versión 2.1:** nombre visible *Recursos Bíblicos*; taxonomía bíblica implementada (testamento, época, libro); las fichas pasan a `/{slug}/`.
 
 **Cambio de la versión 2.2:** cuando un recurso tiene más de una ruta, se eligen en un selector de ruta (lista desplegable) en lugar de pestañas y acordeones (§20).
+
+**Cambio de la versión 2.5:** la Biblia completa vive en el sitio (`public/biblia/`, un archivo por capítulo) en varias versiones, y la persona elige la versión en la cabecera o en la propia burbuja de citas (§5, §11, §15).
 
 **Cambio de la versión 2.4:** nuevo tipo de recurso, la *ruta de estudio* para leer (motor compartido `ruta-estudio.js`), con componentes compartidos: burbuja de citas bíblicas, línea de tiempo, mapa de imperios y mapa base vectorial sin servicios externos (§5, §15, §20). Primer recurso: El imperio babilónico.
 
@@ -100,14 +102,16 @@ No hay base de datos ni servidor propio. El contenido vive en archivos Markdown 
 │  ├─ apps/                  apps legadas, sin cambios de lógica
 │  │  ├─ assets/css/         tokens.css, app.css y CSS por app (legado); ruta-estudio.css
 │  │  ├─ assets/js/          componentes compartidos (§20, Ruta de estudio):
-│  │  │                      ruta-estudio.js, citas.js, citas-rv1960.js, citas-rv1960-capitulos.js,
+│  │  │                      ruta-estudio.js, citas.js,
 │  │  │                      linea-tiempo.js, mapa-imperios.js, imperios-geo.js, mapa-base.js
 │  │  ├─ visor-bridge.js     contrato visor ↔ app (§6)
 │  │  ├─ atlas/ linea-reyes/ genealogias/ tabernaculo/ templo-salomon/
 │  │  ├─ imperio-babilonico/ (ruta de estudio: index.html, data.js, img/)
 │  │  ├─ adn/ motor-combustion/ viajes-colon/ segunda-guerra-mundial/   (fichas ocultas, §1)
+│  ├─ biblia/                texto bíblico: versiones.json, indice.json y {versión}/{libro}/{capítulo}.json
 │  └─ robots.txt             sin efecto mientras el sitio esté en subcarpeta (§19)
 ├─ geo/imperios.py          genera assets/js/imperios-geo.js (fronteras aproximadas recortadas con Natural Earth)
+├─ herramientas/biblia/     generar.py: genera public/biblia/ desde las fuentes (fuentes/ no se sube al repositorio)
 ├─ src/
 │  ├─ config/sitio.ts        nombre, buzón, analítica (anuncios: inactivo, a eliminar)
 │  ├─ data/taxonomia.ts      vocabulario controlado (§9)
@@ -271,6 +275,7 @@ No hay cuentas ni se planean.
 
 - "Guardar" marca recursos solo en el dispositivo, a través de `almacen` (`src/lib/storage.ts`, `localStorage` con prefijo `fyp:v1:`).
 - Ningún componente usa `localStorage` directamente; todo pasa por `almacen`.
+- `almacen` guarda también la **versión de la Biblia** elegida (`version-biblia`). La leen y escriben la cabecera del sitio y `citas.js` en las apps, con la misma clave y formato; es la única excepción a la regla anterior, porque las apps del iframe no pueden importar `almacen`.
 - Los favoritos guardan `uid`, nunca títulos ni rutas, para sobrevivir a cambios de slug.
 - `src/lib/cuenta.ts` queda inactivo y se elimina en la limpieza pendiente (§20).
 - Si en el futuro hiciera falta sincronizar entre dispositivos, se evalúa como decisión nueva en la bitácora.
@@ -333,7 +338,17 @@ Además, cada ficha incluye automáticamente: JSON-LD `LearningResource`, canoni
 
 Reglas: el artículo explica lo que se ve; no repite el resumen ni rellena para alcanzar un largo. Las citas bíblicas usan Reina-Valera 1960 salvo indicación en contrario. La RV 1960 tiene derechos de autor: toda app y toda ficha que la cite incluye el crédito «Reina-Valera 1960 © Sociedades Bíblicas en América Latina, 1960. Renovado © Sociedades Bíblicas Unidas, 1988. Utilizado con permiso.» Las citas se copian de una fuente que identifique la edición; si no se puede confirmar el texto exacto, se parafrasea en vez de citar entre comillas. Donde hay interpretaciones distintas entre tradiciones o estudiosos, la ficha lo dice.
 
-**Citas en burbuja.** En todos los recursos, cada referencia bíblica se puede tocar y muestra el texto en una burbuja (`assets/js/citas.js`): un versículo o un rango muestra esos versículos; un capítulo sin versículo («Daniel 5», «Jeremías 50–51») muestra el capítulo completo. El texto vive en el propio sitio (`citas-rv1960.js` y `citas-rv1960-capitulos.js`), nunca en un enlace externo: los recursos no dependen de otros sitios, que pueden estar bloqueados en redes laborales. Una referencia solo se vuelve burbuja si todo su texto está cargado; antes de publicar, `Citas.faltantes()` en la consola debe devolver una lista vacía. Cada versículo nuevo se copia de una fuente identificada de la RV 1960 y pasa por la revisión automática de defectos de transcripción.
+**Citas en burbuja.** En todos los recursos, cada referencia bíblica se puede tocar y muestra el texto en una burbuja (`assets/js/citas.js`): un versículo o un rango muestra esos versículos; un capítulo sin versículo («Daniel 5», «Jeremías 50–51») muestra el capítulo completo. El texto vive en el propio sitio, nunca en un enlace externo: los recursos no dependen de otros sitios, que pueden estar bloqueados en redes laborales. Las burbujas funcionan en las apps y también en el artículo de cada ficha.
+
+**Texto bíblico del sitio** (`public/biblia/`, generado por `herramientas/biblia/generar.py`):
+
+- Un archivo por capítulo y versión: `{versión}/{libro}/{capítulo}.json`. La burbuja descarga solo el capítulo que necesita y lo guarda en memoria. Los libros usan los mismos códigos que `citas.js` (`gn`, `2r`, `dn`…).
+- `versiones.json`: nombre, abreviatura, crédito y versión por defecto. Agregar una versión es sumar su fuente al generador; el selector la muestra solo.
+- `indice.json`: versículos por capítulo de cada versión. Valida las citas: una referencia inexistente no se vuelve burbuja. Antes de publicar, `Citas.faltantes()` en la consola debe devolver una lista vacía.
+- Versiones: **RV 1960** (por defecto; derechos de las SBU, permiso en trámite), **RV 1909** y **RV 1865** (dominio público). La Biblia del Oso (1569) se descartó: su fuente trae Daniel y Ester con las adiciones griegas y otra numeración de los Salmos.
+- Cada edición numera algunos versículos de otra manera (Jonás 1:17 es 2:1 en la RV 1909). La burbuja lo explica en vez de quedar vacía; el generador deja la lista en `herramientas/biblia/informe.txt`.
+- Las citas textuales dentro de los párrafos de un recurso van siempre en RV 1960; la versión elegida cambia solo el texto de la burbuja.
+- **Elegir la versión:** selector en la cabecera del sitio y en la propia burbuja. Es una preferencia del dispositivo (§11).
 
 ## 16. Compartir e insertar
 
@@ -371,7 +386,7 @@ Reglas:
 5. Mientras el sitio esté en subcarpeta (`/recursos-biblicos/`), `robots.txt` no tiene efecto: los buscadores solo lo leen en la raíz del dominio. Las apps legadas se excluyen con `<meta name="robots" content="noindex">` en su `index.html`. Con dominio propio en la raíz, `robots.txt` vuelve a funcionar.
 6. En el plan gratuito, Pages exige repositorio público.
 7. Sin computador propio, todo se edita desde el navegador (github.com o github.dev, tecla `.` en el repositorio). La validación la hace GitHub Actions: si un recurso no cumple el esquema, el flujo falla y el sitio publicado no cambia.
-8. **Carga masiva por ZIP.** Subir por la web pierde la estructura de carpetas. Para cargar o actualizar muchos archivos, se sube un `.zip` a la raíz del repositorio: el flujo `desempaquetar.yml` lo descomprime conservando las carpetas, lo borra, confirma los cambios y lanza `publicar.yml`. Cada archivo del ZIP **reemplaza completo** al del repositorio: nunca se incluyen fragmentos. Los ZIP no pueden modificar `.github/` (GitHub no permite que un flujo edite flujos): los archivos de `.github/workflows/` se crean o editan a mano desde la web.
+8. **Carga masiva por ZIP.** Subir por la web pierde la estructura de carpetas. Para cargar o actualizar muchos archivos, se sube un `.zip` a la raíz del repositorio: el flujo `desempaquetar.yml` lo descomprime conservando las carpetas, lo borra, confirma los cambios y lanza `publicar.yml`. Cada archivo del ZIP **reemplaza completo** al del repositorio: nunca se incluyen fragmentos. Los ZIP no pueden modificar `.github/` (GitHub no permite que un flujo edite flujos): los archivos de `.github/workflows/` se crean o editan a mano desde la web. **Se sube un ZIP a la vez** y se espera a que `desempaquetar.yml` termine: dos ejecuciones simultáneas chocan al confirmar (error «fetch first»). Un ZIP tampoco puede borrar archivos: los que quedan obsoletos se eliminan a mano en GitHub.
 
 ## 20. Flujos de trabajo
 
@@ -429,7 +444,9 @@ Distinta de la **presentación** (`segunda-guerra-mundial/`), que un profesor us
 ### Pendientes
 
 - **Permiso de la Sociedad Bíblica (RV 1960):** El imperio babilónico cita unos 1.450 versículos, incluidos libros completos (Lamentaciones, Habacuc). Se publica igual, porque el sitio está en etapa de desarrollo y sirve también para mostrar el proyecto a la Sociedad Bíblica; si el permiso no se concede, se ajustan las burbujas antes de difundir el sitio.
-- **Burbuja de citas en las apps existentes:** agregar `citas.js` y las bases RV 1960 a las apps que citan texto bíblico (§15).
+- **Burbuja de citas en las apps existentes:** agregar `citas.js` a las apps que citan texto bíblico (§15).
+- **Títulos de los Salmos en la RV 1909:** la fuente los trae pegados al versículo 1 («Salmo de David. JEHOVÁ es mi pastor»).
+- **`desempaquetar.yml` con turnos y `git pull --rebase`** (§19): aplicar a mano la versión corregida si aún no se hizo.
 - **Despliegue en `adda-santiago`:** actualizar `publicar.yml`, reactivar Pages y verificar el sitio en la subcarpeta.
 - **`noindex` en las apps legadas** (§19, regla 5).
 - **Limpieza del código comercial:** eliminar `anuncios.ts`, `cuenta.ts`, `EspacioAnuncio`, `SITIO.anuncios` y la llamada a `iniciarAnuncios()`.
@@ -453,7 +470,7 @@ Distinta de la **presentación** (`segunda-guerra-mundial/`), que un profesor us
 |---|---|---|
 | Dominio propio | Seguir en `github.io` / dominio de la iglesia | Pendiente; decidir antes de difundir masivamente |
 | Logo | Imagen propia junto al nombre en la cabecera | Pendiente; la cabecera ya lo admite (`SITIO.logo`, §4) |
-| Permiso de cita de la RV 1960 | Autorización de las Sociedades Bíblicas para citar más de unos 500 versículos y libros completos en las burbujas | En trámite (octubre de 2026); resolver antes de difundir masivamente |
+| Permiso de la RV 1960 | Autorización de las Sociedades Bíblicas para alojar el texto completo de la RV 1960 en el sitio (consulta en burbujas). Si no se concede, se borra `public/biblia/rv1960/` y la RV 1909 pasa a ser la versión por defecto en `versiones.json` | En trámite (octubre de 2026); resolver antes de difundir masivamente |
 | Proveedor del buzón | Tally / Google Forms | Pendiente |
 | Almacenamiento de `.glb` | Cloudflare R2 / otro | Pendiente hasta el primer modelo pesado |
 | Destino final de los recursos no bíblicos | Mantener ocultos / borrar / mover a otro repositorio | Ocultos por ahora |
@@ -512,6 +529,10 @@ Distinta de la **presentación** (`segunda-guerra-mundial/`), que un profesor us
 | 2026-10-08 | Bloque de dos posturas cuando la historia o dos textos parecen diferir; en doctrina prevalece la línea de las Asambleas de Dios | Mostrar la evidencia sin contradecir el texto bíblico |
 | 2026-10-08 | Nuevo recurso: El imperio babilónico, con las rutas Historia, Sociedad y religión, y El imperio y la Biblia | Primer recurso complementario para el estudio de Daniel, Reyes, Crónicas y los profetas |
 | 2026-10-08 | Los recursos nuevos se publican (`publicado: true`) aunque haya permisos en trámite | El sitio está en desarrollo y sirve para mostrar el proyecto, incluso a la Sociedad Bíblica |
+| 2026-10-08 | La Biblia completa vive en el sitio, un archivo por capítulo y versión (`public/biblia/`), generada por `herramientas/biblia/generar.py` | El objetivo es tener recursos para cada libro; cargar por capítulo mantiene liviana cada página y no depende de sitios externos |
+| 2026-10-08 | Versiones iniciales: RV 1960 (por defecto, permiso en trámite), RV 1909 y RV 1865 (dominio público); se agregarán otras de dominio público o con licencia | La arquitectura permite sumar versiones sin tocar los recursos |
+| 2026-10-08 | Selector de versión en la cabecera del sitio y en la burbuja, guardado como preferencia del dispositivo | La persona elige su versión una vez y la ve en todo el sitio |
+| 2026-10-08 | Se sube un ZIP a la vez | Dos ejecuciones simultáneas de `desempaquetar.yml` chocaron al confirmar |
 
 ## 24. Relación con el repositorio Fuego y Palabra
 

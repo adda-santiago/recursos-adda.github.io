@@ -1,21 +1,31 @@
 /* ==========================================================
    citas.js — Burbuja de citas bíblicas (compartido)
-   Convierte las referencias del texto (p. ej. «Dn 5:30-31»,
-   «Daniel 5:7, 16, 29», «2 R 24:14; 25:12») en botones que abren
-   una burbuja con el versículo. El texto sale de citas-rv1960.js:
-   una referencia solo se vuelve botón si TODOS sus versículos están ahí.
-   Las que faltan se listan en la consola (Citas.faltantes()).
+   Convierte las referencias del texto en botones que abren una burbuja
+   con el pasaje: versículos («Dn 5:30-31», «Daniel 5:7, 16, 29»,
+   «2 R 24:14; 25:12», «Abd 11-12») o capítulos completos («Daniel 5»,
+   «Jeremías 50–51», «Ap 14:8; 17–18»).
 
-   Uso: cargar citas-rv1960.js y luego este archivo. Procesa la página
-   sola y vigila el contenido que se agregue después (diapositivas).
-   Para excluir una zona: clase «no-citas». API: window.Citas.procesar(nodo).
-   No depende de ningún CSS: trae sus estilos, con los tokens del sitio
-   si existen (--bg, --ink, --muted, --line, --accent, --serif, --sans).
+   Texto bíblico: public/biblia/ (generado por herramientas/biblia/generar.py)
+     versiones.json · indice.json · {versión}/{libro}/{capítulo}.json
+   Cada capítulo se descarga solo cuando se toca una cita, y queda en memoria.
+   El índice valida las citas: una referencia que no existe en la versión
+   por defecto no se vuelve botón y se lista en Citas.faltantes().
+
+   Versión: la elige la persona en la burbuja (o en la cabecera del sitio);
+   se guarda en el dispositivo (localStorage «fyp:v1:version-biblia») y la
+   comparten el sitio y todas las apps.
+   Ubicación del texto: por defecto, ../../biblia/ relativo a esta carpeta
+   (public/apps/assets/js/ → public/biblia/). Se puede fijar con
+   window.CITAS_BIBLIA = 'ruta/'. Para demos sin servidor: window.BIBLIA_EMBEBIDA
+   = { versiones, indice, capitulos: { 'rv1960/dn/5': [...] } }.
+
+   API: Citas.procesar(nodo), Citas.faltantes(), Citas.version(), Citas.cambiarVersion(id),
+        Citas.versiones() → promesa con la lista.
+   Para excluir una zona: clase «no-citas». Trae sus propios estilos.
    ========================================================== */
 (() => {
   'use strict';
   if (window.Citas) return;
-
   /* ---------- Libros: id, nombre para mostrar, formas aceptadas ---------- */
   const LIBROS = [
     ['gn', 'Génesis', ['Génesis', 'Genesis', 'Gn', 'Gén', 'Gen']],
@@ -105,18 +115,43 @@
   const formasCap = LIBROS.filter(([id]) => !['abd', 'flm', '2jn', '3jn', 'jud'].includes(id))
     .flatMap(([, , f]) => f).sort((a, b) => b.length - a.length).map(f => f.replace(/ /g, '\\s'));
   const RECAP = new RegExp(`(?<![\\p{L}\\d])(${formasCap.join('|')})\\.?\\s(${CC}(?:;\\s?${CC}(?![\\d:]|\\s?\\p{L}))*)(?![\\d:\\p{L}])`, 'gu');
-  const CAPS = () => window.RV1960_CAP || {};
-  // Un versículo se busca primero en la base de citas y, si no está, en los capítulos completos
-  const DB = () => {
-    const base = window.RV1960 || {}, caps = CAPS();
-    return new Proxy(base, {
-      has: (t, k) => k in t || (() => { const m = /^(\S+) (\d+):(\d+)$/.exec(k); return !!(m && caps[`${m[1]} ${m[2]}`] && caps[`${m[1]} ${m[2]}`][m[3] - 1] !== undefined); })(),
-      get: (t, k) => { if (k in t) return t[k]; const m = /^(\S+) (\d+):(\d+)$/.exec(k); return m && caps[`${m[1]} ${m[2]}`] ? caps[`${m[1]} ${m[2]}`][m[3] - 1] : undefined; }
-    });
-  };
+
+  const UNICO = ['abd', 'flm', '2jn', '3jn', 'jud'];
   // «13–14; 39» → [13, 14, 39]
   const listaCaps = txt => txt.split(/;\s?/).flatMap(t => { const [a, b] = t.split(/\s?[-–]\s?/).map(Number); return Array.from({ length: (b || a) - a + 1 }, (_, k) => a + k); });
   const faltan = new Set();
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  /* ---------- Texto bíblico ---------- */
+  const SCRIPT = document.currentScript && document.currentScript.src;
+  const BASE = window.CITAS_BIBLIA || (SCRIPT ? new URL('../../../biblia/', SCRIPT).href : '../../biblia/');
+  const EMB = window.BIBLIA_EMBEBIDA || null;
+  const CLAVE = 'fyp:v1:version-biblia';
+  let VERSIONES = [], INDICE = null, REF = 'rv1960';
+  const cache = new Map();
+  const json = url => fetch(url).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
+  const listo = (EMB ? Promise.resolve([EMB.versiones, EMB.indice]) : Promise.all([json(BASE + 'versiones.json'), json(BASE + 'indice.json')]))
+    .then(([v, i]) => { VERSIONES = v; INDICE = i; REF = (v.find(x => x.defecto) || v[0]).id; })
+    .catch(e => console.warn('citas.js: no se pudo cargar el texto bíblico', e));
+  function version() {
+    let v = null;
+    // Mismo formato que src/lib/storage.ts (almacen): el valor se guarda como JSON
+    try { const r = localStorage.getItem(CLAVE); v = r && r.startsWith('"') ? JSON.parse(r) : r; } catch (e) { /* sin almacenamiento */ }
+    return VERSIONES.some(x => x.id === v) ? v : REF;
+  }
+  function cambiarVersion(id) {
+    try { localStorage.setItem(CLAVE, JSON.stringify(id)); } catch (e) { /* sin almacenamiento */ }
+    if (origen && !burbuja.hidden) abrir(origen);
+    window.dispatchEvent(new CustomEvent('citas:version', { detail: id }));
+  }
+  function capitulo(ver, libro, cap) {
+    const k = `${ver}/${libro}/${cap}`;
+    if (EMB) return Promise.resolve(EMB.capitulos[k] || null);
+    if (!cache.has(k)) cache.set(k, json(`${BASE}${k}.json`).catch(() => { cache.delete(k); return null; }));
+    return cache.get(k);
+  }
+  // ¿Existe el capítulo / versículo en la versión de referencia?
+  const nVers = (libro, cap) => ((INDICE.versiculos[REF] || {})[libro] || [])[cap - 1] || 0;
 
   /* «5:7, 16; 6:1-3» → [{cap, vs:[7,16]}, {cap:6, vs:[1,2,3]}] */
   function desarmar(cuerpo) {
@@ -131,8 +166,9 @@
     });
   }
 
+
   function procesar(raiz) {
-    if (!raiz || !window.RV1960) return;
+    if (!raiz || !INDICE) return;
     const walker = document.createTreeWalker(raiz, NodeFilter.SHOW_TEXT, {
       acceptNode(n) {
         const p = n.parentElement;
@@ -145,7 +181,6 @@
     while (walker.nextNode()) nodos.push(walker.currentNode);
     nodos.forEach(n => {
       const txt = n.nodeValue;
-      // Coincidencias de ambos patrones, en orden y sin solaparse
       const hallazgos = [];
       RE.lastIndex = 0; let m;
       while ((m = RE.exec(txt))) hallazgos.push({ i: m.index, t: m[0], libro: m[1], ref: m[2] });
@@ -156,19 +191,35 @@
       hallazgos.sort((a, b) => a.i - b.i); // orden estable: a igual posición gana el versículo
       const frag = document.createDocumentFragment();
       let ultimo = 0, cambio = false;
+      const boton = (texto, id, datos) => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.className = 'cita-ref' + (datos.caps ? ' cap' : ''); b.textContent = texto;
+        b.dataset.libro = id;
+        if (datos.caps) b.dataset.caps = datos.caps; else b.dataset.ref = datos.ref;
+        b.setAttribute('aria-haspopup', 'dialog'); b.setAttribute('aria-expanded', 'false');
+        return b;
+      };
+      const capsValidos = (id, caps) => {
+        const malos = listaCaps(caps).filter(c => !nVers(id, c));
+        malos.forEach(c => faltan.add(`${id} ${c}`));
+        return !malos.length;
+      };
       // «Ap 14:8; 17–18»: capítulos completos que siguen a una cita del mismo libro
       const CONT = /^(;\s?)(\d{1,3}(?:\s?[-–]\s?\d{1,3})?)(?![\d:]|\s?\p{L})/u; // «; 2 Crónicas» no es continuación
+      // «Daniel 1–7; 9:2»: versículos que siguen a una cita de capítulos del mismo libro
+      const CONTV = new RegExp(`^(;\\s?)(${CAP})(?![\\d:])`, 'u');
       const continuar = id => {
         let c;
-        while ((c = CONT.exec(txt.slice(ultimo)))) {
-          const sinCap = listaCaps(c[2]).map(k => `${id} ${k}`).filter(k => !CAPS()[k]);
-          if (sinCap.length) { sinCap.forEach(k => faltan.add(k)); break; }
-          frag.append(txt.slice(ultimo, ultimo + c[1].length));
-          const b = document.createElement('button');
-          b.type = 'button'; b.className = 'cita-ref cap'; b.textContent = c[2];
-          b.dataset.libro = id; b.dataset.caps = c[2];
-          b.setAttribute('aria-haspopup', 'dialog'); b.setAttribute('aria-expanded', 'false');
-          frag.append(b);
+        for (;;) {
+          const resto = txt.slice(ultimo);
+          if ((c = CONT.exec(resto))) {
+            if (!capsValidos(id, c[2])) break;
+            frag.append(txt.slice(ultimo, ultimo + c[1].length), boton(c[2], id, { caps: c[2] }));
+          } else if ((c = CONTV.exec(resto))) {
+            const malos = desarmar(c[2]).flatMap(p => p.vs.filter(v => v > nVers(id, p.cap)).map(v => `${id} ${p.cap}:${v}`));
+            if (malos.length) { malos.forEach(k => faltan.add(k)); break; }
+            frag.append(txt.slice(ultimo, ultimo + c[1].length), boton(c[2], id, { ref: c[2] }));
+          } else break;
           ultimo += c[0].length;
         }
       };
@@ -176,33 +227,13 @@
         if (h.i < ultimo) return;
         const id = POR_FORMA.get(h.libro.toLowerCase().replace(/\s+/g, ' '));
         if (h.caps) {
-          const sinCap = listaCaps(h.caps).map(c => `${id} ${c}`).filter(k => !CAPS()[k]);
-          if (sinCap.length) { sinCap.forEach(k => faltan.add(k)); return; }
-          frag.append(txt.slice(ultimo, h.i));
-          const b = document.createElement('button');
-          b.type = 'button'; b.className = 'cita-ref cap'; b.textContent = h.t;
-          b.dataset.libro = id; b.dataset.caps = h.caps;
-          b.setAttribute('aria-haspopup', 'dialog'); b.setAttribute('aria-expanded', 'false');
-          frag.append(b);
-          ultimo = h.i + h.t.length; cambio = true;
-          continuar(id);
-          return;
+          if (!capsValidos(id, h.caps)) return;
+        } else {
+          const malos = desarmar(h.ref).flatMap(p => p.vs.filter(v => v > nVers(id, p.cap)).map(v => `${id} ${p.cap}:${v}`));
+          if (malos.length) { malos.forEach(k => faltan.add(k)); return; }
         }
-        const claves = desarmar(h.ref).flatMap(p => p.vs.map(v => `${id} ${p.cap}:${v}`));
-        const faltantes = claves.filter(k => !(k in DB()));
-        if (faltantes.length) { faltantes.forEach(k => faltan.add(k)); return; }
-        frag.append(txt.slice(ultimo, h.i));
-        const b = document.createElement('button');
-        b.type = 'button';
-        b.className = 'cita-ref';
-        b.textContent = h.t;
-        b.dataset.libro = id;
-        b.dataset.ref = h.ref;
-        b.setAttribute('aria-haspopup', 'dialog');
-        b.setAttribute('aria-expanded', 'false');
-        frag.append(b);
-        ultimo = h.i + h.t.length;
-        cambio = true;
+        frag.append(txt.slice(ultimo, h.i), boton(h.t, id, h));
+        ultimo = h.i + h.t.length; cambio = true;
         continuar(id);
       });
       if (!cambio) return;
@@ -216,64 +247,66 @@
   burbuja.className = 'cita-burbuja';
   burbuja.setAttribute('role', 'dialog');
   burbuja.hidden = true;
-  burbuja.innerHTML = '<div class="cb-cab"><p class="cb-ref"></p><button type="button" class="cb-cerrar" aria-label="Cerrar cita">×</button></div><div class="cb-texto"></div><p class="cb-version">Reina-Valera 1960</p>';
-  let origen = null;
+  burbuja.innerHTML = '<div class="cb-cab"><p class="cb-ref"></p><select class="cb-ver" aria-label="Versión de la Biblia"></select>'
+    + '<button type="button" class="cb-cerrar" aria-label="Cerrar cita">×</button></div><div class="cb-texto"></div><p class="cb-version"></p>';
+  const selVer = burbuja.querySelector('.cb-ver');
+  selVer.addEventListener('change', () => cambiarVersion(selVer.value));
+  let origen = null, turno = 0, abiertaEn = 0;
 
-  function abrir(btn) {
-    const id = btn.dataset.libro;
-    burbuja.classList.remove('larga');
-    if (btn.dataset.caps) { abrirCapitulo(btn, id); return; }
-    const partes = desarmar(btn.dataset.ref);
-    const UNICO = ['abd', 'flm', '2jn', '3jn', 'jud'].includes(id);
-    const titulo = `${NOMBRE[id]} ${(UNICO ? btn.dataset.ref.replace(/^1:/, '') : btn.dataset.ref).replace(/\s?[-–]\s?/g, '–')}`;
+  async function abrir(btn) {
+    const id = btn.dataset.libro, mio = ++turno;
+    const ver = version();
+    const meta = VERSIONES.find(v => v.id === ver) || {};
+    const caps = btn.dataset.caps ? listaCaps(btn.dataset.caps) : null;
+    const partes = caps ? caps.map(c => ({ cap: c, vs: null })) : desarmar(btn.dataset.ref);
+    const refTxt = (btn.dataset.caps || (UNICO.includes(id) ? btn.dataset.ref.replace(/^1:/, '') : btn.dataset.ref)).replace(/\s?[-–]\s?/g, '–');
+    const titulo = `${NOMBRE[id]} ${refTxt}`;
     burbuja.querySelector('.cb-ref').textContent = titulo;
     burbuja.setAttribute('aria-label', titulo);
-    const html = partes.map((p, i) => {
-      const versos = p.vs.map(v => `<sup>${v}</sup>${esc(DB()[`${id} ${p.cap}:${v}`])}`).join(' ');
-      return `<p>${partes.length > 1 ? `<span class="cb-cap">${NOMBRE[id]} ${p.cap}</span>` : ''}${versos}</p>`;
-    }).join('');
-    burbuja.querySelector('.cb-texto').innerHTML = html;
-    // Dentro de pantalla completa, la burbuja va en el elemento en pantalla completa
-    const host = document.fullscreenElement || document.webkitFullscreenElement || document.body;
-    if (burbuja.parentElement !== host) host.appendChild(burbuja);
-    if (origen) origen.setAttribute('aria-expanded', 'false');
-    origen = btn;
-    btn.setAttribute('aria-expanded', 'true');
-    burbuja.hidden = false;
-    ubicar();
-    burbuja.querySelector('.cb-cerrar').focus({ preventScroll: true });
-  }
-  /* Capítulos completos (citas-rv1960-capitulos.js) */
-  function abrirCapitulo(btn, id) {
-    const caps = listaCaps(btn.dataset.caps);
-    const titulo = `${NOMBRE[id]} ${btn.dataset.caps.replace(/\s?[-–]\s?/g, '–')}`;
-    burbuja.querySelector('.cb-ref').textContent = titulo;
-    burbuja.setAttribute('aria-label', titulo);
-    burbuja.querySelector('.cb-texto').innerHTML = caps.map(c =>
-      `<p>${caps.length > 1 ? `<span class="cb-cap">${esc(NOMBRE[id])} ${c}</span>` : ''}${(CAPS()[`${id} ${c}`] || []).map((t, k) => `<sup>${k + 1}</sup>${esc(t)}`).join(' ')}</p>`).join('');
-    burbuja.classList.add('larga');
+    selVer.innerHTML = VERSIONES.map(v => `<option value="${v.id}"${v.id === ver ? ' selected' : ''}>${esc(v.abrev)}</option>`).join('');
+    selVer.hidden = VERSIONES.length < 2;
+    burbuja.querySelector('.cb-version').textContent = meta.credito || '';
+    burbuja.classList.toggle('larga', !!caps);
+    const texto = burbuja.querySelector('.cb-texto');
+    texto.innerHTML = '<p class="cb-cargando">Cargando…</p>';
     mostrarBurbuja(btn);
-    burbuja.scrollTop = 0;
+    const datos = await Promise.all(partes.map(p => capitulo(ver, id, p.cap)));
+    if (mio !== turno) return; // se abrió otra cita mientras cargaba
+    texto.innerHTML = partes.map((p, k) => {
+      const cap = datos[k];
+      if (!cap) return `<p class="cb-aviso">No se pudo cargar ${esc(NOMBRE[id])} ${p.cap}. Revisa tu conexión.</p>`;
+      const vs = p.vs || cap.map((_, i) => i + 1);
+      const cuerpo = vs.map(v => cap[v - 1]
+        ? `<sup>${v}</sup>${esc(cap[v - 1])}`
+        : `<sup>${v}</sup><span class="cb-aviso">En la ${esc(meta.abrev || ver)} este versículo tiene otra numeración o está unido al anterior o al siguiente.</span>`).join(' ');
+      return `<p>${partes.length > 1 ? `<span class="cb-cap">${esc(NOMBRE[id])} ${p.cap}</span>` : ''}${cuerpo}</p>`;
+    }).join('');
+    ubicar();
   }
   function mostrarBurbuja(btn) {
     const host = document.fullscreenElement || document.webkitFullscreenElement || document.body;
     if (burbuja.parentElement !== host) host.appendChild(burbuja);
-    if (origen) origen.setAttribute('aria-expanded', 'false');
+    if (origen && origen !== btn) origen.setAttribute('aria-expanded', 'false');
     origen = btn;
     btn.setAttribute('aria-expanded', 'true');
+    const nueva = burbuja.hidden;
+    if (nueva) abiertaEn = performance.now();
     burbuja.hidden = false;
+    if (nueva) burbuja.scrollTop = 0;
     ubicar();
-    burbuja.querySelector('.cb-cerrar').focus({ preventScroll: true });
+    if (nueva) burbuja.querySelector('.cb-cerrar').focus({ preventScroll: true });
   }
   function cerrar(devolverFoco) {
     if (burbuja.hidden) return;
     burbuja.hidden = true;
+    turno++;
     if (origen) {
       origen.setAttribute('aria-expanded', 'false');
       if (devolverFoco) origen.focus({ preventScroll: true });
     }
     origen = null;
   }
+
   function ubicar() {
     if (!origen || burbuja.hidden) return;
     const angosta = window.innerWidth < 600;
@@ -287,14 +320,13 @@
     burbuja.style.left = x + 'px';
     burbuja.style.top = y + 'px';
   }
-  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
   document.addEventListener('click', e => {
     const b = e.target.closest && e.target.closest('.cita-ref');
     if (b) {
       e.preventDefault();
       e.stopPropagation(); // que el clic no avance la diapositiva
-      if (origen === b && !burbuja.hidden) cerrar(); else abrir(b);
+      if (origen === b && !burbuja.hidden) cerrar(); else { burbuja.scrollTop = 0; abrir(b); }
       return;
     }
     if (e.target.closest && e.target.closest('.cb-cerrar')) { e.stopPropagation(); cerrar(true); return; }
@@ -310,6 +342,7 @@
   // Desplazar la página cierra la burbuja; desplazar la burbuja misma, no
   window.addEventListener('scroll', e => {
     if (e.target === burbuja || (e.target.nodeType === 1 && burbuja.contains(e.target))) return;
+    if (performance.now() - abiertaEn < 400) return; // desplazamiento propio del toque que la abrió
     cerrar();
   }, true);
 
@@ -328,7 +361,12 @@
 .cita-burbuja[hidden] { display: none; }
 .cita-burbuja.hoja { left: 0 !important; right: 0; bottom: 0; top: auto !important; width: auto; max-height: 55vh; border-radius: 14px 14px 0 0;
   padding-bottom: calc(0.8rem + env(safe-area-inset-bottom, 0px)); }
-.cita-burbuja .cb-cab { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 0.45rem; }
+.cita-burbuja .cb-cab { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.45rem; }
+.cita-burbuja .cb-ref { flex: 1; }
+.cita-burbuja .cb-ver { font: 600 0.74rem var(--sans, system-ui, sans-serif); color: var(--ink, #1f2430); background: var(--bg, #fafaf8);
+  border: 1px solid var(--line, #e4e4df); border-radius: 999px; padding: 0.2rem 0.5rem; cursor: pointer; }
+.cita-burbuja .cb-ver[hidden] { display: none; }
+.cita-burbuja .cb-aviso, .cita-burbuja .cb-cargando { font-family: var(--sans, system-ui, sans-serif); font-size: 0.8rem !important; font-style: italic; color: var(--muted, #6b7080); }
 .cita-burbuja .cb-ref { margin: 0; font-family: var(--sans, system-ui, sans-serif); font-size: 0.8rem; font-weight: 600; color: var(--accent, #9e2b25); }
 .cita-burbuja .cb-cerrar { font: 500 1.25rem/1 var(--sans, system-ui, sans-serif); color: var(--muted, #6b7080); background: none; border: 0;
   padding: 0.1rem 0.35rem; cursor: pointer; border-radius: 4px; }
@@ -350,7 +388,7 @@
       const el = n.nodeType === 1 ? n : n.parentElement;
       if (el && !el.classList.contains('cita-ref') && !burbuja.contains(el)) cola.add(el);
     }));
-    if (pendiente || !cola.size) return;
+    if (pendiente || !cola.size || !INDICE) return;
     pendiente = requestAnimationFrame(() => {
       pendiente = null;
       const lote = [...cola]; cola.clear();
@@ -358,10 +396,15 @@
     });
   });
   function iniciar() {
-    procesar(document.body);
     obs.observe(document.body, { childList: true, subtree: true });
+    listo.then(() => procesar(document.body));
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar); else iniciar();
+  // Otra pestaña o el iframe del sitio cambió la versión: la burbuja abierta se actualiza
+  window.addEventListener('storage', e => { if (e.key === CLAVE && origen && !burbuja.hidden) abrir(origen); });
 
-  window.Citas = { procesar, faltantes: () => [...faltan].sort(), libros: NOMBRE };
+  window.Citas = {
+    procesar, faltantes: () => [...faltan].sort(), libros: NOMBRE, listo,
+    version, cambiarVersion, versiones: () => listo.then(() => VERSIONES)
+  };
 })();
