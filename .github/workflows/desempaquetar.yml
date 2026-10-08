@@ -12,14 +12,22 @@ permissions:
   contents: write
   actions: write
 
+# Si se suben dos ZIP seguidos, la segunda ejecución espera a que termine la primera
+concurrency:
+  group: desempaquetar
+  cancel-in-progress: false
+
 jobs:
   desempaquetar:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
 
       - name: Descomprimir
         run: |
+          git pull --rebase origin main
           shopt -s nullglob
           zips=(*.zip)
           if [ ${#zips[@]} -eq 0 ]; then echo "No hay ZIP en la raíz"; exit 0; fi
@@ -36,7 +44,11 @@ jobs:
           git add -A
           if git diff --cached --quiet; then echo "Sin cambios"; exit 0; fi
           git commit -m "Desempaquetar ZIP"
-          git push
+          # Si entró otro commit mientras se descomprimía, se integra antes de subir (hasta 3 intentos)
+          for i in 1 2 3; do
+            git pull --rebase origin main && git push && break
+            sleep 5
+          done
 
       - name: Lanzar publicación
         env:
