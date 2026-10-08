@@ -32,8 +32,7 @@ revision:
   estado: borrador
 fechaPublicacion: 2026-10-08
 orden: 50
-# Oculto hasta contar con el permiso de la Sociedad Bíblica: el recurso cita más de 500 versículos de la RV 1960
-publicado: false
+publicado: true
 ---
 
 ## Qué muestra

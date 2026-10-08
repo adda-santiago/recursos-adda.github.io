@@ -428,7 +428,7 @@ Distinta de la **presentación** (`segunda-guerra-mundial/`), que un profesor us
 
 ### Pendientes
 
-- **Permiso de la Sociedad Bíblica (RV 1960):** El imperio babilónico cita unos 1.450 versículos, incluidos libros completos (Lamentaciones, Habacuc). Queda con `publicado: false` hasta obtener la autorización.
+- **Permiso de la Sociedad Bíblica (RV 1960):** El imperio babilónico cita unos 1.450 versículos, incluidos libros completos (Lamentaciones, Habacuc). Se publica igual, porque el sitio está en etapa de desarrollo y sirve también para mostrar el proyecto a la Sociedad Bíblica; si el permiso no se concede, se ajustan las burbujas antes de difundir el sitio.
 - **Burbuja de citas en las apps existentes:** agregar `citas.js` y las bases RV 1960 a las apps que citan texto bíblico (§15).
 - **Despliegue en `adda-santiago`:** actualizar `publicar.yml`, reactivar Pages y verificar el sitio en la subcarpeta.
 - **`noindex` en las apps legadas** (§19, regla 5).
@@ -453,7 +453,7 @@ Distinta de la **presentación** (`segunda-guerra-mundial/`), que un profesor us
 |---|---|---|
 | Dominio propio | Seguir en `github.io` / dominio de la iglesia | Pendiente; decidir antes de difundir masivamente |
 | Logo | Imagen propia junto al nombre en la cabecera | Pendiente; la cabecera ya lo admite (`SITIO.logo`, §4) |
-| Permiso de cita de la RV 1960 | Autorización de las Sociedades Bíblicas para citar más de unos 500 versículos y libros completos en las burbujas | En trámite (octubre de 2026); condiciona la publicación de El imperio babilónico |
+| Permiso de cita de la RV 1960 | Autorización de las Sociedades Bíblicas para citar más de unos 500 versículos y libros completos en las burbujas | En trámite (octubre de 2026); resolver antes de difundir masivamente |
 | Proveedor del buzón | Tally / Google Forms | Pendiente |
 | Almacenamiento de `.glb` | Cloudflare R2 / otro | Pendiente hasta el primer modelo pesado |
 | Destino final de los recursos no bíblicos | Mantener ocultos / borrar / mover a otro repositorio | Ocultos por ahora |
@@ -510,7 +510,8 @@ Distinta de la **presentación** (`segunda-guerra-mundial/`), que un profesor us
 | 2026-10-08 | Los recursos no dependen de sitios externos: texto bíblico y mapa base viven en el propio sitio | Algunas redes laborales bloquean otros sitios |
 | 2026-10-08 | Mapa base vectorial de Natural Earth para los recursos nuevos | Sin teselas externas, funciona con internet débil y respeta el modo oscuro |
 | 2026-10-08 | Bloque de dos posturas cuando la historia o dos textos parecen diferir; en doctrina prevalece la línea de las Asambleas de Dios | Mostrar la evidencia sin contradecir el texto bíblico |
-| 2026-10-08 | Nuevo recurso: El imperio babilónico, con las rutas Historia, Sociedad y religión, y El imperio y la Biblia; oculto hasta el permiso de la Sociedad Bíblica | Primer recurso complementario para el estudio de Daniel, Reyes, Crónicas y los profetas |
+| 2026-10-08 | Nuevo recurso: El imperio babilónico, con las rutas Historia, Sociedad y religión, y El imperio y la Biblia | Primer recurso complementario para el estudio de Daniel, Reyes, Crónicas y los profetas |
+| 2026-10-08 | Los recursos nuevos se publican (`publicado: true`) aunque haya permisos en trámite | El sitio está en desarrollo y sirve para mostrar el proyecto, incluso a la Sociedad Bíblica |
 
 ## 24. Relación con el repositorio Fuego y Palabra
 
