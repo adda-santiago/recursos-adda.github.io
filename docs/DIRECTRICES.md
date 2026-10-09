@@ -1,6 +1,6 @@
 # Directrices del proyecto — Recursos bíblicos interactivos
 
-Versión 2.5 · 8 de octubre de 2026
+Versión 2.6 · 9 de octubre de 2026
 
 Este documento es la fuente de verdad del proyecto. Cualquier decisión nueva que contradiga algo de aquí se registra en la bitácora (§23) y se actualiza la sección correspondiente. Si el código y este documento no coinciden, se corrige uno de los dos; no se deja la diferencia. Mientras una diferencia esté en proceso de corregirse, la sección lo indica como **pendiente de implementar**.
 
@@ -9,6 +9,8 @@ Este documento es la fuente de verdad del proyecto. Cualquier decisión nueva qu
 **Cambio de la versión 2.1:** nombre visible *Recursos Bíblicos*; taxonomía bíblica implementada (testamento, época, libro); las fichas pasan a `/{slug}/`.
 
 **Cambio de la versión 2.2:** cuando un recurso tiene más de una ruta, se eligen en un selector de ruta (lista desplegable) en lugar de pestañas y acordeones (§20).
+
+**Cambio de la versión 2.6:** segundo recurso de imperios, El imperio persa; la burbuja de citas marca los versículos omitidos y reconoce rangos entre capítulos (§15).
 
 **Cambio de la versión 2.5:** la Biblia completa vive en el sitio (`public/biblia/`, un archivo por capítulo) en varias versiones, y la persona elige la versión en la cabecera o en la propia burbuja de citas (§5, §11, §15).
 
@@ -260,6 +262,7 @@ Asignación actual:
 | Árbol genealógico | Antiguo, Nuevo | Creación a vida de Jesús | Génesis, Rut, 1 Crónicas, Mateo, Lucas |
 | El tabernáculo | Antiguo, Nuevo | Éxodo y desierto | Éxodo, Levítico, Números, Hebreos |
 | El templo de Salomón | Antiguo | Monarquía unida | 1 Reyes, 2 Crónicas |
+| El imperio persa | Antiguo, Nuevo | Exilio, retorno, intertestamentario | 2 Crónicas, Esdras, Nehemías, Ester, Isaías, Daniel, Hageo, Zacarías, Malaquías, Hechos |
 | El imperio babilónico | Antiguo, Nuevo | Monarquía dividida, exilio, retorno | 2 Reyes, 2 Crónicas, Isaías, Jeremías, Lamentaciones, Ezequiel, Daniel, Habacuc, Apocalipsis |
 
 ## 10. Sin fines comerciales
@@ -349,6 +352,8 @@ Reglas: el artículo explica lo que se ve; no repite el resumen ni rellena para 
 - Cada edición numera algunos versículos de otra manera (Jonás 1:17 es 2:1 en la RV 1909). La burbuja lo explica en vez de quedar vacía; el generador deja la lista en `herramientas/biblia/informe.txt`.
 - Las citas textuales dentro de los párrafos de un recurso van siempre en RV 1960; la versión elegida cambia solo el texto de la burbuja.
 - **Elegir la versión:** selector en la cabecera del sitio y en la propia burbuja. Es una preferencia del dispositivo (§11).
+- **Lectura en la burbuja:** cuando una cita salta versículos dentro de un capítulo (Dn 8:3-8, 20-22), los tramos se separan con la marca «versículos omitidos»; un cambio de capítulo lleva su subtítulo. Se reconocen rangos entre capítulos (Is 44:28–45:4) y versículos que siguen a capítulos (Daniel 1–7; 9:2). La cabecera de la burbuja queda fija al desplazar el texto.
+- **Defectos de la fuente:** las correcciones se registran en `CORRECCIONES` de `herramientas/biblia/generar.py`, para que se apliquen cada vez que se regenera el texto.
 
 ## 16. Compartir e insertar
 
@@ -533,6 +538,9 @@ Distinta de la **presentación** (`segunda-guerra-mundial/`), que un profesor us
 | 2026-10-08 | Versiones iniciales: RV 1960 (por defecto, permiso en trámite), RV 1909 y RV 1865 (dominio público); se agregarán otras de dominio público o con licencia | La arquitectura permite sumar versiones sin tocar los recursos |
 | 2026-10-08 | Selector de versión en la cabecera del sitio y en la burbuja, guardado como preferencia del dispositivo | La persona elige su versión una vez y la ve en todo el sitio |
 | 2026-10-08 | Se sube un ZIP a la vez | Dos ejecuciones simultáneas de `desempaquetar.yml` chocaron al confirmar |
+| 2026-10-09 | Nuevo recurso: El imperio persa, con las rutas Historia, Sociedad y religión, y El imperio y la Biblia | Segundo recurso complementario para Daniel, Esdras, Nehemías, Ester y los profetas del regreso |
+| 2026-10-09 | Marca de «versículos omitidos» y rangos entre capítulos en la burbuja de citas | Que el lector vea cuándo una cita salta versículos y lea completos los pasajes que cruzan capítulos |
+| 2026-10-09 | Las apps pueden reutilizar imágenes de otras apps (`../otra-app/img/…`) | Evitar generar dos veces la misma ilustración |
 
 ## 24. Relación con el repositorio Fuego y Palabra
 

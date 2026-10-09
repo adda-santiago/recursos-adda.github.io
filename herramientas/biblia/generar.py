@@ -56,6 +56,18 @@ VERSIONES = [
 #  'fuente': ('usfm', 'Biblia-del-Oso-1569-main')},
 ]
 
+# Correcciones puntuales de defectos de las fuentes: (versión, libro, capítulo, versículo, mal, bien)
+CORRECCIONES = [
+    ('rv1960', 'mt', 5, 41, 'vecon él', 've con él'),
+    ('rv1960', 'hab', 3, 17, 'labrados 2 no', 'labrados no'),
+    ('rv1960', 'hch', 7, 43, 'i ntes bien', 'Antes bien'),
+    ('rv1960', '2cr', 31, 14, 'levitaCoré', 'levita Coré'),
+    ('rv1960', 'flm', 1, 4, 'de tí', 'de ti'),
+    ('rv1960', 'dn', 10, 20, 'a tí', 'a ti'),
+    ('rv1960', 'lc', 16, 2, 'de tí', 'de ti'),
+    ('rv1960', 'est', 2, 7, 'húerfana', 'huérfana'),
+]
+
 def limpiar(t):
     t = t.replace('/n', ' ')
     t = re.sub(r'\\f .*?\\f\*', '', t)            # notas
@@ -112,6 +124,9 @@ def main():
         libros = leer_json(carpeta) if tipo == 'json' else leer_usfm(carpeta)
         faltan = [i for i, *_ in LIBROS if i not in libros]
         if faltan: informe.append(f"{v['id']}: faltan libros {faltan}")
+        for ver, lib, cap, vs, mal, bien in CORRECCIONES:
+            if ver == v['id'] and lib in libros:
+                libros[lib][cap - 1][vs - 1] = libros[lib][cap - 1][vs - 1].replace(mal, bien)
         indice[v['id']] = {i: [len(c) for c in libros.get(i, [])] for i, *_ in LIBROS}
         total = 0
         for i, caps in libros.items():

@@ -74,6 +74,11 @@
       });
       // Si la fecha ya es un hito, su rótulo se resalta; si no, la marca lleva el suyo
       hoy.hidden = coincide;
+      // Si la marca lleva su propio rótulo, se ocultan los de los hitos vecinos para que no se pisen
+      el.querySelectorAll('.lt-hito').forEach(h => {
+        const p = parseFloat(h.style.left);
+        h.classList.toggle('tapado', !coincide && !h.classList.contains('actual') && Math.abs(p - centro) < 9);
+      });
     }
     return { el, ir, destruir: () => el.remove() };
   }
@@ -97,6 +102,7 @@
 .lt-hito span b { display: block; font-weight: 600; }
 .lt-hito.pasado i { border-color: var(--ink, #1f2430); }
 .lt-hito.actual span { color: var(--accent, #9e2b25); }
+.lt-hito.tapado span { visibility: hidden; }
 .lt-hito.actual i { border-color: var(--accent, #9e2b25); background: var(--accent, #9e2b25); }
 .lt-marca { position: absolute; top: 50%; left: 0; width: 0; transition: left .7s cubic-bezier(.3,.7,.2,1); }
 .lt-marca.sin { opacity: .3; }

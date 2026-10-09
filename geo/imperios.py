@@ -47,6 +47,25 @@ P['persia-oriente-539'] = [[37.3,60.5],[37.6,56.5],[36.7,53.8],[37.2,50.5],[38.4
     [42.5,55.0],[42.8,59.0],[43.0,63.0],[42.0,68.5],[37.5,71.5],[33.0,71.5],[28.0,68.5],[24.5,67.5],[25.2,61.5],[25.6,57.4],[27.0,56.0],
     [27.8,53.0],[28.6,51.6],[29.0,54.5],[31.0,58.0],[33.5,61.0]]
 
+# Persia en su máxima extensión (Darío I, c. 500): de Tracia y Egipto al Indo
+P['persia-500'] = [[43.5,28.6],[42.6,24.0],[41.5,22.5],[40.5,22.8],[40.8,24.5],[39.5,25.8],[37.5,26.5],[36.2,28.5],
+    [34.5,30.0],[33.5,25.0],[32.9,20.0],[31.0,20.0],[29.0,25.0],[27.0,29.5],[24.0,32.3],[22.0,31.5],[22.0,33.5],
+    [24.0,35.0],[27.5,33.8],[28.0,34.4],[29.5,35.0],[29.8,36.8],[31.5,40.0],[30.2,44.5],[29.5,48.0],[26.0,56.0],
+    [25.6,57.0],[25.2,61.5],[23.5,67.0],[24.0,70.0],[28.0,72.0],[32.0,75.0],[35.0,74.5],[37.0,73.5],[38.5,72.0],
+    [41.0,71.0],[42.5,68.0],[43.5,62.0],[44.5,58.0],[42.5,53.0],[41.5,48.5],[42.5,44.5],[41.0,41.5],[41.3,38.0],
+    [41.8,35.0],[41.3,32.0],[41.2,29.0]]
+# Persia al final (c. 336): sin Tracia ni el valle del Indo
+P['persia-336'] = [[41.2,26.2],[40.1,26.2],[39.5,25.8],[37.5,26.5],[36.2,28.5],
+    [34.5,30.0],[33.5,25.0],[32.9,20.0],[31.0,20.0],[29.0,25.0],[27.0,29.5],[24.0,32.3],[22.0,31.5],[22.0,33.5],
+    [24.0,35.0],[27.5,33.8],[28.0,34.4],[29.5,35.0],[29.8,36.8],[31.5,40.0],[30.2,44.5],[29.5,48.0],[26.0,56.0],
+    [25.6,57.0],[25.2,61.5],[25.0,66.0],[29.0,67.5],[33.0,69.5],[35.5,71.0],[37.0,71.5],[38.5,71.0],
+    [41.0,70.0],[42.5,66.0],[43.5,62.0],[44.5,58.0],[42.5,53.0],[41.5,48.5],[42.5,44.5],[41.0,41.5],[41.3,38.0],
+    [41.8,35.0],[41.3,32.0],[41.2,29.0]]
+# Persis, la tierra de origen (Fars), y las ciudades griegas y Macedonia
+P['persis-559'] = [[31.6,49.8],[31.2,54.0],[28.6,56.2],[27.3,53.0],[28.6,50.6],[30.0,49.6]]
+P['grecia-480'] = [[40.1,21.0],[40.1,23.6],[38.6,24.7],[37.2,23.9],[36.3,22.5],[37.6,21.0],[38.6,20.6]]
+P['macedonia-336'] = [[42.1,20.4],[42.1,24.8],[40.9,24.6],[40.3,23.9],[39.8,22.6],[40.2,21.0]]
+
 def recortar(pts):
     return recortar_geom(Polygon([(lo, la) for la, lo in pts]).buffer(0))
 
@@ -58,9 +77,11 @@ def recortar_geom(g):
 
 G = {k: recortar(v) for k, v in P.items()}
 # Persia de Ciro como un solo contorno (Media + Lidia + oriente), sin líneas internas
-_u = unary_union([Polygon([(lo, la) for la, lo in P[k]]).buffer(0) for k in ('media-585', 'lidia-560', 'persia-oriente-539')]).buffer(0.05).buffer(-0.05)
-P['persia-539'] = None
-G['persia-539'] = recortar_geom(_u)
+def unir(*claves):
+    return recortar_geom(unary_union([Polygon([(lo, la) for la, lo in P[k]]).buffer(0) for k in claves]).buffer(0.05).buffer(-0.05))
+G['persia-539'] = unir('media-585', 'lidia-560', 'persia-oriente-539')
+G['persia-547'] = unir('media-585', 'lidia-560')
+G['persia-530'] = unir('media-585', 'lidia-560', 'persia-oriente-539', 'babilonia-545')
 
 # ---------------- Capas: un imperio en un momento ----------------
 CAPAS = {
@@ -71,6 +92,14 @@ CAPAS = {
   'media-585':     {'n': 'Media', 'periodo': 'c. 585 a.C. (extensión discutida)', 'imp': 'media', 'polys': ['media-585']},
   'lidia-560':     {'n': 'Lidia', 'periodo': 'c. 560 a.C.', 'imp': 'lidia', 'polys': ['lidia-560']},
   'egipto-570':    {'n': 'Egipto', 'periodo': 'c. 570 a.C., dinastía XXVI', 'imp': 'egipto', 'polys': ['egipto-570']},
+  'persis-559':    {'n': 'Persis', 'periodo': '559 a.C., Ciro rey de Anshán', 'imp': 'persia', 'polys': ['persis-559']},
+  'persia-550':    {'n': 'Imperio persa', 'periodo': '550 a.C., Ciro une Media y Persia', 'imp': 'persia', 'polys': ['media-585']},
+  'persia-547':    {'n': 'Imperio persa', 'periodo': 'c. 547 a.C., conquista de Lidia', 'imp': 'persia', 'polys': ['persia-547']},
+  'persia-530':    {'n': 'Imperio persa', 'periodo': '530 a.C., muerte de Ciro', 'imp': 'persia', 'polys': ['persia-530'], 'rot': [36.4, 57.0]},
+  'persia-500':    {'n': 'Imperio persa', 'periodo': 'c. 500 a.C., Darío I', 'imp': 'persia', 'polys': ['persia-500'], 'rot': [33.5, 56.0]},
+  'persia-336':    {'n': 'Imperio persa', 'periodo': 'c. 336 a.C., Darío III', 'imp': 'persia', 'polys': ['persia-336'], 'rot': [33.5, 56.0]},
+  'grecia-480':    {'n': 'Ciudades griegas', 'periodo': '480 a.C.', 'imp': 'grecia', 'polys': ['grecia-480']},
+  'macedonia-336': {'n': 'Macedonia', 'periodo': '336 a.C., Alejandro', 'imp': 'grecia', 'polys': ['macedonia-336']},
   'persia-539':    {'n': 'Imperio persa', 'periodo': '539 a.C., Ciro', 'imp': 'persia',
                     'polys': ['persia-539'], 'rot': [36.4, 57.0]},
 }
@@ -88,6 +117,11 @@ LUGARES = {
   'opis': ['Opis', 33.30, 44.50, 'top'], 'tema': ['Tema', 27.63, 38.55], 'menfis': ['Menfis', 29.85, 31.25],
   'tafnes': ['Tafnes', 30.86, 32.17], 'sardis': ['Sardis', 38.49, 28.04],
   'tel-abib': ['Tel-abib (aprox.)', 32.05, 45.45, 'bottom'],
+  'persepolis': ['Persépolis', 29.935, 52.891, 'bottom'], 'behistun': ['Behistún', 34.39, 47.43, 'top'],
+  'elefantina': ['Elefantina', 24.085, 32.887], 'atenas': ['Atenas', 37.97, 23.73, 'bottom'],
+  'maraton': ['Maratón', 38.15, 23.96], 'salamina': ['Salamina', 37.95, 23.5, 'left'], 'termopilas': ['Termópilas', 38.8, 22.54, 'left'],
+  'gaugamela': ['Gaugamela', 36.36, 43.25], 'granico': ['Gránico', 40.25, 27.25], 'issos': ['Issos', 36.84, 36.2, 'left'],
+  'pella': ['Pela', 40.76, 22.52, 'left'], 'alejandria': ['Alejandría', 31.2, 29.92, 'left'],
 }
 
 # ---------------- Trazos (rutas aproximadas) ----------------
@@ -97,6 +131,14 @@ TRAZOS = {
   'deportacion': {'n': 'Camino de los deportados de Judá',
     'l': [[31.78,35.23],[33.02,35.57],[34.39,36.55],[35.13,36.75],[36.2,37.15],[35.99,38.11],[35.95,39.03],
           [34.55,40.89],[33.64,42.83],[33.06,44.25],[32.54,44.42]]},
+  'camino-real': {'n': 'El Camino Real, de Sardis a Susa',
+    'l': [[38.49,28.04],[39.93,32.86],[39.4,34.6],[38.72,35.49],[38.35,38.31],[37.91,40.23],[37.07,41.21],[36.19,44.01],[33.30,44.50],[32.19,48.25]]},
+  'invasion-480': {'n': 'Invasión de Grecia, 480 a.C.',
+    'l': [[38.49,28.04],[40.2,26.4],[40.9,26.1],[40.6,22.95],[38.8,22.54],[37.97,23.73]]},
+  'alejandro': {'n': 'Campaña de Alejandro, 334–330 a.C.',
+    'l': [[40.76,22.52],[40.2,26.4],[40.25,27.25],[38.49,28.04],[36.84,36.2],[33.27,35.2],[31.2,29.92],[33.5,36.3],[36.36,43.25],[32.54,44.42],[32.19,48.25],[29.94,52.89]]},
+  'regreso': {'n': 'Camino del regreso a Jerusalén',
+    'l': [[32.54,44.42],[33.06,44.25],[33.64,42.83],[34.55,40.89],[35.95,39.03],[35.99,38.11],[36.2,37.15],[35.13,36.75],[34.39,36.55],[33.02,35.57],[31.78,35.23]]},
   'caida-539': {'n': 'Avance de Ciro, 539 a.C.',
     'l': [[34.80,48.52],[34.35,47.10],[34.0,45.6],[33.30,44.50],[33.06,44.25],[32.54,44.42]]},
 }

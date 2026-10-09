@@ -102,7 +102,8 @@
     .map(f => f.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/ /g, '\\s'));
   // Versículos: «7», «2-4», «7, 16, 29»; capítulos encadenados con «;»
   const VV = '\\d{1,3}(?:\\s?[-–]\\s?\\d{1,3})?(?:,\\s?\\d{1,3}(?:\\s?[-–]\\s?\\d{1,3})?)*';
-  const CAP = `\\d{1,3}:${VV}`;
+  // «44:28» y rangos; también rangos entre capítulos: «44:28–45:4»
+  const CAP = `(?:\\d{1,3}:\\d{1,3}\\s?[-–]\\s?\\d{1,3}:\\d{1,3}|\\d{1,3}:${VV})`;
   const RE = new RegExp(`(?<![\\p{L}\\d])(${formas.join('|')})\\.?\\s(${CAP}(?:;\\s?${CAP})*)(?![\\d:])`, 'giu');
 
   // Libros de un solo capítulo, citados sin capítulo
@@ -154,17 +155,30 @@
   const nVers = (libro, cap) => ((INDICE.versiculos[REF] || {})[libro] || [])[cap - 1] || 0;
 
   /* «5:7, 16; 6:1-3» → [{cap, vs:[7,16]}, {cap:6, vs:[1,2,3]}] */
-  function desarmar(cuerpo) {
-    return cuerpo.split(/;\s?/).map(trozo => {
+  /* «5:7, 16; 6:1-3» → [{cap:5, vs:[7,16]}, {cap:6, vs:[1,2,3]}]
+     «44:28–45:4» → [{cap:44, vs:[28…fin]}, {cap:45, vs:[1…4]}] (el fin del capítulo sale del índice) */
+  function desarmar(cuerpo, id) {
+    return cuerpo.split(/;\s?/).flatMap(trozo => {
+      const x = trozo.match(/^(\d+):(\d+)\s?[-–]\s?(\d+):(\d+)$/);
+      if (x) {
+        const [c1, v1, c2, v2] = x.slice(1).map(Number), out = [];
+        for (let c = c1; c <= c2; c++) {
+          const fin = c === c2 ? v2 : (id && INDICE ? nVers(id, c) : v1);
+          const ini = c === c1 ? v1 : 1;
+          out.push({ cap: c, vs: Array.from({ length: Math.max(0, fin - ini + 1) }, (_, k) => ini + k) });
+        }
+        return out;
+      }
       const [cap, resto] = trozo.split(':');
       const vs = [];
       resto.split(/,\s?/).forEach(r => {
         const [a, b] = r.split(/\s?[-–]\s?/).map(Number);
         for (let v = a; v <= (b || a); v++) vs.push(v);
       });
-      return { cap: +cap, vs };
+      return [{ cap: +cap, vs }];
     });
   }
+
 
 
   function procesar(raiz) {
@@ -216,7 +230,7 @@
             if (!capsValidos(id, c[2])) break;
             frag.append(txt.slice(ultimo, ultimo + c[1].length), boton(c[2], id, { caps: c[2] }));
           } else if ((c = CONTV.exec(resto))) {
-            const malos = desarmar(c[2]).flatMap(p => p.vs.filter(v => v > nVers(id, p.cap)).map(v => `${id} ${p.cap}:${v}`));
+            const malos = desarmar(c[2], id).flatMap(p => p.vs.filter(v => v > nVers(id, p.cap)).map(v => `${id} ${p.cap}:${v}`));
             if (malos.length) { malos.forEach(k => faltan.add(k)); break; }
             frag.append(txt.slice(ultimo, ultimo + c[1].length), boton(c[2], id, { ref: c[2] }));
           } else break;
@@ -229,7 +243,7 @@
         if (h.caps) {
           if (!capsValidos(id, h.caps)) return;
         } else {
-          const malos = desarmar(h.ref).flatMap(p => p.vs.filter(v => v > nVers(id, p.cap)).map(v => `${id} ${p.cap}:${v}`));
+          const malos = desarmar(h.ref, id).flatMap(p => p.vs.filter(v => v > nVers(id, p.cap)).map(v => `${id} ${p.cap}:${v}`));
           if (malos.length) { malos.forEach(k => faltan.add(k)); return; }
         }
         frag.append(txt.slice(ultimo, h.i), boton(h.t, id, h));
@@ -258,7 +272,7 @@
     const ver = version();
     const meta = VERSIONES.find(v => v.id === ver) || {};
     const caps = btn.dataset.caps ? listaCaps(btn.dataset.caps) : null;
-    const partes = caps ? caps.map(c => ({ cap: c, vs: null })) : desarmar(btn.dataset.ref);
+    const partes = caps ? caps.map(c => ({ cap: c, vs: null })) : desarmar(btn.dataset.ref, id);
     const refTxt = (btn.dataset.caps || (UNICO.includes(id) ? btn.dataset.ref.replace(/^1:/, '') : btn.dataset.ref)).replace(/\s?[-–]\s?/g, '–');
     const titulo = `${NOMBRE[id]} ${refTxt}`;
     burbuja.querySelector('.cb-ref').textContent = titulo;
@@ -276,9 +290,14 @@
       const cap = datos[k];
       if (!cap) return `<p class="cb-aviso">No se pudo cargar ${esc(NOMBRE[id])} ${p.cap}. Revisa tu conexión.</p>`;
       const vs = p.vs || cap.map((_, i) => i + 1);
-      const cuerpo = vs.map(v => cap[v - 1]
+      const verso = v => cap[v - 1]
         ? `<sup>${v}</sup>${esc(cap[v - 1])}`
-        : `<sup>${v}</sup><span class="cb-aviso">En la ${esc(meta.abrev || ver)} este versículo tiene otra numeración o está unido al anterior o al siguiente.</span>`).join(' ');
+        : `<sup>${v}</sup><span class="cb-aviso">En la ${esc(meta.abrev || ver)} este versículo tiene otra numeración o está unido al anterior o al siguiente.</span>`;
+      // Tramos de versículos seguidos; entre tramos, una marca de versículos omitidos (Dn 8:3-8, 20-22)
+      const tramos = [];
+      vs.forEach((v, k) => { if (k && v === vs[k - 1] + 1) tramos[tramos.length - 1].push(v); else tramos.push([v]); });
+      const cuerpo = tramos.map(t => t.map(verso).join(' '))
+        .join(`</p><p class="cb-salto" role="separator">versículos omitidos</p><p>`);
       return `<p>${partes.length > 1 ? `<span class="cb-cap">${esc(NOMBRE[id])} ${p.cap}</span>` : ''}${cuerpo}</p>`;
     }).join('');
     ubicar();
@@ -361,7 +380,8 @@
 .cita-burbuja[hidden] { display: none; }
 .cita-burbuja.hoja { left: 0 !important; right: 0; bottom: 0; top: auto !important; width: auto; max-height: 55vh; border-radius: 14px 14px 0 0;
   padding-bottom: calc(0.8rem + env(safe-area-inset-bottom, 0px)); }
-.cita-burbuja .cb-cab { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.45rem; }
+.cita-burbuja .cb-cab { display: flex; align-items: center; gap: 0.6rem; margin: -0.85rem -1rem 0.45rem; padding: 0.7rem 1rem 0.4rem;
+  position: sticky; top: -0.85rem; z-index: 1; background: var(--bg, #fafaf8); }
 .cita-burbuja .cb-ref { flex: 1; }
 .cita-burbuja .cb-ver { font: 600 0.74rem var(--sans, system-ui, sans-serif); color: var(--ink, #1f2430); background: var(--bg, #fafaf8);
   border: 1px solid var(--line, #e4e4df); border-radius: 999px; padding: 0.2rem 0.5rem; cursor: pointer; }
@@ -376,6 +396,9 @@
 .cita-burbuja .cb-cap { display: block; font-family: var(--sans, system-ui, sans-serif); font-size: 0.72rem; font-weight: 600; color: var(--muted, #6b7080); margin-bottom: 0.15rem; }
 .cita-burbuja.larga { width: min(36rem, calc(100vw - 24px)); max-height: min(34rem, 75vh); }
 .cita-burbuja.larga.hoja { max-height: 75vh; }
+.cita-burbuja .cb-texto p.cb-salto { display: flex; align-items: center; gap: 0.6rem; margin: 0.1rem 0 0.6rem;
+  font-family: var(--sans, system-ui, sans-serif); font-size: 0.68rem; font-weight: 600; letter-spacing: 0.04em; color: var(--muted, #6b7080); }
+.cita-burbuja .cb-texto p.cb-salto::before, .cita-burbuja .cb-texto p.cb-salto::after { content: ""; flex: 1; border-top: 1px dashed var(--line, #e4e4df); }
 .cita-burbuja .cb-version { margin: 0.2rem 0 0; font-family: var(--sans, system-ui, sans-serif); font-size: 0.68rem; color: var(--muted, #6b7080); }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .cita-burbuja { box-shadow: 0 10px 30px rgba(0,0,0,.5); } }`;
   document.head.appendChild(css);
