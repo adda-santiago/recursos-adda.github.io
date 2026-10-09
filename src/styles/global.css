@@ -167,12 +167,12 @@ img, svg { max-width: 100%; height: auto; }
 .estado-borrador { color: var(--accent); }
 
 /* ---------- Visor ---------- */
-.visor { position: relative; max-width: 80rem; margin: 0 auto; padding: 0 var(--margen); }
+.visor { position: relative; max-width: 80rem; margin: 0 auto; padding: 0 var(--margen); display: flex; flex-direction: column; }
 .visor-lienzo { position: relative; height: min(78vh, 760px); min-height: 420px; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: var(--surface-2); }
 .visor-lienzo iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 .visor-carga { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--sans); font-size: var(--text-sm); color: var(--muted); background: var(--surface-2); transition: opacity .3s; }
 .visor-carga[hidden] { display: grid; opacity: 0; pointer-events: none; }
-.visor-barra { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .75rem; font-family: var(--sans); font-size: var(--text-sm); }
+.visor-barra { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: .75rem; font-family: var(--sans); font-size: var(--text-sm); }
 .visor-barra button { font: inherit; display: inline-flex; align-items: center; gap: .45rem; color: var(--ink); background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--radius); padding: .5rem .9rem; cursor: pointer; }
 .visor-barra button:hover { border-color: var(--ink-2); }
 .visor-barra .principal { background: var(--ink); color: var(--bg); border-color: var(--ink); }
@@ -184,7 +184,7 @@ img, svg { max-width: 100%; height: auto; }
 .visor:fullscreen, .visor.pseudo-completa { max-width: none; padding: 0; background: var(--surface-2); display: flex; flex-direction: column; }
 .visor.pseudo-completa { position: fixed; inset: 0; z-index: 1000; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
 .visor:fullscreen .visor-lienzo, .visor.pseudo-completa .visor-lienzo { flex: 1; height: auto; min-height: 0; border: 0; border-radius: 0; }
-.visor:fullscreen .visor-barra, .visor.pseudo-completa .visor-barra { margin: 0; padding: .5rem .75rem; background: var(--bg); border-top: 1px solid var(--line); }
+.visor:fullscreen .visor-barra, .visor.pseudo-completa .visor-barra { margin: 0; padding: .5rem .75rem; background: var(--bg); border-bottom: 1px solid var(--line); }
 .visor:fullscreen [data-fuera-pantalla], .visor.pseudo-completa [data-fuera-pantalla] { display: none; }
 body.bloqueado { overflow: hidden; }
 
@@ -206,9 +206,9 @@ dialog.compartir .cerrar { position: absolute; top: .8rem; right: .8rem; font: i
 /* ---------- Embed ---------- */
 .embed, .embed body { height: 100%; }
 .embed body { display: flex; flex-direction: column; }
-.embed .visor { flex: 1; display: flex; flex-direction: column; max-width: none; padding: 0; }
+.embed .visor { flex: 1; display: flex; flex-direction: column; max-width: none; padding: 0; margin: 0; width: 100%; }
 .embed .visor-lienzo { flex: 1; height: auto; min-height: 0; border: 0; border-radius: 0; }
-.embed .visor-barra { margin: 0; padding: .4rem .6rem; border-top: 1px solid var(--line); background: var(--bg); }
+.embed .visor-barra { order: 2; margin: 0; padding: .4rem .6rem; border-top: 1px solid var(--line); background: var(--bg); } /* en el embed, la barra queda abajo */
 .embed .origen { font-family: var(--sans); font-size: var(--text-xs); color: var(--muted); align-self: center; text-decoration: none; }
 
 /* ---------- Páginas simples ---------- */

@@ -1,6 +1,6 @@
 # Directrices del proyecto — Recursos bíblicos interactivos
 
-Versión 2.6 · 9 de octubre de 2026
+Versión 2.7 · 9 de octubre de 2026
 
 Este documento es la fuente de verdad del proyecto. Cualquier decisión nueva que contradiga algo de aquí se registra en la bitácora (§23) y se actualiza la sección correspondiente. Si el código y este documento no coinciden, se corrige uno de los dos; no se deja la diferencia. Mientras una diferencia esté en proceso de corregirse, la sección lo indica como **pendiente de implementar**.
 
@@ -9,6 +9,8 @@ Este documento es la fuente de verdad del proyecto. Cualquier decisión nueva qu
 **Cambio de la versión 2.1:** nombre visible *Recursos Bíblicos*; taxonomía bíblica implementada (testamento, época, libro); las fichas pasan a `/{slug}/`.
 
 **Cambio de la versión 2.2:** cuando un recurso tiene más de una ruta, se eligen en un selector de ruta (lista desplegable) en lugar de pestañas y acordeones (§20).
+
+**Cambio de la versión 2.7:** la burbuja de citas llega a todas las apps bíblicas existentes, y en la ficha la barra del visor (pantalla completa, restaurar vista, guardar y compartir) pasa arriba del recurso (§6, §15).
 
 **Cambio de la versión 2.6:** segundo recurso de imperios, El imperio persa; la burbuja de citas marca los versículos omitidos y reconoce rangos entre capítulos (§15).
 
@@ -170,6 +172,8 @@ Todo recurso se muestra con `src/components/Visor.astro`, sin importar el motor.
 | Pantalla de carga | Texto que dice qué se está cargando; nunca queda pegada (tope de 15 s) | Se oculta con `load` o con el mensaje `fyp:lista` |
 
 La pantalla completa cumple el papel del "modo pizarra": no se agrega un segundo botón para lo mismo.
+
+La barra con estas acciones va **arriba del recurso** en la ficha y en pantalla completa, para que quede a la vista sin desplazarse; en el embed (`/embed/`) va abajo, para dar prioridad al recurso dentro de la plataforma que lo inserta.
 
 El visor nunca contiene anuncios ni elementos ajenos al recurso.
 
@@ -341,7 +345,7 @@ Además, cada ficha incluye automáticamente: JSON-LD `LearningResource`, canoni
 
 Reglas: el artículo explica lo que se ve; no repite el resumen ni rellena para alcanzar un largo. Las citas bíblicas usan Reina-Valera 1960 salvo indicación en contrario. La RV 1960 tiene derechos de autor: toda app y toda ficha que la cite incluye el crédito «Reina-Valera 1960 © Sociedades Bíblicas en América Latina, 1960. Renovado © Sociedades Bíblicas Unidas, 1988. Utilizado con permiso.» Las citas se copian de una fuente que identifique la edición; si no se puede confirmar el texto exacto, se parafrasea en vez de citar entre comillas. Donde hay interpretaciones distintas entre tradiciones o estudiosos, la ficha lo dice.
 
-**Citas en burbuja.** En todos los recursos, cada referencia bíblica se puede tocar y muestra el texto en una burbuja (`assets/js/citas.js`): un versículo o un rango muestra esos versículos; un capítulo sin versículo («Daniel 5», «Jeremías 50–51») muestra el capítulo completo. El texto vive en el propio sitio, nunca en un enlace externo: los recursos no dependen de otros sitios, que pueden estar bloqueados en redes laborales. Las burbujas funcionan en las apps y también en el artículo de cada ficha.
+**Citas en burbuja.** En todos los recursos (atlas, genealogías, línea de reyes, tabernáculo, templo de Salomón, sumo sacerdote y las rutas de estudio; cada app carga `../assets/js/citas.js`), cada referencia bíblica se puede tocar y muestra el texto en una burbuja (`assets/js/citas.js`): un versículo o un rango muestra esos versículos; un capítulo sin versículo («Daniel 5», «Jeremías 50–51») muestra el capítulo completo. El texto vive en el propio sitio, nunca en un enlace externo: los recursos no dependen de otros sitios, que pueden estar bloqueados en redes laborales. Las burbujas funcionan en las apps y también en el artículo de cada ficha.
 
 **Texto bíblico del sitio** (`public/biblia/`, generado por `herramientas/biblia/generar.py`):
 
@@ -449,7 +453,6 @@ Distinta de la **presentación** (`segunda-guerra-mundial/`), que un profesor us
 ### Pendientes
 
 - **Permiso de la Sociedad Bíblica (RV 1960):** El imperio babilónico cita unos 1.450 versículos, incluidos libros completos (Lamentaciones, Habacuc). Se publica igual, porque el sitio está en etapa de desarrollo y sirve también para mostrar el proyecto a la Sociedad Bíblica; si el permiso no se concede, se ajustan las burbujas antes de difundir el sitio.
-- **Burbuja de citas en las apps existentes:** agregar `citas.js` a las apps que citan texto bíblico (§15).
 - **Títulos de los Salmos en la RV 1909:** la fuente los trae pegados al versículo 1 («Salmo de David. JEHOVÁ es mi pastor»).
 - **`desempaquetar.yml` con turnos y `git pull --rebase`** (§19): aplicar a mano la versión corregida si aún no se hizo.
 - **Despliegue en `adda-santiago`:** actualizar `publicar.yml`, reactivar Pages y verificar el sitio en la subcarpeta.
@@ -541,6 +544,8 @@ Distinta de la **presentación** (`segunda-guerra-mundial/`), que un profesor us
 | 2026-10-09 | Nuevo recurso: El imperio persa, con las rutas Historia, Sociedad y religión, y El imperio y la Biblia | Segundo recurso complementario para Daniel, Esdras, Nehemías, Ester y los profetas del regreso |
 | 2026-10-09 | Marca de «versículos omitidos» y rangos entre capítulos en la burbuja de citas | Que el lector vea cuándo una cita salta versículos y lea completos los pasajes que cruzan capítulos |
 | 2026-10-09 | Las apps pueden reutilizar imágenes de otras apps (`../otra-app/img/…`) | Evitar generar dos veces la misma ilustración |
+| 2026-10-09 | La burbuja de citas se agrega a todas las apps bíblicas existentes | Que toda referencia del sitio se pueda leer en el mismo lugar |
+| 2026-10-09 | En la ficha, la barra del visor va arriba del recurso; en el embed sigue abajo | Las acciones quedan a la vista sin bajar; en el embed la prioridad es el recurso |
 
 ## 24. Relación con el repositorio Fuego y Palabra
 

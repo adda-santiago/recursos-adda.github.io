@@ -368,10 +368,11 @@
   /* ---------- Estilos propios ---------- */
   const css = document.createElement('style');
   css.textContent = `
-.cita-ref { font: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0; cursor: pointer;
+button.cita-ref { font: inherit !important; color: inherit !important; background: none !important; border: 0 !important; padding: 0 !important; margin: 0 !important;
+  box-shadow: none !important; width: auto !important; height: auto !important; min-height: 0 !important; display: inline !important; line-height: inherit !important; cursor: pointer;
   text-decoration: underline dotted; text-decoration-color: var(--accent, #9e2b25); text-decoration-thickness: 1.5px;
   text-underline-offset: 0.18em; border-radius: 2px; }
-.cita-ref:hover, .cita-ref[aria-expanded="true"] { color: var(--accent, #9e2b25); text-decoration-style: solid; }
+.cita-ref:hover, .cita-ref[aria-expanded="true"] { color: var(--accent, #9e2b25) !important; text-decoration-style: solid; }
 .cita-ref:focus-visible { outline: 2px solid var(--accent, #9e2b25); outline-offset: 2px; }
 .cita-burbuja { position: fixed; z-index: 10000; width: min(26rem, calc(100vw - 24px)); max-height: min(22rem, 60vh); overflow-y: auto;
   background: var(--bg, #fafaf8); color: var(--ink, #1f2430); border: 1px solid var(--line, #e4e4df); border-radius: 10px;

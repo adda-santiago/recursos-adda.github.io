@@ -23,6 +23,31 @@ const urlEmbed = new URL(rutaEmbed(r.id), Astro.site).href;
 if (d.visor.motor === 'three') throw new Error(`[${r.id}] El motor "three" nativo aún no está implementado; usa "legado".`);
 ---
 <section class="visor" data-visor data-uid={d.uid} data-motor={d.visor.motor} aria-label={`Visor: ${d.titulo}`}>
+  <!-- Barra arriba del recurso: las acciones quedan a la vista sin bajar (en el embed va abajo, ver global.css) -->
+  <div class="visor-barra">
+    <button type="button" class="principal" data-accion="completa">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+      <span>Pantalla completa</span>
+    </button>
+    <button type="button" data-accion="restaurar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+      Restaurar vista
+    </button>
+    {modo === 'ficha' && (
+      <button type="button" data-accion="guardar" aria-pressed="false" data-fuera-pantalla>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4z"/></svg>
+        <span>Guardar</span>
+      </button>
+    )}
+    <button type="button" class="derecha" data-accion="compartir" data-fuera-pantalla>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg>
+      Compartir
+    </button>
+    {modo === 'embed' && (
+      <a class="origen" href={urlFicha} target="_blank" rel="noopener" data-fuera-pantalla>Abrir ficha completa ↗</a>
+    )}
+  </div>
+
   <div class="visor-lienzo">
     {srcLegado && (
       <iframe src={srcLegado} title={d.titulo} allow="fullscreen" allowfullscreen loading="eager"></iframe>
@@ -48,29 +73,6 @@ if (d.visor.motor === 'three') throw new Error(`[${r.id}] El motor "three" nativ
     <div class="visor-carga" data-carga>Cargando {d.titulo.toLowerCase()}…</div>
   </div>
 
-  <div class="visor-barra">
-    <button type="button" class="principal" data-accion="completa">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
-      <span>Pantalla completa</span>
-    </button>
-    <button type="button" data-accion="restaurar">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
-      Restaurar vista
-    </button>
-    {modo === 'ficha' && (
-      <button type="button" data-accion="guardar" aria-pressed="false" data-fuera-pantalla>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4z"/></svg>
-        <span>Guardar</span>
-      </button>
-    )}
-    <button type="button" class="derecha" data-accion="compartir" data-fuera-pantalla>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg>
-      Compartir
-    </button>
-    {modo === 'embed' && (
-      <a class="origen" href={urlFicha} target="_blank" rel="noopener" data-fuera-pantalla>Abrir ficha completa ↗</a>
-    )}
-  </div>
   <Compartir titulo={d.titulo} url={urlFicha} embed={urlEmbed} />
 </section>
 
