@@ -188,7 +188,7 @@
 
   const css = document.createElement('style');
   css.textContent = `
-:root { --babilonia:#6b4e7c; --asiria:#5a5750; --persia:#4a6b7c; --media:#5e7d4f; --lidia:#8a5a44; --egipto:#a9772a; --grecia:#3f6fa3; --roma:#9e2b25;
+:root { --babilonia:#6b4e7c; --asiria:#5a5750; --persia:#4a6b7c; --media:#5e7d4f; --lidia:#8a5a44; --egipto:#a9772a; --grecia:#3f6fa3; --roma:#9e2b25; --hititas:#7d6b3d;
   --mi-trazo:#b8322a; --mi-mar:#dbe4ea; --mi-tierra:#f4f2ec; --mi-costa:#c9c6bb; --mi-rio:#8cadc5; --mi-rotulo:#5d6372; }
 :root[data-theme="dark"] { --mi-mar:#141a22; --mi-tierra:#2c3038; --mi-costa:#444955; --mi-rio:#3f5f7a; --mi-rotulo:#a3a7b2; --mi-trazo:#e0786d; }
 .mi { position: relative; overflow: hidden; background: var(--mi-mar); }
@@ -202,7 +202,7 @@
 .mi-rio { fill: none; stroke: var(--mi-rio); stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
 .mi-capa { fill-opacity: .3; stroke-width: 1.6; stroke-linejoin: round; }
 .mi-capa.vecino { fill-opacity: .13; stroke-width: 1.2; stroke-dasharray: 5 4; }
-${['babilonia', 'asiria', 'persia', 'media', 'lidia', 'egipto', 'grecia', 'roma'].map(i =>
+${['babilonia', 'asiria', 'persia', 'media', 'lidia', 'egipto', 'grecia', 'roma', 'hititas'].map(i =>
   `.mi-capa.imp-${i}{fill:var(--${i});stroke:var(--${i})}.mi-capa-n.imp-${i}{color:var(--${i})}.mi .sw.imp-${i}{background:var(--${i})}`).join('\n')}
 .mi-txt { background: none; border: 0; white-space: nowrap; pointer-events: none; }
 .mi-txt > span { display: block; transform: translate(-50%, -50%); }

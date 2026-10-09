@@ -66,6 +66,22 @@ P['persis-559'] = [[31.6,49.8],[31.2,54.0],[28.6,56.2],[27.3,53.0],[28.6,50.6],[
 P['grecia-480'] = [[40.1,21.0],[40.1,23.6],[38.6,24.7],[37.2,23.9],[36.3,22.5],[37.6,21.0],[38.6,20.6]]
 P['macedonia-336'] = [[42.1,20.4],[42.1,24.8],[40.9,24.6],[40.3,23.9],[39.8,22.6],[40.2,21.0]]
 
+# Egipto del Reino Nuevo (Tutmosis III, c. 1450): del Delta y Nubia hasta el Éufrates
+P['egipto-1450'] = [[31.3,29.5],[31.6,31.0],[31.3,32.3],[31.4,34.2],[33.0,35.0],[35.0,35.7],[36.6,35.8],[36.8,37.3],
+    [36.4,38.1],[35.2,37.9],[33.6,37.2],[32.0,36.4],[30.5,35.6],[29.5,35.0],[28.0,34.5],[27.0,34.0],[23.5,35.0],
+    [21.0,33.5],[19.0,33.0],[18.3,31.8],[19.5,30.5],[21.5,31.0],[23.5,32.2],[26.0,31.0],[28.0,30.3],[29.5,29.8],[30.6,29.3]]
+# Egipto con Ramsés II (c. 1274): Canaán y el sur de Siria; Qadés queda en la frontera hitita
+P['egipto-1274'] = [[31.3,29.5],[31.6,31.0],[31.3,32.3],[31.4,34.2],[33.0,35.0],[34.3,35.6],[34.3,36.6],[33.6,37.2],
+    [32.0,36.4],[30.5,35.6],[29.5,35.0],[28.0,34.5],[27.0,34.0],[23.5,35.0],
+    [21.0,33.5],[19.0,33.0],[18.3,31.8],[19.5,30.5],[21.5,31.0],[23.5,32.2],[26.0,31.0],[28.0,30.3],[29.5,29.8],[30.6,29.3]]
+# Reino de los Ptolomeos (c. 250 a.C.): Egipto, Cirenaica, Chipre y el sur de Siria
+P['ptolomeos-250'] = [[33.0,20.0],[32.6,23.5],[31.6,25.2],[31.3,29.0],[31.6,31.0],[31.3,32.3],[31.4,34.2],[33.0,35.0],
+    [34.6,35.9],[34.6,36.6],[33.3,36.6],[32.0,36.3],[30.5,35.6],[29.5,35.0],[28.0,34.5],[27.0,34.0],[24.0,35.0],
+    [24.0,32.6],[25.3,32.4],[26.3,31.5],[27.4,30.6],[28.6,30.4],[29.4,30.4],[29.0,25.0],[30.0,22.5],[31.0,20.0]]
+P['chipre'] = [[35.8,32.1],[35.8,34.7],[34.4,34.1],[34.5,32.2]]
+# Reino hitita (c. 1300 a.C.), rival de Egipto en Qadés
+P['hititas-1300'] = [[41.8,30.5],[41.6,38.5],[38.5,40.0],[36.6,38.5],[36.2,36.4],[36.8,34.5],[37.2,32.0],[38.6,29.8],[40.2,29.5]]
+
 def recortar(pts):
     return recortar_geom(Polygon([(lo, la) for la, lo in pts]).buffer(0))
 
@@ -92,6 +108,13 @@ CAPAS = {
   'media-585':     {'n': 'Media', 'periodo': 'c. 585 a.C. (extensión discutida)', 'imp': 'media', 'polys': ['media-585']},
   'lidia-560':     {'n': 'Lidia', 'periodo': 'c. 560 a.C.', 'imp': 'lidia', 'polys': ['lidia-560']},
   'egipto-570':    {'n': 'Egipto', 'periodo': 'c. 570 a.C., dinastía XXVI', 'imp': 'egipto', 'polys': ['egipto-570']},
+  'egipto-1900':   {'n': 'Egipto', 'periodo': 'c. 1900 a.C., Reino Medio', 'imp': 'egipto', 'polys': ['egipto-570']},
+  'egipto-1450':   {'n': 'Egipto', 'periodo': 'c. 1450 a.C., Reino Nuevo', 'imp': 'egipto', 'polys': ['egipto-1450'], 'rot': [27.0, 31.8]},
+  'egipto-1274':   {'n': 'Egipto', 'periodo': 'c. 1274 a.C., Ramsés II', 'imp': 'egipto', 'polys': ['egipto-1274'], 'rot': [27.0, 31.8]},
+  'hititas-1300':  {'n': 'Reino hitita', 'periodo': 'c. 1300 a.C.', 'imp': 'hititas', 'polys': ['hititas-1300']},
+  'egipto-900':    {'n': 'Egipto', 'periodo': 'c. 925 a.C., Sisac', 'imp': 'egipto', 'polys': ['egipto-570']},
+  'ptolomeos-250': {'n': 'Reino de los Ptolomeos', 'periodo': 'c. 250 a.C.', 'imp': 'grecia', 'polys': ['ptolomeos-250', 'chipre'], 'rot': [27.0, 31.0]},
+  'egipto-romano': {'n': 'Provincia romana de Egipto', 'periodo': 'desde 30 a.C.', 'imp': 'roma', 'polys': ['egipto-570']},
   'persis-559':    {'n': 'Persis', 'periodo': '559 a.C., Ciro rey de Anshán', 'imp': 'persia', 'polys': ['persis-559']},
   'persia-550':    {'n': 'Imperio persa', 'periodo': '550 a.C., Ciro une Media y Persia', 'imp': 'persia', 'polys': ['media-585']},
   'persia-547':    {'n': 'Imperio persa', 'periodo': 'c. 547 a.C., conquista de Lidia', 'imp': 'persia', 'polys': ['persia-547']},
@@ -117,7 +140,12 @@ LUGARES = {
   'opis': ['Opis', 33.30, 44.50, 'top'], 'tema': ['Tema', 27.63, 38.55], 'menfis': ['Menfis', 29.85, 31.25],
   'tafnes': ['Tafnes', 30.86, 32.17], 'sardis': ['Sardis', 38.49, 28.04],
   'tel-abib': ['Tel-abib (aprox.)', 32.05, 45.45, 'bottom'],
-  'persepolis': ['Persépolis', 29.935, 52.891, 'bottom'], 'behistun': ['Behistún', 34.39, 47.43, 'top'],
+  'persepolis': ['Persépolis', 29.935, 52.891, 'bottom'],
+  'gosen': ['Gosén', 30.62, 31.62, 'left'], 'rameses': ['Ramesés', 30.80, 31.83], 'piton': ['Pitón', 30.55, 32.10, 'bottom'],
+  'on': ['On (Heliópolis)', 30.13, 31.31, 'left'], 'tanis': ['Tanis (Zoán)', 30.97, 31.88, 'top'], 'tebas': ['Tebas', 25.72, 32.65],
+  'amarna': ['Amarna', 27.65, 30.90, 'left'], 'giza': ['Giza', 29.98, 31.13, 'left'], 'beni-hasan': ['Beni Hasán', 27.93, 30.88, 'left'],
+  'gezer': ['Gezer', 31.86, 34.92, 'left'], 'meguido': ['Meguido', 32.585, 35.185, 'left'], 'sinai': ['Monte Sinaí (trad.)', 28.54, 33.97],
+  'qades': ['Qadés', 34.56, 36.52], 'samaria': ['Samaria', 32.28, 35.20], 'pelusio': ['Pelusio', 31.04, 32.55, 'top'], 'napata': ['Napata', 18.5, 31.82], 'behistun': ['Behistún', 34.39, 47.43, 'top'],
   'elefantina': ['Elefantina', 24.085, 32.887], 'atenas': ['Atenas', 37.97, 23.73, 'bottom'],
   'maraton': ['Maratón', 38.15, 23.96], 'salamina': ['Salamina', 37.95, 23.5, 'left'], 'termopilas': ['Termópilas', 38.8, 22.54, 'left'],
   'gaugamela': ['Gaugamela', 36.36, 43.25], 'granico': ['Gránico', 40.25, 27.25], 'issos': ['Issos', 36.84, 36.2, 'left'],
@@ -139,6 +167,10 @@ TRAZOS = {
     'l': [[40.76,22.52],[40.2,26.4],[40.25,27.25],[38.49,28.04],[36.84,36.2],[33.27,35.2],[31.2,29.92],[33.5,36.3],[36.36,43.25],[32.54,44.42],[32.19,48.25],[29.94,52.89]]},
   'regreso': {'n': 'Camino del regreso a Jerusalén',
     'l': [[32.54,44.42],[33.06,44.25],[33.64,42.83],[34.55,40.89],[35.95,39.03],[35.99,38.11],[36.2,37.15],[35.13,36.75],[34.39,36.55],[33.02,35.57],[31.78,35.23]]},
+  'exodo': {'n': 'Ruta tradicional del Éxodo (aproximada)',
+    'l': [[30.80,31.83],[30.55,32.10],[30.35,32.35],[29.95,32.55],[29.55,32.75],[29.15,32.95],[28.90,33.20],[28.54,33.97]]},
+  'jose': {'n': 'Camino de José a Egipto (aproximado)',
+    'l': [[32.28,35.20],[32.0,34.9],[31.5,34.47],[31.13,33.80],[31.04,32.55],[30.80,31.83]]},
   'caida-539': {'n': 'Avance de Ciro, 539 a.C.',
     'l': [[34.80,48.52],[34.35,47.10],[34.0,45.6],[33.30,44.50],[33.06,44.25],[32.54,44.42]]},
 }
@@ -149,7 +181,7 @@ ROTULOS = [
   ['Mar Caspio', 41.0, 51.0, 'mar'], ['Éufrates', 34.9, 40.3, 'rio'], ['Tigris', 35.0, 43.75, 'rio'],
   ['Nilo', 26.9, 31.5, 'rio'], ['Jordán', 32.35, 35.75, 'rio'],
   ['Arabia', 26.5, 43.0, 'region'], ['Elam', 31.6, 49.4, 'region'],
-  ['Persis', 29.7, 53.6, 'region'], ['Judá', 31.4, 35.0, 'region'], ['Fenicia', 34.0, 35.75, 'region'],
+  ['Persis', 29.7, 53.6, 'region'], ['Nubia', 20.8, 32.6, 'region'], ['Sinaí', 29.2, 33.6, 'region'], ['Judá', 31.4, 35.0, 'region'], ['Fenicia', 34.0, 35.75, 'region'],
 ]
 
 out = {'polys': G, 'capas': CAPAS, 'lugares': LUGARES, 'trazos': TRAZOS, 'rotulos': ROTULOS}
