@@ -44,14 +44,19 @@
   raiz.innerHTML = `
     <div class="re-visual" id="re-visual">
       <div class="re-tabs" id="re-tabs" role="tablist" hidden></div>
+      <p class="re-tabs-nota" id="re-tabs-nota" hidden></p>
       <figure class="re-v re-img" id="re-img" hidden></figure>
       <div class="re-v re-mapa" id="re-mapa" hidden></div>
       <div class="re-v re-tabla" id="re-tabla" hidden></div>
       <blockquote class="re-v re-cita" id="re-cita" hidden></blockquote>
       <div class="re-pasos" id="re-pasos" hidden>
         <button type="button" class="re-paso-btn" id="re-paso-ant" aria-label="Paso anterior">‹</button>
-        <p class="re-paso-txt" id="re-paso-txt" aria-live="polite"></p>
+        <div class="re-paso-centro">
+          <div class="re-paso-puntos" id="re-paso-puntos" role="group" aria-label="Pasos del mapa"></div>
+          <p class="re-paso-txt" id="re-paso-txt" aria-live="polite"></p>
+        </div>
         <button type="button" class="re-paso-btn" id="re-paso-sig" aria-label="Paso siguiente">›</button>
+        <button type="button" class="re-paso-play" id="re-paso-play">▶ Ver la evolución</button>
       </div>
     </div>
     <article class="re-texto" id="re-texto">
@@ -132,12 +137,38 @@
   /* ---------------- Visual ---------------- */
   let mapa = null, vActual = 0, paso = 0;
   const vistas = ['re-img', 're-mapa', 're-tabla', 're-cita'];
+
+  /* Lo ya visto: qué pestañas se abrieron y qué estaciones se visitaron, recordado en
+     el dispositivo. Sirve para señalar el contenido que todavía no se ha descubierto. */
+  const CLAVE_VISTO = `fyp:v1:visto:${location.pathname.replace(/\/(index\.html)?$/, '')}`;
+  // ?reiniciar-vistos en la URL vuelve a mostrar las señales (útil para revisar el recurso)
+  if (/reiniciar-vistos/.test(location.search + location.hash)) { try { localStorage.removeItem(CLAVE_VISTO); } catch (e) { /* sin almacenamiento */ } }
+  const visto = (() => { try { return new Set(JSON.parse(localStorage.getItem(CLAVE_VISTO) || '[]')); } catch (e) { return new Set(); } })();
+  const marcar = k => { if (visto.has(k)) return; visto.add(k); try { localStorage.setItem(CLAVE_VISTO, JSON.stringify([...visto])); } catch (e) { /* sin almacenamiento */ } };
+  const claveEst = () => `${ruta.id}/${est().id}`;
+  let primeraVez = false; // primera visita a la estación: se anima lo que falta por ver
+  let notaReloj = null;
+
   function pintarVisual(est, i) {
     vActual = i;
     const lista = est.visual || [];
     const tabs = $('re-tabs');
     tabs.hidden = lista.length < 2;
-    tabs.innerHTML = lista.map((v, k) => `<button type="button" role="tab" data-v="${k}" aria-selected="${k === i}">${esc(v.titulo || v.tipo)}</button>`).join('');
+    marcar(`${claveEst()}/${i}`);
+    tabs.innerHTML = lista.map((v, k) => {
+      const nuevo = k !== i && !visto.has(`${claveEst()}/${k}`);
+      const extra = v.pasos ? ` <small>· ${v.pasos.length} pasos</small>` : '';
+      return `<button type="button" role="tab" data-v="${k}" aria-selected="${k === i}" class="${nuevo ? 'nuevo' : ''}${nuevo && primeraVez ? ' pulso' : ''}"${nuevo ? ' title="Todavía no lo has visto"' : ''}>${esc(v.titulo || v.tipo)}${extra}${nuevo ? ' <span class="re-ver-mas" aria-hidden="true">›</span>' : ''}</button>`;
+    }).join('');
+    // Primera visita: una nota bajo las pestañas invita a abrir lo que falta por ver
+    const pendientes = lista.map((v, k) => k !== i && !visto.has(`${claveEst()}/${k}`) ? (v.titulo || v.tipo) : null).filter(Boolean);
+    const nota = $('re-tabs-nota');
+    clearTimeout(notaReloj);
+    nota.hidden = !(primeraVez && pendientes.length && lista.length > 1);
+    if (!nota.hidden) {
+      nota.textContent = `Toca «${pendientes.join('» o «')}» para ver más de esta estación`;
+      notaReloj = setTimeout(() => { nota.hidden = true; }, 8000);
+    }
     const v = lista[i];
     vistas.forEach(id => { $(id).hidden = true; });
     $('re-pasos').hidden = true;
@@ -167,20 +198,56 @@
       $('re-cita').hidden = false;
     }
   }
+  let reloj = null;
+  function detener() {
+    if (reloj) { clearInterval(reloj); reloj = null; }
+    const v = (est().visual || [])[vActual];
+    if (v && v.pasos) $('re-paso-play').textContent = paso === v.pasos.length - 1 ? '↻ Ver de nuevo' : '▶ Ver la evolución';
+    $('re-paso-play').classList.remove('activo');
+  }
   function pintarPaso(v, animar) {
     const p = v.pasos[paso];
     $('re-pasos').hidden = false;
-    $('re-paso-txt').innerHTML = `<b>${paso + 1}/${v.pasos.length}</b> ${esc(p.t)}`;
+    $('re-paso-puntos').innerHTML = v.pasos.map((_, k) =>
+      `<button type="button" class="${k < paso ? 'hecho' : k === paso ? 'actual' : ''}" data-p="${k}" aria-label="Paso ${k + 1} de ${v.pasos.length}"${k === paso ? ' aria-current="step"' : ''}></button>`).join('');
+    $('re-paso-txt').innerHTML = `<b>${paso + 1} de ${v.pasos.length}</b> ${esc(p.t)}`;
     $('re-paso-ant').disabled = paso === 0;
     $('re-paso-sig').disabled = paso === v.pasos.length - 1;
+    // En la primera visita, el botón «siguiente» late para mostrar que el mapa avanza
+    const sig = $('re-paso-sig');
+    sig.classList.toggle('pulso', primeraVez && paso === 0 && !reloj);
+    $('re-paso-play').classList.toggle('pulso', primeraVez && paso === 0 && !reloj);
+    if (!reloj) $('re-paso-play').textContent = paso === v.pasos.length - 1 ? '↻ Ver de nuevo' : '▶ Ver la evolución';
     if (mapa) mapa.mostrar(p.estado, animar);
     fechar(p.fecha !== undefined ? p.fecha : est().fecha);
   }
-  $('re-paso-ant').addEventListener('click', () => { paso--; pintarPaso(est().visual[vActual], true); });
-  $('re-paso-sig').addEventListener('click', () => { paso++; pintarPaso(est().visual[vActual], true); });
+  const irPaso = n => { const v = est().visual[vActual]; paso = Math.max(0, Math.min(v.pasos.length - 1, n)); pintarPaso(v, true); };
+  $('re-paso-ant').addEventListener('click', () => { detener(); primeraVez = false; irPaso(paso - 1); });
+  $('re-paso-sig').addEventListener('click', () => { detener(); primeraVez = false; irPaso(paso + 1); });
+  $('re-paso-puntos').addEventListener('click', e => {
+    const b = e.target.closest('button[data-p]');
+    if (b) { detener(); primeraVez = false; irPaso(+b.dataset.p); }
+  });
+  // Reproducir: recorre los pasos solo, uno cada 3,5 s; cualquier toque lo detiene
+  $('re-paso-play').addEventListener('click', () => {
+    if (reloj) { detener(); return; }
+    const v = est().visual[vActual];
+    primeraVez = false;
+    if (paso === v.pasos.length - 1) irPaso(0);
+    $('re-paso-play').textContent = '❚❚ Pausa';
+    $('re-paso-play').classList.add('activo');
+    reloj = setInterval(() => {
+      const vv = est().visual[vActual];
+      if (!vv || !vv.pasos || paso >= vv.pasos.length - 1) { detener(); return; }
+      irPaso(paso + 1);
+      if (paso === vv.pasos.length - 1) detener();
+    }, 3500);
+  });
   $('re-tabs').addEventListener('click', e => {
     const b = e.target.closest('button[data-v]');
     if (!b) return;
+    detener();
+    primeraVez = false;
     paso = 0;
     pintarVisual(est(), +b.dataset.v);
     if (!est().visual[+b.dataset.v].pasos) fechar(est().fecha);
@@ -192,7 +259,10 @@
   function ir(rid, i, inicial) {
     const r = RUTA[rid];
     if (!r || r.pendiente || !r.estaciones[i]) return;
+    detener && reloj && detener();
     ruta = r; idx = i; paso = 0;
+    primeraVez = !visto.has(`${r.id}/${r.estaciones[i].id}`);
+    marcar(`${r.id}/${r.estaciones[i].id}`);
     prepararLinea();
     const e = est();
     $('re-kicker').textContent = ruta.n;

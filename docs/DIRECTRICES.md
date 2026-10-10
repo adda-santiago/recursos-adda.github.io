@@ -1,6 +1,6 @@
 # Directrices del proyecto — Recursos bíblicos interactivos
 
-Versión 2.9 · 9 de octubre de 2026
+Versión 2.10 · 9 de octubre de 2026
 
 Este documento es la fuente de verdad del proyecto. Cualquier decisión nueva que contradiga algo de aquí se registra en la bitácora (§23) y se actualiza la sección correspondiente. Si el código y este documento no coinciden, se corrige uno de los dos; no se deja la diferencia. Mientras una diferencia esté en proceso de corregirse, la sección lo indica como **pendiente de implementar**.
 
@@ -9,6 +9,8 @@ Este documento es la fuente de verdad del proyecto. Cualquier decisión nueva qu
 **Cambio de la versión 2.1:** nombre visible *Recursos Bíblicos*; taxonomía bíblica implementada (testamento, época, libro); las fichas pasan a `/{slug}/`.
 
 **Cambio de la versión 2.2:** cuando un recurso tiene más de una ruta, se eligen en un selector de ruta (lista desplegable) en lugar de pestañas y acordeones (§20).
+
+**Cambio de la versión 2.10:** las rutas de estudio señalan el contenido que el alumno todavía no ha visto: pestañas pendientes destacadas y mapas por pasos con puntos de avance y reproducción automática (§20).
 
 **Cambio de la versión 2.9:** cuarto recurso de imperios, El imperio asirio; las citas textuales de cada recurso se contrastan automáticamente con la RV 1960 antes de publicar.
 
@@ -288,7 +290,7 @@ No hay cuentas ni se planean.
 
 - "Guardar" marca recursos solo en el dispositivo, a través de `almacen` (`src/lib/storage.ts`, `localStorage` con prefijo `fyp:v1:`).
 - Ningún componente usa `localStorage` directamente; todo pasa por `almacen`.
-- `almacen` guarda también la **versión de la Biblia** elegida (`version-biblia`). La leen y escriben la cabecera del sitio y `citas.js` en las apps, con la misma clave y formato; es la única excepción a la regla anterior, porque las apps del iframe no pueden importar `almacen`.
+- `almacen` guarda también la **versión de la Biblia** elegida (`version-biblia`). La leen y escriben la cabecera del sitio y `citas.js` en las apps, con la misma clave y formato; es una excepción a la regla anterior, porque las apps del iframe no pueden importar `almacen`. La otra es el registro de lo ya visto en las rutas de estudio (§20), que es solo del dispositivo.
 - Los favoritos guardan `uid`, nunca títulos ni rutas, para sobrevivir a cambios de slug.
 - `src/lib/cuenta.ts` queda inactivo y se elimina en la limpieza pendiente (§20).
 - Si en el futuro hiciera falta sincronizar entre dispositivos, se evalúa como decisión nueva en la bitácora.
@@ -449,6 +451,7 @@ Distinta de la **presentación** (`segunda-guerra-mundial/`), que un profesor us
 
 - **Motor compartido.** `assets/js/ruta-estudio.js` y `assets/css/ruta-estudio.css`. Cada recurso tiene solo `index.html`, `data.js` (`window.RUTA_DATA`, formato descrito en el encabezado del motor) e `img/`. Excepción a la estructura de cuatro archivos: con varios recursos del mismo tipo, copiar el motor en cada carpeta haría que las copias se desalinearan.
 - **Lámina.** En escritorio, panel visual a la izquierda (imagen, mapa, tabla o pasaje, con pestañas si hay varios) y texto con desplazamiento propio a la derecha; en celular, visual arriba y texto debajo. Navegación Anterior/Siguiente y enlace propio por estación (`#ruta/numero`).
+- **Contenido por descubrir.** Una pestaña que el alumno no ha abierto se ve como un botón por tocar: borde y texto de acento y una flecha («Mapa ›»). Si tiene pasos, lo indica («Mapa · 5 pasos»). En la primera visita a la estación, la pestaña late tres veces (unos 2,7 s) y aparece una nota guía que se cierra sola. Los mapas por pasos muestran puntos de avance que se pueden tocar, y el botón «▶ Ver la evolución» los recorre solos, uno cada 3,5 s, con pausa. En la primera visita, «›» y «Ver la evolución» también laten. El motor recuerda en el dispositivo qué estaciones y pestañas ya se vieron (clave `fyp:v1:visto:<ruta de la app>`); `?reiniciar-vistos` en la dirección las vuelve a mostrar. Con «reducir movimiento» activado no hay pulsos.
 - **Selector de rutas** como botón flotante en la esquina, que abre y oculta un panel con las rutas y sus estaciones; las rutas en preparación aparecen deshabilitadas.
 - **Línea de tiempo inferior** opcional por ruta (`linea-tiempo.js`): hitos y un marcador que se desliza a la fecha de cada estación o de cada paso del mapa.
 - **Mapas** con `mapa-imperios.js`: capas por imperio y período, lugares, trazos animados y pasos dentro de una estación. Geografía compartida en `imperios-geo.js`, generada por `geo/imperios.py`.
@@ -556,6 +559,7 @@ Distinta de la **presentación** (`segunda-guerra-mundial/`), que un profesor us
 | 2026-10-09 | Nuevo recurso: Egipto, con las rutas Historia, Sociedad y religión, y Egipto y la Biblia; fechas bíblicas según la cronología del texto (Éxodo hacia 1446 a.C.) | Tercer recurso complementario; cubre de Génesis al Nuevo Testamento |
 | 2026-10-09 | Nuevo recurso: El imperio asirio, con las rutas Historia, Sociedad y religión, y Asiria y la Biblia | Cuarto recurso complementario; cubre Reyes, Isaías, Jonás, Nahúm y los profetas del siglo VIII |
 | 2026-10-09 | Verificación automática de las citas textuales contra la RV 1960 | Detectó y corrigió diez citas con diferencias en los cuatro recursos de imperios |
+| 2026-10-09 | Señales de contenido por descubrir en las rutas de estudio: pestañas destacadas con pulso y nota guía, puntos de avance y «Ver la evolución» en los mapas por pasos | Muchos alumnos no descubrían las pestañas ni los pasos del mapa y se perdían parte del recurso |
 
 ## 24. Relación con el repositorio Fuego y Palabra
 

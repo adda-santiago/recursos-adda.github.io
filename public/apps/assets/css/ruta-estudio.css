@@ -74,6 +74,31 @@ body { color: var(--ink); font-family: var(--serif); -webkit-font-smoothing: ant
 .re-tabs[hidden] { display: none; }
 .re-tabs button { font: 500 0.8rem var(--sans); color: var(--muted); background: none; border: 0; border-radius: 999px; padding: 0.35rem 0.85rem; cursor: pointer; }
 .re-tabs button[aria-selected="true"] { color: var(--bg); background: var(--ink); }
+.re-tabs button { position: relative; }
+.re-tabs button small { font-size: .72rem; opacity: .75; }
+/* Contenido sin ver: la pestaña se ve como un botón por tocar (borde y texto de acento, flecha)
+   y, en la primera visita, late y muestra una nota debajo */
+.re-tabs button.nuevo { color: var(--accent); box-shadow: inset 0 0 0 1.5px var(--accent); font-weight: 600; }
+.re-tabs button.nuevo:hover { background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.re-ver-mas { font-weight: 700; margin-left: .1rem; }
+.re-tabs-nota { position: absolute; top: 3.6rem; right: 1rem; z-index: 800; margin: 0; max-width: 16rem;
+  font: 600 .78rem/1.35 var(--sans); color: #fff; background: var(--accent); border-radius: 8px; padding: .45rem .7rem;
+  box-shadow: 0 4px 14px rgba(0,0,0,.18); animation: re-aparecer .3s ease-out; }
+.re-tabs-nota::before { content: ""; position: absolute; top: -6px; right: 1.6rem; border: 6px solid transparent; border-top: 0; border-bottom-color: var(--accent); }
+.re-tabs-nota[hidden] { display: none; }
+@keyframes re-aparecer { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+.re-paso-btn.pulso, .re-paso-play.pulso { animation: re-pulso .9s ease-in-out .3s 3; }
+/* La pestaña conserva su borde de acento mientras late (por eso tiene su propia animación) */
+.re-tabs button.nuevo.pulso { animation: re-pulso-tab .9s ease-in-out .3s 3; }
+@keyframes re-pulso-tab {
+  0%, 100% { box-shadow: inset 0 0 0 1.5px var(--accent), 0 0 0 0 color-mix(in srgb, var(--accent) 0%, transparent); transform: scale(1); }
+  50% { box-shadow: inset 0 0 0 1.5px var(--accent), 0 0 0 6px color-mix(in srgb, var(--accent) 28%, transparent); transform: scale(1.06); }
+}
+.re-paso-btn.pulso, .re-paso-play.pulso { border-color: var(--accent); color: var(--accent); }
+@keyframes re-pulso {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 0%, transparent); transform: scale(1); }
+  50% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 28%, transparent); transform: scale(1.06); }
+}
 .re-v { flex: 1; min-height: 0; margin: 0; }
 .re-v[hidden] { display: none; }
 /* Con pestañas, el botón del mapa baja para no chocar con ellas */
@@ -106,10 +131,19 @@ body { color: var(--ink); font-family: var(--serif); -webkit-font-smoothing: ant
 .re-cita p { font: 400 clamp(1.4rem, 2.6vw, 2.1rem)/1.45 var(--serif); margin: 0; max-width: 34ch; }
 .re-cita footer { font: 600 0.85rem var(--sans); color: var(--accent); margin-top: 1rem; }
 
-.re-pasos { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 0.75rem; padding: 0.55rem 1rem;
+.re-pasos { display: grid; grid-template-columns: auto 1fr auto auto; align-items: center; gap: 0.75rem; padding: 0.55rem 1rem;
   border-top: 1px solid var(--line); background: var(--bg); }
 .re-pasos[hidden] { display: none; }
 .re-paso-txt { margin: 0; font: 1rem/1.4 var(--serif); }
+.re-paso-centro { min-width: 0; }
+.re-paso-puntos { display: flex; gap: .35rem; margin-bottom: .3rem; }
+.re-paso-puntos button { width: .6rem; height: .6rem; padding: 0; border-radius: 50%; border: 1.5px solid var(--muted); background: transparent; cursor: pointer; }
+.re-paso-puntos button.hecho { background: var(--muted); border-color: var(--muted); }
+.re-paso-puntos button.actual { background: var(--accent); border-color: var(--accent); transform: scale(1.25); }
+.re-paso-play { font: 600 .78rem var(--sans); color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 999px;
+  padding: .45rem .85rem; cursor: pointer; white-space: nowrap; }
+.re-paso-play:hover { border-color: var(--ink); }
+.re-paso-play.activo { color: var(--bg); background: var(--ink); border-color: var(--ink); }
 .re-paso-txt b { font: 600 0.74rem var(--sans); color: var(--accent); margin-right: 0.35rem; }
 .re-paso-btn { width: 2.2rem; height: 2.2rem; display: grid; place-items: center; font: 500 1.35rem/1 var(--sans); color: var(--ink);
   background: var(--bg); border: 1px solid var(--line); border-radius: 50%; cursor: pointer; }
@@ -167,11 +201,15 @@ body { color: var(--ink); font-family: var(--serif); -webkit-font-smoothing: ant
   .re-tabs { top: auto; bottom: 0.6rem; right: 0.6rem; }
   .re-tabs:not([hidden]) ~ .re-mapa .mi-btn { top: 3.4rem; }
   .re-tabs:not([hidden]) ~ .re-mapa .mi-leyenda { bottom: 3.4rem; }
+  .re-tabs-nota { top: auto; bottom: 3.3rem; right: .6rem; }
+  .re-tabs-nota::before { top: auto; bottom: -6px; border-bottom: 0; border-top: 6px solid var(--accent); }
   .re-img-pend { inset: 3.5rem 1rem 3.5rem; }
   .re-img figcaption { bottom: 3.4rem; left: 0.6rem; max-width: calc(100% - 1.2rem); font-size: 0.7rem; padding: 0.3rem 0.55rem; }
   .re-img figcaption em { display: inline; margin-left: 0.3rem; }
   .re-tabla { padding: 3.5rem 1rem 3.5rem; place-items: start; }
   .re-mapa .mi-btn { top: 3.4rem; }
   .re-pos2 { grid-template-columns: 1fr; }
+  .re-pasos { grid-template-columns: auto 1fr auto; row-gap: .4rem; }
+  .re-paso-play { grid-column: 1 / -1; justify-self: center; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
