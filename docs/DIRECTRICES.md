@@ -1,6 +1,6 @@
 # Directrices del proyecto — Recursos bíblicos interactivos
 
-Versión 2.11 · 10 de octubre de 2026
+Versión 2.12 · 10 de octubre de 2026
 
 Este documento es la fuente de verdad del proyecto. Cualquier decisión nueva que contradiga algo de aquí se registra en la bitácora (§23) y se actualiza la sección correspondiente. Si el código y este documento no coinciden, se corrige uno de los dos; no se deja la diferencia. Mientras una diferencia esté en proceso de corregirse, la sección lo indica como **pendiente de implementar**.
 
@@ -9,6 +9,8 @@ Este documento es la fuente de verdad del proyecto. Cualquier decisión nueva qu
 **Cambio de la versión 2.1:** nombre visible *Recursos Bíblicos*; taxonomía bíblica implementada (testamento, época, libro); las fichas pasan a `/{slug}/`.
 
 **Cambio de la versión 2.2:** cuando un recurso tiene más de una ruta, se eligen en un selector de ruta (lista desplegable) en lugar de pestañas y acordeones (§20).
+
+**Cambio de la versión 2.12:** quinto recurso de imperios, El imperio griego, con los reinos helenísticos en la geografía compartida.
 
 **Cambio de la versión 2.11:** las tarjetas de la portada muestran una imagen de portada por recurso en lugar del emoji, y esa imagen es la vista previa al compartir el enlace (§8, §14).
 
@@ -275,6 +277,7 @@ Asignación actual:
 | Árbol genealógico | Antiguo, Nuevo | Creación a vida de Jesús | Génesis, Rut, 1 Crónicas, Mateo, Lucas |
 | El tabernáculo | Antiguo, Nuevo | Éxodo y desierto | Éxodo, Levítico, Números, Hebreos |
 | El templo de Salomón | Antiguo | Monarquía unida | 1 Reyes, 2 Crónicas |
+| El imperio griego | Antiguo, Nuevo | Retorno, intertestamentario, vida de Jesús, iglesia primitiva | Daniel, Zacarías, Joel, Juan, Hechos, 1 Corintios, Gálatas |
 | El imperio asirio | Antiguo, Nuevo | Monarquía dividida, exilio | 2 Reyes, 2 Crónicas, Isaías, Oseas, Amós, Jonás, Miqueas, Nahúm, Sofonías, Mateo, Hechos |
 | Egipto | Antiguo, Nuevo | Patriarcas, éxodo, monarquía unida y dividida, exilio, intertestamentario, vida de Jesús | Génesis, Éxodo, 1 y 2 Reyes, Isaías, Jeremías, Ezequiel, Oseas, Mateo, Hechos |
 | El imperio persa | Antiguo, Nuevo | Exilio, retorno, intertestamentario | 2 Crónicas, Esdras, Nehemías, Ester, Isaías, Daniel, Hageo, Zacarías, Malaquías, Hechos |
@@ -564,6 +567,7 @@ Distinta de la **presentación** (`segunda-guerra-mundial/`), que un profesor us
 | 2026-10-09 | Verificación automática de las citas textuales contra la RV 1960 | Detectó y corrigió diez citas con diferencias en los cuatro recursos de imperios |
 | 2026-10-09 | Señales de contenido por descubrir en las rutas de estudio: pestañas destacadas con pulso y nota guía, puntos de avance y «Ver la evolución» en los mapas por pasos | Muchos alumnos no descubrían las pestañas ni los pasos del mapa y se perdían parte del recurso |
 | 2026-10-10 | Imagen de portada por recurso en las tarjetas y en la vista previa al compartir (Open Graph), con versión liviana para tarjetas y JPG para WhatsApp | Las tarjetas con emoji no transmitían el contenido; una imagen invita a entrar y mejora cómo se ve el enlace compartido |
+| 2026-10-10 | Nuevo recurso: El imperio griego, con las rutas Historia, Sociedad y cultura, y Grecia y la Biblia; 1 y 2 Macabeos solo como fuentes históricas | Quinto recurso complementario; cubre Daniel 8 y 11 y el período entre los testamentos |
 
 ## 24. Relación con el repositorio Fuego y Palabra
 

@@ -7,7 +7,7 @@ AL={'gn':'gn','génesis':'gn','éx':'ex','ex':'ex','éxodo':'ex','lv':'lv','nm':
 '1 r':'1r','1 reyes':'1r','2 r':'2r','2 reyes':'2r','1 cr':'1cr','2 cr':'2cr','2 crónicas':'2cr','esd':'esd','esdras':'esd','neh':'neh','nehemías':'neh','est':'est','ester':'est',
 'job':'job','sal':'sal','salmo':'sal','pr':'pr','ec':'ec','cnt':'cnt','is':'is','isaías':'is','jer':'jer','jeremías':'jer','lm':'lm','ez':'ez','ezequiel':'ez','dn':'dn','daniel':'dn',
 'os':'os','oseas':'os','jl':'jl','am':'am','amós':'am','abd':'abd','jon':'jon','jonás':'jon','mi':'mi','miqueas':'mi','nah':'nah','nahúm':'nah','hab':'hab','sof':'sof','hag':'hag','zac':'zac','mal':'mal',
-'mt':'mt','mateo':'mt','mr':'mr','mc':'mr','lc':'lc','lucas':'lc','jn':'jn','juan':'jn','hch':'hch','hechos':'hch','ro':'ro','1 co':'1co','2 co':'2co','he':'he','hebreos':'he','ap':'ap','apocalipsis':'ap','fil':'fil','1 ti':'1ti','1 p':'1p'}
+'mt':'mt','mateo':'mt','mr':'mr','mc':'mr','lc':'lc','lucas':'lc','jn':'jn','juan':'jn','hch':'hch','hechos':'hch','ro':'ro','1 co':'1co','2 co':'2co','he':'he','hebreos':'he','ap':'ap','apocalipsis':'ap','fil':'fil','1 ti':'1ti','1 p':'1p','ef':'ef','efesios':'ef','ga':'ga','gá':'ga','gálatas':'ga','col':'col','1 ts':'1ts','2 ts':'2ts','2 ti':'2ti','tit':'tit','flm':'flm','stg':'stg','santiago':'stg','2 p':'2p','1 jn':'1jn','jud':'jud','romanos':'ro','1 corintios':'1co','2 corintios':'2co','mr':'mr','marcos':'mr','lv':'lv','rt':'rt','1 s':'1s','2 s':'2s','1 cr':'1cr','neh':'neh','lm':'lm','jl':'jl','joel':'jl','zacarías':'zac','malaquías':'mal','proverbios':'pr','salmos':'sal'}
 def norm(s):
     s=unicodedata.normalize('NFC',s).lower()
     s=re.sub(r'[«»"“”¡!¿?,.;:()\-–—]',' ',s); return re.sub(r'\s+',' ',s).strip()
