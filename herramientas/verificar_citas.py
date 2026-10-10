@@ -36,6 +36,7 @@ for t in textos:
         if not mm: continue
         b=AL.get(mm.group(1).lower().replace('  ',' '))
         if not b: continue
+        if b in ('abd','flm','2jn','3jn','jud') and ':' not in mm.group(2): mm=re.match(r'(.*) (.*)', mm.group(1)+' 1:'+mm.group(2))
         texto=norm(versos(b,mm.group(2).split(';')[0] if False else mm.group(2)))
         trozos=[norm(x) for x in re.split(r'…|\.\.\.',q) if norm(x)]
         total+=1
