@@ -3,6 +3,7 @@ uid: templo-salomon
 titulo: El templo de Salomón
 resumen: La casa del monte Moriah en 3D, del altar de bronce a los querubines del Lugar Santísimo.
 emoji: 🏛️
+imagen: portadas/templo-salomon.webp
 testamento: [antiguo]
 libros: [1-reyes, 2-cronicas]
 epocas: [monarquia-unida]

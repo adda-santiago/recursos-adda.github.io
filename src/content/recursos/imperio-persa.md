@@ -3,6 +3,7 @@ uid: imperio-persa
 titulo: El imperio persa
 resumen: "Ruta de estudio sobre Persia (550–330 a.C.): su historia, su gobierno y religión, su legado y cómo aparece en Isaías, Esdras, Ester, Nehemías y Daniel."
 emoji: 👑
+imagen: portadas/imperio-persa.webp
 testamento: [antiguo, nuevo]
 libros: [2-cronicas, esdras, nehemias, ester, isaias, daniel, hageo, zacarias, malaquias, hechos]
 epocas: [exilio, retorno, intertestamentario]

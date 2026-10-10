@@ -29,7 +29,7 @@ const jsonLd = {
   license: d.licencia.contenido,
 };
 ---
-<Base titulo={d.titulo} descripcion={d.resumen}>
+<Base titulo={d.titulo} descripcion={d.resumen} imagen={d.imagen}>
   <script type="application/ld+json" slot="head" set:html={JSON.stringify(jsonLd)} />
   <main>
     <header class="ficha-cabecera">

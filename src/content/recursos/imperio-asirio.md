@@ -3,6 +3,7 @@ uid: imperio-asirio
 titulo: El imperio asirio
 resumen: "Ruta de estudio sobre Asiria: su historia, su forma de gobernar y su religión, su legado y cómo aparece en Reyes, Isaías, Jonás, Nahúm y el Nuevo Testamento."
 emoji: 🏹
+imagen: portadas/imperio-asirio.webp
 testamento: [antiguo, nuevo]
 libros: [2-reyes, 2-cronicas, isaias, oseas, amos, jonas, miqueas, nahum, sofonias, mateo, hechos]
 epocas: [monarquia-dividida, exilio]

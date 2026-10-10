@@ -22,6 +22,9 @@ const recursos = defineCollection({
     titulo: z.string(),
     resumen: z.string().max(180),
     emoji: z.string().default('📘'),
+    // Imagen de portada (§14): ruta dentro de public/, 16:9, p. ej. 'portadas/tabernaculo.webp'.
+    // Deben existir también la versión liviana -640.webp (tarjetas) y la .jpg (vista previa al compartir).
+    imagen: z.string().regex(/^[a-z0-9/_-]+\.webp$/).optional(),
 
     // Taxonomía bíblica (§9). Obligatoria en todo recurso publicado (ver más abajo).
     testamento: z.array(z.enum(CLAVES_TESTAMENTO)).default([]),

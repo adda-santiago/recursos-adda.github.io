@@ -3,6 +3,7 @@ uid: atlas-biblico
 titulo: Atlas bíblico
 resumen: Ciudades, batallas, profecías y viajes ubicados en el mapa, con fronteras históricas por época.
 emoji: 🗺️
+imagen: portadas/atlas-biblico.webp
 testamento: [antiguo, nuevo]
 libros: [genesis, exodo, numeros, josue, 1-reyes, 2-reyes, hechos]
 epocas: [patriarcas, exodo, jueces, monarquia-unida, monarquia-dividida, exilio, retorno, intertestamentario, vida-de-jesus, iglesia-primitiva]

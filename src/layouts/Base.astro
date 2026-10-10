@@ -11,8 +11,11 @@ interface Props {
   noindex?: boolean;
   canonical?: string;
   embed?: boolean;           // página /embed/: sin cabecera, sin pie, sin anuncios
+  imagen?: string;           // portada del recurso (ruta dentro de public/): vista previa al compartir
 }
-const { titulo, descripcion = SITIO.descripcion, noindex = false, canonical, embed = false } = Astro.props;
+const { titulo, descripcion = SITIO.descripcion, noindex = false, canonical, embed = false, imagen } = Astro.props;
+// Para compartir se usa la versión JPG: WhatsApp y otras apps no siempre muestran WebP
+const imagenAbsoluta = imagen ? new URL(ruta(imagen.replace(/\.webp$/, '.jpg')), Astro.site).href : undefined;
 const tituloCompleto = titulo === SITIO.nombre ? titulo : `${titulo} · ${SITIO.nombre}`;
 const urlCanonica = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
 ---
@@ -29,6 +32,10 @@ const urlCanonica = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
   <meta property="og:description" content={descripcion} />
   <meta property="og:type" content="website" />
   <meta property="og:url" content={urlCanonica} />
+  {imagenAbsoluta && <meta property="og:image" content={imagenAbsoluta} />}
+  {imagenAbsoluta && <meta property="og:image:width" content="1200" />}
+  {imagenAbsoluta && <meta property="og:image:height" content="675" />}
+  <meta name="twitter:card" content={imagenAbsoluta ? 'summary_large_image' : 'summary'} />
   <meta name="theme-color" content="#fafaf8" />
   <link rel="icon" href={`data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>${SITIO.emoji}</text></svg>`)}`} />
   <link rel="preconnect" href="https://fonts.googleapis.com" />

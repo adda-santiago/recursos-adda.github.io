@@ -3,6 +3,7 @@ uid: linea-reyes
 titulo: Reyes, jueces y profetas de Israel
 resumen: Línea de tiempo paralela de los reinos de Israel y Judá, con jueces, profetas e imperios vecinos.
 emoji: 👑
+imagen: portadas/linea-reyes.webp
 testamento: [antiguo]
 libros: [jueces, 1-samuel, 2-samuel, 1-reyes, 2-reyes, 1-cronicas, 2-cronicas]
 epocas: [jueces, monarquia-unida, monarquia-dividida, exilio, retorno]

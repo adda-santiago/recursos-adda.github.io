@@ -3,6 +3,7 @@ uid: egipto
 titulo: Egipto
 resumen: "Ruta de estudio sobre Egipto: el Nilo, sus épocas, su religión y legado, y cómo aparece en la Biblia, de Abraham y el Éxodo a los profetas y Jesús."
 emoji: 🏺
+imagen: portadas/egipto.webp
 testamento: [antiguo, nuevo]
 libros: [genesis, exodo, 1-reyes, 2-reyes, isaias, jeremias, ezequiel, oseas, mateo, hechos]
 epocas: [patriarcas, exodo, monarquia-unida, monarquia-dividida, exilio, intertestamentario, vida-de-jesus]

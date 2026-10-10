@@ -4,7 +4,7 @@
    y para quien navegue sin JavaScript. */
 import type { CollectionEntry } from 'astro:content';
 import { EPOCAS, TESTAMENTOS, TIPOS } from '../data/taxonomia';
-import { rutaRecurso } from '../lib/url';
+import { ruta, rutaRecurso } from '../lib/url';
 interface Props { r: CollectionEntry<'recursos'>; destacada?: boolean; }
 const { r, destacada = false } = Astro.props;
 const d = r.data;
@@ -25,9 +25,13 @@ const epocas = d.epocas.length > 2
 >
   <a class="tarjeta" href={rutaRecurso(r.id)}>
     <span class="tarjeta-imagen" aria-hidden="true">
-      {d.visor.poster
-        ? <img src={d.visor.poster} alt="" loading="lazy" decoding="async" />
-        : <span class="tarjeta-emoji">{d.emoji}</span>}
+      {d.imagen
+        ? <img src={ruta(d.imagen.replace(/\.webp$/, '-640.webp'))}
+               srcset={`${ruta(d.imagen.replace(/\.webp$/, '-640.webp'))} 640w, ${ruta(d.imagen)} 1200w`}
+               sizes="(max-width: 720px) 40vw, 400px" width="640" height="360" alt="" loading="lazy" decoding="async" />
+        : d.visor.poster
+          ? <img src={d.visor.poster} alt="" loading="lazy" decoding="async" />
+          : <span class="tarjeta-emoji">{d.emoji}</span>}
       <span class="tarjeta-tipo">{TIPOS[d.tipo]}</span>
     </span>
     <span class="tarjeta-cuerpo">

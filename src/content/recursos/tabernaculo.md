@@ -3,6 +3,7 @@ uid: tabernaculo
 titulo: El tabernáculo
 resumen: El santuario del desierto en 3D, del atrio al arca, con las ceremonias paso a paso.
 emoji: ⛺
+imagen: portadas/tabernaculo.webp
 testamento: [antiguo, nuevo]
 libros: [exodo, levitico, numeros, hebreos]
 epocas: [exodo]

@@ -3,6 +3,7 @@ uid: sumo-sacerdote
 titulo: El sumo sacerdote
 resumen: Aarón en 3D, vestido prenda por prenda en el orden de Levítico 8, con el significado de cada pieza y las vestiduras de lino.
 emoji: 💎
+imagen: portadas/sumo-sacerdote.webp
 testamento: [antiguo]
 libros: [exodo, levitico, numeros]
 epocas: [exodo]

@@ -3,6 +3,7 @@ uid: imperio-babilonico
 titulo: El imperio babilónico
 resumen: "Ruta de estudio sobre Babilonia (626–539 a.C.): su historia, su sociedad y religión, su legado y cómo aparece en cada parte de la Biblia."
 emoji: 🦁
+imagen: portadas/imperio-babilonico.webp
 testamento: [antiguo, nuevo]
 libros: [2-reyes, 2-cronicas, isaias, jeremias, lamentaciones, ezequiel, daniel, habacuc, apocalipsis]
 epocas: [monarquia-dividida, exilio, retorno]
