@@ -188,7 +188,7 @@
           filas: [
             ['El agua en sangre', 'Éx 7:14-25', 'El Nilo, venerado como Hapi, fuente de vida'],
             ['Las ranas', 'Éx 8:1-15', 'Posiblemente Heqet, diosa con cabeza de rana'],
-            ['Los piojos y las moscas', 'Éx 8:16-32', 'La pureza de los sacerdotes; los «dedos de Dios» (Éx 8:19)'],
+            ['Los piojos y las moscas', 'Éx 8:16-32', 'La pureza de los sacerdotes; el «Dedo de Dios» (Éx 8:19)'],
             ['La peste en el ganado', 'Éx 9:1-7', 'Los animales sagrados, como el buey Apis y la vaca Hathor'],
             ['Las úlceras y el granizo', 'Éx 9:8-35', 'Dioses de la salud y del cielo'],
             ['Las langostas', 'Éx 10:1-20', 'Las cosechas que los dioses debían proteger'],
@@ -356,7 +356,7 @@
       ],
       texto: [
         'Egipto vuelve a aparecer en el comienzo de la vida de Jesús. Cuando Herodes quiso matar al niño, un ángel avisó a José: «huye a Egipto, y permanece allá hasta que yo te diga» (Mt 2:13). Egipto, que había sido refugio para Abraham y para Jacob, fue refugio también para el Hijo de Dios. Mateo ve en el regreso un cumplimiento de Oseas: «De Egipto llamé a mi Hijo» (Mt 2:15; Os 11:1). Lo que en Oseas se dice de Israel, el hijo que Dios sacó de Egipto, Mateo lo ve realizado plenamente en Jesús, el Hijo verdadero, que recorre de nuevo la historia de su pueblo y la cumple sin pecado.',
-        'En Pentecostés, entre los que oyeron a los discípulos hablar las maravillas de Dios en su propia lengua había judíos y prosélitos de «Egipto y… las regiones de África más allá de Cirene» (Hch 2:10). Poco después aparece Apolos, «natural de Alejandría, varón elocuente, poderoso en las Escrituras» (Hch 18:24), un fruto de la gran comunidad judía de esa ciudad, que llegó a ser colaborador de Pablo.',
+        'En Pentecostés, entre los que oyeron a los discípulos hablar las maravillas de Dios en su propia lengua había judíos y prosélitos de «Egipto y en las regiones de Africa más allá de Cirene» (Hch 2:10). Poco después aparece Apolos, «natural de Alejandría, varón elocuente, poderoso en las Escrituras» (Hch 18:24), un fruto de la gran comunidad judía de esa ciudad, que llegó a ser colaborador de Pablo.',
         'Esteban, en su discurso, recordó a José y a Moisés en Egipto (Hch 7:9-36), y Hebreos presenta su historia como ejemplo de fe: Moisés tuvo «por mayores riquezas el vituperio de Cristo que los tesoros de los egipcios» y «por la fe dejó a Egipto» (He 11:26-27).',
         'Finalmente, en el Apocalipsis, Egipto se usa como símbolo. La ciudad donde mueren los dos testigos, «donde también nuestro Señor fue crucificado», se llama «en sentido espiritual… Sodoma y Egipto» (Ap 11:8): un lugar que se ha vuelto tan rebelde contra Dios como aquellos que esclavizaron a su pueblo.'
       ],

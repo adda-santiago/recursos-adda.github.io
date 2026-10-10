@@ -1,6 +1,6 @@
 # Directrices del proyecto — Recursos bíblicos interactivos
 
-Versión 2.8 · 9 de octubre de 2026
+Versión 2.9 · 9 de octubre de 2026
 
 Este documento es la fuente de verdad del proyecto. Cualquier decisión nueva que contradiga algo de aquí se registra en la bitácora (§23) y se actualiza la sección correspondiente. Si el código y este documento no coinciden, se corrige uno de los dos; no se deja la diferencia. Mientras una diferencia esté en proceso de corregirse, la sección lo indica como **pendiente de implementar**.
 
@@ -9,6 +9,8 @@ Este documento es la fuente de verdad del proyecto. Cualquier decisión nueva qu
 **Cambio de la versión 2.1:** nombre visible *Recursos Bíblicos*; taxonomía bíblica implementada (testamento, época, libro); las fichas pasan a `/{slug}/`.
 
 **Cambio de la versión 2.2:** cuando un recurso tiene más de una ruta, se eligen en un selector de ruta (lista desplegable) en lugar de pestañas y acordeones (§20).
+
+**Cambio de la versión 2.9:** cuarto recurso de imperios, El imperio asirio; las citas textuales de cada recurso se contrastan automáticamente con la RV 1960 antes de publicar.
 
 **Cambio de la versión 2.8:** tercer recurso de imperios, Egipto, con capas del Reino Nuevo, los hititas y los Ptolomeos en la geografía compartida.
 
@@ -268,6 +270,7 @@ Asignación actual:
 | Árbol genealógico | Antiguo, Nuevo | Creación a vida de Jesús | Génesis, Rut, 1 Crónicas, Mateo, Lucas |
 | El tabernáculo | Antiguo, Nuevo | Éxodo y desierto | Éxodo, Levítico, Números, Hebreos |
 | El templo de Salomón | Antiguo | Monarquía unida | 1 Reyes, 2 Crónicas |
+| El imperio asirio | Antiguo, Nuevo | Monarquía dividida, exilio | 2 Reyes, 2 Crónicas, Isaías, Oseas, Amós, Jonás, Miqueas, Nahúm, Sofonías, Mateo, Hechos |
 | Egipto | Antiguo, Nuevo | Patriarcas, éxodo, monarquía unida y dividida, exilio, intertestamentario, vida de Jesús | Génesis, Éxodo, 1 y 2 Reyes, Isaías, Jeremías, Ezequiel, Oseas, Mateo, Hechos |
 | El imperio persa | Antiguo, Nuevo | Exilio, retorno, intertestamentario | 2 Crónicas, Esdras, Nehemías, Ester, Isaías, Daniel, Hageo, Zacarías, Malaquías, Hechos |
 | El imperio babilónico | Antiguo, Nuevo | Monarquía dividida, exilio, retorno | 2 Reyes, 2 Crónicas, Isaías, Jeremías, Lamentaciones, Ezequiel, Daniel, Habacuc, Apocalipsis |
@@ -360,6 +363,7 @@ Reglas: el artículo explica lo que se ve; no repite el resumen ni rellena para 
 - Las citas textuales dentro de los párrafos de un recurso van siempre en RV 1960; la versión elegida cambia solo el texto de la burbuja.
 - **Elegir la versión:** selector en la cabecera del sitio y en la propia burbuja. Es una preferencia del dispositivo (§11).
 - **Lectura en la burbuja:** cuando una cita salta versículos dentro de un capítulo (Dn 8:3-8, 20-22), los tramos se separan con la marca «versículos omitidos»; un cambio de capítulo lleva su subtítulo. Se reconocen rangos entre capítulos (Is 44:28–45:4) y versículos que siguen a capítulos (Daniel 1–7; 9:2). La cabecera de la burbuja queda fija al desplazar el texto.
+- **Citas textuales en los párrafos:** cada frase entre comillas «…» seguida de su referencia se contrasta automáticamente con el texto de la RV 1960 antes de publicar; una cita que no coincide se corrige o se reformula como paráfrasis sin comillas.
 - **Defectos de la fuente:** las correcciones se registran en `CORRECCIONES` de `herramientas/biblia/generar.py`, para que se apliquen cada vez que se regenera el texto.
 
 ## 16. Compartir e insertar
@@ -550,6 +554,8 @@ Distinta de la **presentación** (`segunda-guerra-mundial/`), que un profesor us
 | 2026-10-09 | La burbuja de citas se agrega a todas las apps bíblicas existentes | Que toda referencia del sitio se pueda leer en el mismo lugar |
 | 2026-10-09 | En la ficha, la barra del visor va arriba del recurso; en el embed sigue abajo | Las acciones quedan a la vista sin bajar; en el embed la prioridad es el recurso |
 | 2026-10-09 | Nuevo recurso: Egipto, con las rutas Historia, Sociedad y religión, y Egipto y la Biblia; fechas bíblicas según la cronología del texto (Éxodo hacia 1446 a.C.) | Tercer recurso complementario; cubre de Génesis al Nuevo Testamento |
+| 2026-10-09 | Nuevo recurso: El imperio asirio, con las rutas Historia, Sociedad y religión, y Asiria y la Biblia | Cuarto recurso complementario; cubre Reyes, Isaías, Jonás, Nahúm y los profetas del siglo VIII |
+| 2026-10-09 | Verificación automática de las citas textuales contra la RV 1960 | Detectó y corrigió diez citas con diferencias en los cuatro recursos de imperios |
 
 ## 24. Relación con el repositorio Fuego y Palabra
 

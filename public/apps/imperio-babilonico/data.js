@@ -294,7 +294,7 @@
         { h: 'Jeremías: el profeta de la crisis' },
         'Ninguno vivió la crisis tan de cerca como Jeremías. Durante cuarenta años advirtió a Judá, y su mensaje parecía una traición: «Someted vuestros cuellos al yugo del rey de Babilonia, y servidle… y vivid» (Jer 27:12). Anunció setenta años de servidumbre (Jer 25:11) y escribió a los ya deportados que edificaran casas y buscaran la paz de la ciudad, porque Dios los haría volver (Jer 29:7, 10). Al caer Jerusalén, el propio Nabucodonosor ordenó cuidarlo (Jer 39:11-12). Y fue Jeremías quien escribió las profecías más extensas contra Babilonia (Jer 50–51): el instrumento del juicio también sería juzgado.'
       ],
-      pensar: 'Habacuc no entendía lo que Dios hacía, pero decidió alegrarse en Jehová aunque faltara todo (Hab 3:17-18). ¿Qué significa vivir «por la fe» (Hab 2:4) cuando no entendemos lo que está pasando?'
+      pensar: 'Habacuc no entendía lo que Dios hacía, pero decidió alegrarse en Jehová aunque faltara todo (Hab 3:17-18). ¿Qué significa vivir «por su fe» (Hab 2:4) cuando no entendemos lo que está pasando?'
     },
     {
       id: 'profetas-exilio', n: 'Los profetas del exilio: Ezequiel y Daniel', ref: 'Ezequiel 1; 24; 33; 36–37; Daniel 1–7', fecha: [-597, -539],

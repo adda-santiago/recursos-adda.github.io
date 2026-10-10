@@ -77,7 +77,7 @@
       // Si la marca lleva su propio rótulo, se ocultan los de los hitos vecinos para que no se pisen
       el.querySelectorAll('.lt-hito').forEach(h => {
         const p = parseFloat(h.style.left);
-        h.classList.toggle('tapado', !coincide && !h.classList.contains('actual') && Math.abs(p - centro) < 9);
+        h.classList.toggle('tapado', !coincide && !h.classList.contains('actual') && Math.abs(p - centro) < 11);
       });
     }
     return { el, ir, destruir: () => el.remove() };
