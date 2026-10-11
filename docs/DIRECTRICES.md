@@ -1,6 +1,6 @@
 # Directrices del proyecto — Recursos bíblicos interactivos
 
-Versión 2.15 · 11 de octubre de 2026
+Versión 2.15 · 10 de octubre de 2026
 
 Este documento es la fuente de verdad del proyecto. Cualquier decisión nueva que contradiga algo de aquí se registra en la bitácora (§23) y se actualiza la sección correspondiente. Si el código y este documento no coinciden, se corrige uno de los dos; no se deja la diferencia. Mientras una diferencia esté en proceso de corregirse, la sección lo indica como **pendiente de implementar**.
 
@@ -10,7 +10,7 @@ Este documento es la fuente de verdad del proyecto. Cualquier decisión nueva qu
 
 **Cambio de la versión 2.2:** cuando un recurso tiene más de una ruta, se eligen en un selector de ruta (lista desplegable) en lugar de pestañas y acordeones (§20).
 
-**Cambio de la versión 2.15:** nuevo recurso 3D, El templo de Herodes, con las rutas Recorrido por el monte del templo y Templo de Salomón y templo de Herodes; Three.js r128 pasa a servirse desde el propio sitio (`public/apps/assets/js/`).
+**Cambio de la versión 2.15:** regla para las imágenes compartidas entre recursos; corrección del mapa de la deportación de Israel (2 R 17:6).
 
 **Cambio de la versión 2.14:** recurso integrador «Los imperios en la historia bíblica»; los recursos pueden reutilizar imágenes de otras apps.
 
@@ -207,7 +207,7 @@ El visor nunca contiene anuncios ni elementos ajenos al recurso.
 
 | Motor | Cuándo usarlo | Estado |
 |---|---|---|
-| `legado` | Apps que corren como página propia en `public/apps/` | En uso: atlas, línea de reyes, genealogías, tabernáculo, templo de Salomón, templo de Herodes, sumo sacerdote (y las apps de las fichas ocultas) |
+| `legado` | Apps que corren como página propia en `public/apps/` | En uso: atlas, línea de reyes, genealogías, tabernáculo, templo de Salomón, sumo sacerdote (y las apps de las fichas ocultas) |
 | `model-viewer` | Un solo `.glb` con hotspots (un objeto: arca, altar, lámpara, utensilio) | Implementado en el visor, **sin probar aún con un modelo real** |
 | `three` | Escenas compuestas, recorridos narrativos, comparaciones, modelos procedurales | Reservado. El build falla a propósito si un recurso lo declara antes de implementarlo |
 
@@ -218,7 +218,7 @@ Las apps legadas no se reescriben por reescribir. Se migran a `three` nativo sol
 - Escenas bíblicas e históricas: **1 unidad = 1 codo (≈ 45 cm)**. Ejes: **+x oriente, −z norte, +y arriba**.
 - Si una escena usa otra escala, la declara en `visor.escala`.
 - Toda escena declara su escala en el campo `visor.escala` de la ficha.
-- Three.js: las apps legadas usan r128. Las apps nuevas lo cargan desde `public/apps/assets/js/three.min.js` y `OrbitControls.js`, no desde un CDN (los recursos no dependen de sitios externos); las apps anteriores todavía usan cdnjs y jsDelivr (**pendiente de implementar**). Todo desarrollo nuevo en `three` usa una versión actual vía ES modules; no se agregan funciones nuevas sobre r128.
+- Three.js: las apps legadas usan r128. Todo desarrollo nuevo en `three` usa una versión actual vía ES modules; no se agregan funciones nuevas sobre r128.
 
 ### Presupuesto de rendimiento (criterio propio, a validar con uso real)
 
@@ -472,6 +472,7 @@ Distinta de la **presentación** (`segunda-guerra-mundial/`), que un profesor us
 - **Texto:** entre 250 y 450 palabras por estación; si necesita más, se divide. Cada estación cierra con **Para pensar**, siempre desde el texto bíblico y la línea doctrinal pentecostal clásica de las Asambleas de Dios, sin mencionarla.
 - **Historia y texto bíblico.** Cuando una fuente histórica parece diferir del relato bíblico, o dos textos bíblicos dan datos distintos, se usa el bloque de dos posturas (`posturas`) con ambas versiones y cómo se entienden; nunca se presenta el texto bíblico como error. En temas doctrinales prevalece la línea de las Asambleas de Dios.
 - **Recursos complementarios** (cada imperio, el exilio, el esquema escatológico) hablan de todos los libros donde aparece el tema, no solo del libro que los originó. Los recursos históricos incluyen además su legado (aportes, costumbres, inventos), verificado.
+- **Imágenes compartidas:** un recurso puede usar imágenes de otro con una ruta relativa (`../otra-app/img/archivo.webp`); el archivo existe una sola vez. Antes de renombrar o borrar una imagen, buscar su nombre en el repositorio para ver si otro recurso la usa (hoy, el integrador «Los imperios en la historia bíblica» usa diez imágenes de los seis imperios).
 - **Imágenes:** ilustraciones cinematográficas realistas generadas con IA, en 4:3, con el tema al centro; `foco` ajusta el recorte. Un objeto arqueológico real nunca se representa con una imagen generada: se usa una foto con licencia verificada o una escena que no se confunda con evidencia.
 
 ### Pendientes
@@ -484,17 +485,16 @@ Distinta de la **presentación** (`segunda-guerra-mundial/`), que un profesor us
 - **Limpieza del código comercial:** eliminar `anuncios.ts`, `cuenta.ts`, `EspacioAnuncio`, `SITIO.anuncios` y la llamada a `iniciarAnuncios()`.
 - **El sumo sacerdote: rutas pendientes.** Labores (con el mobiliario del tabernáculo), Día de la Expiación (proceso con indicador de estado; coordinar con la ceremonia del mismo nombre en `tabernaculo/`), Sumo sacerdote, sacerdote y levita, y Las doce piedras. Al sumar la segunda ruta aparece el selector (`ROUTES` en `app.js`).
 - **Crédito de la RV 1960 en las apps existentes:** revisar las apps que citan texto bíblico y agregarles el crédito (§15).
-- **El templo de Herodes: rutas pendientes.** Jesús y la iglesia en el templo, e Historia del segundo templo (de Zorobabel al año 70 y el templo de los últimos tiempos). La estación «Dos destrucciones» ya remite a esta última.
-- **Three.js local en las apps anteriores:** cambiar en tabernáculo, templo de Salomón, sumo sacerdote y las demás apps 3D las etiquetas de cdnjs y jsDelivr por `../assets/js/three.min.js` y `../assets/js/OrbitControls.js`.
+- **Templo de Herodes** (`herodes/`): no estaba en el repositorio de Fuego y Palabra. Incorporarlo con el procedimiento anterior.
 - Revisar la respuesta en celular de las apps legadas con barra lateral fija: dentro del visor, en pantallas angostas, quedan apretadas. Solución de fondo: panel lateral colapsable por defecto bajo cierto ancho. Es prioritario, porque el estudio personal ocurre sobre todo en el celular.
 
 ## 21. Roadmap
 
 | Fase | Alcance | Criterio de salida |
 |---|---|---|
-| 0. Plataforma mínima | Astro, visor con contrato, Pagefind, apps bíblicas incorporadas, compartir, embed, buzón | **Hecho en v1.1**, salvo buzón sin URL; Herodes, en v2.15 |
+| 0. Plataforma mínima | Astro, visor con contrato, Pagefind, apps bíblicas incorporadas, compartir, embed, buzón | **Hecho en v1.1**, salvo Herodes y buzón sin URL |
 | 1. Reorientación a la iglesia | Despliegue en `adda-santiago` (hecho), nombre visible (hecho), taxonomía bíblica (hecho), limpieza del código comercial | Sitio publicado en la URL nueva con facetas bíblicas |
-| 2. Contenido | Templo de Herodes (hecho, faltan dos rutas) y recursos nuevos según el buzón y las búsquedas sin resultado | Usado por miembros y líderes de la iglesia |
+| 2. Contenido | Templo de Herodes y recursos nuevos según el buzón y las búsquedas sin resultado | Usado por miembros y líderes de la iglesia |
 | 3. Crecimiento | Analítica activa, PWA con modo sin conexión, enlace directo a estaciones (`fyp:ir-a`) | Uso sostenido medible |
 
 ## 22. Decisiones abiertas
@@ -579,10 +579,7 @@ Distinta de la **presentación** (`segunda-guerra-mundial/`), que un profesor us
 | 2026-10-10 | Nuevo recurso: El imperio griego, con las rutas Historia, Sociedad y cultura, y Grecia y la Biblia; 1 y 2 Macabeos solo como fuentes históricas | Quinto recurso complementario; cubre Daniel 8 y 11 y el período entre los testamentos |
 | 2026-10-10 | Nuevo recurso: El imperio romano, con las rutas Historia, Sociedad, ley y religión, y Roma y la Biblia; se completan los seis imperios | Sexto recurso complementario; cubre el Nuevo Testamento y la forma final del cuarto reino de Daniel |
 | 2026-10-10 | Recurso integrador «Los imperios en la historia bíblica», con las rutas La sucesión de los imperios, Los imperios en la profecía y Dios y las naciones | Puerta de entrada a la serie y puente hacia el estudio de Daniel; reutiliza imágenes de los seis recursos |
-| 2026-10-11 | Nuevo recurso 3D: El templo de Herodes, con las rutas Recorrido por el monte del templo y Templo de Salomón y templo de Herodes | Es el templo del Nuevo Testamento; estaba pendiente desde la migración |
-| 2026-10-11 | Reconstrucción del templo de Herodes: plataforma según la arqueología, atrios y santuario según la Mishná (Middot), pórticos y Antonia según Josefo; codo de 45 cm | Combinar las fuentes según su fuerza en cada parte; el mismo codo permite comparar a escala con el tabernáculo y Salomón |
-| 2026-10-11 | Botón «Templo de Salomón»: superposición a escala alineada en el Lugar Santísimo | Mismo recurso didáctico que el botón Tabernáculo del templo de Salomón |
-| 2026-10-11 | Three.js r128 y OrbitControls se sirven desde `public/apps/assets/js/` en las apps nuevas | Cumplir la regla de no depender de sitios externos (2026-10-08) |
+| 2026-10-10 | Mapa de la deportación de 722 a.C. con el imperio de Sargón II (Samaria como provincia y oeste de Media) y los destinos de 2 Reyes 17:6: Gozán junto al Habor, Halah y las ciudades de los medos | La flecha terminaba fuera del imperio y en Ecbatana, que no fue asiria; el texto bíblico nombra los destinos |
 
 ## 24. Relación con el repositorio Fuego y Palabra
 

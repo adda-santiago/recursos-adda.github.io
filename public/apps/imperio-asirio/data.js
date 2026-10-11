@@ -53,8 +53,8 @@
           estado: { view: CRECIENTE, capas: ['asiria-850'], lugares: ['kalhu', 'qarqar', 'damasco', 'samaria'] } },
         { t: 'c. 730 a.C.: Tiglat-pileser III domina Babilonia, Siria y parte de Israel.', fecha: -730,
           estado: { view: CRECIENTE, capas: ['asiria-730'], lugares: ['kalhu', 'babilonia', 'damasco', 'samaria', 'jerusalen'] } },
-        { t: '722 a.C.: cae Samaria, la capital del reino de Israel.', fecha: -722,
-          estado: { view: CRECIENTE, capas: ['asiria-730'], lugares: ['ninive', 'samaria', 'gozan'], trazos: ['deportacion-722'] } },
+        { t: '722 a.C.: cae Samaria; los israelitas son llevados a Gozán, Halah y las ciudades de los medos.', fecha: -722,
+          estado: { view: CRECIENTE, capas: ['asiria-720'], lugares: ['samaria', 'gozan', 'halah', 'medos', 'ninive'], trazos: ['deportacion-722'] } },
         { t: 'c. 667 a.C.: con Asurbanipal, Asiria llega hasta Egipto.', fecha: -667,
           estado: { view: ORIENTE, capas: ['asiria-667'], lugares: ['ninive', 'jerusalen', 'menfis', 'tebas'] } }
       ] }],
@@ -163,7 +163,7 @@
     {
       id: 'gobierno', n: 'Deportaciones y gobierno', ref: '2 Reyes 17:6, 24-41; 18:17, 26; 1 Crónicas 5:26; Esdras 4:2, 10',
       visual: [
-        { tipo: 'mapa', titulo: 'Mapa', estado: { view: CRECIENTE, capas: ['asiria-730'], lugares: ['samaria', 'gozan', 'ninive', 'babilonia', 'hamat'], trazos: ['deportacion-722'] } },
+        { tipo: 'mapa', titulo: 'Mapa', estado: { view: CRECIENTE, capas: ['asiria-720'], lugares: ['samaria', 'gozan', 'halah', 'medos', 'babilonia', 'hamat'], trazos: ['deportacion-722'] } },
         { tipo: 'tabla', titulo: 'Cargos', tabla: {
           titulo: 'Los títulos asirios de 2 Reyes 18:17', cab: ['Título bíblico', 'Título asirio', 'Qué significaba'],
           filas: [
@@ -271,7 +271,7 @@
     {
       id: 'samaria', n: 'La caída de Samaria', ref: '2 Reyes 15:19-29; 16:7-9; 17:1-41; 1 Crónicas 5:26', fecha: -722,
       visual: [
-        { tipo: 'mapa', titulo: 'Mapa', estado: { view: CRECIENTE, capas: ['asiria-730'], lugares: ['samaria', 'damasco', 'gozan', 'ninive'], trazos: ['deportacion-722'] } },
+        { tipo: 'mapa', titulo: 'Mapa', estado: { view: CRECIENTE, capas: ['asiria-720'], lugares: ['samaria', 'damasco', 'gozan', 'halah', 'medos'], trazos: ['deportacion-722'] } },
         { tipo: 'imagen', titulo: 'Imagen', src: 'img/asiria-deportacion-samaria.webp', alt: 'Familias israelitas deportadas salen de Samaria escoltadas por soldados asirios con cascos cónicos', pie: 'La deportación del reino de Israel, 722 a.C.', origen: 'ia' }
       ],
       texto: [

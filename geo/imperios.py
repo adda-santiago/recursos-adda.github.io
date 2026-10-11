@@ -99,6 +99,12 @@ P['roma-117'] = [[48.0,-5.0],[51.5,4.0],[51.0,6.5],[48.0,8.0],[48.5,13.0],[48.0,
     [29.9,48.2],[31.0,44.0],[32.5,40.5],[31.5,38.0],[29.5,37.5],[27.5,36.5],[27.0,34.0],[24.0,33.5],[24.0,32.3],[29.0,29.0],
     [30.0,25.0],[31.0,20.0],[31.3,15.5],[32.5,11.5],[34.0,8.0],[35.0,5.0],[35.4,0.0],[35.2,-2.5],[35.6,-5.0]]
 
+# Asiria con Sargón II (c. 716 a.C.): Samaria ya es provincia y el oeste de Media, donde fueron llevados
+# los israelitas (2 R 17:6), queda dentro del imperio
+P['asiria-720'] = [[37.7,36.6],[37.9,38.5],[37.8,41.0],[37.5,43.5],[37.0,45.0],[36.2,46.5],[35.0,47.9],[33.8,47.9],[33.3,46.6],
+    [32.6,47.6],[31.0,48.6],[29.8,48.3],[30.2,46.6],[31.3,44.0],[32.6,41.6],[33.2,39.0],[32.6,37.5],[32.3,36.0],[31.95,35.55],
+    [32.0,34.85],[33.0,35.05],[33.5,35.3],[35.0,35.6],[36.8,35.4],[37.2,36.0]]
+
 # Reino de los Ptolomeos (c. 250 a.C.): Egipto, Cirenaica, Chipre y el sur de Siria
 P['ptolomeos-250'] = [[33.0,20.0],[32.6,23.5],[31.6,25.2],[31.3,29.0],[31.6,31.0],[31.3,32.3],[31.4,34.2],[33.0,35.0],
     [34.6,35.9],[34.6,36.6],[33.3,36.6],[32.0,36.3],[30.5,35.6],[29.5,35.0],[28.0,34.5],[27.0,34.0],[24.0,35.0],
@@ -136,6 +142,7 @@ CAPAS = {
   'asiria-1000':   {'n': 'Asiria', 'periodo': 'c. 1000 a.C.', 'imp': 'asiria', 'polys': ['asiria-1000']},
   'asiria-850':    {'n': 'Imperio asirio', 'periodo': 'c. 850 a.C., Salmanasar III', 'imp': 'asiria', 'polys': ['asiria-850']},
   'asiria-730':    {'n': 'Imperio asirio', 'periodo': 'c. 730 a.C., Tiglat-pileser III', 'imp': 'asiria', 'polys': ['asiria-730']},
+  'asiria-720':    {'n': 'Imperio asirio', 'periodo': 'c. 716 a.C., Sargón II', 'imp': 'asiria', 'polys': ['asiria-720']},
   'asiria-667':    {'n': 'Imperio asirio', 'periodo': 'c. 667 a.C., Asurbanipal', 'imp': 'asiria', 'polys': ['asiria-670', 'egipto-570'], 'rot': [34.5, 42.0]},
   'alejandro-323': {'n': 'Imperio de Alejandro', 'periodo': '323 a.C.', 'imp': 'grecia', 'polys': ['persia-500', 'macedonia-336', 'grecia-480'], 'rot': [33.5, 56.0]},
   'seleucidas-301': {'n': 'Seleuco', 'periodo': '301 a.C.', 'imp': 'persia', 'polys': ['seleucidas-200']},
@@ -192,7 +199,8 @@ LUGARES = {
   'pergamo': ['Pérgamo', 39.12, 27.18, 'left'], 'panion': ['Panión', 33.25, 35.69], 'modin': ['Modín', 31.93, 35.03, 'left'],
   'hidaspes': ['Río Hidaspes', 32.90, 73.60, 'left'], 'bactra': ['Bactra', 36.75, 66.90], 'tesalonica': ['Tesalónica', 40.64, 22.94], 'kalhu': ['Cala (Nimrud)', 36.10, 43.33, 'left'], 'dur-sharrukin': ['Dur-Sharrukin', 36.51, 43.23, 'left'],
   'arbela': ['Arbela', 36.19, 44.01], 'kanesh': ['Kanesh', 38.85, 35.63], 'qarqar': ['Qarqar', 35.77, 36.32, 'left'],
-  'gozan': ['Gozán', 36.83, 40.03], 'asdod': ['Asdod', 31.75, 34.65, 'left'], 'jope': ['Jope', 32.05, 34.75, 'left'],
+  'gozan': ['Gozán (río Habor)', 36.83, 40.03, 'bottom'], 'halah': ['Halah (aprox.)', 36.78, 43.55, 'top'],
+  'medos': ['Ciudades de los medos (aprox.)', 34.45, 47.35, 'left'], 'asdod': ['Asdod', 31.75, 34.65, 'left'], 'jope': ['Jope', 32.05, 34.75, 'left'],
   'gat-hefer': ['Gat-hefer', 32.74, 35.33], 'ecron': ['Ecrón', 31.78, 34.85, 'left'], 'samaria': ['Samaria', 32.28, 35.20], 'pelusio': ['Pelusio', 31.04, 32.55, 'top'], 'napata': ['Napata', 18.5, 31.82], 'behistun': ['Behistún', 34.39, 47.43, 'top'],
   'elefantina': ['Elefantina', 24.085, 32.887], 'atenas': ['Atenas', 37.97, 23.73, 'bottom'],
   'maraton': ['Maratón', 38.15, 23.96], 'salamina': ['Salamina', 37.95, 23.5, 'left'], 'termopilas': ['Termópilas', 38.8, 22.54, 'left'],
@@ -222,7 +230,7 @@ TRAZOS = {
   'senaquerib-701': {'n': 'Campaña de Senaquerib, 701 a.C.',
     'l': [[36.36,43.15],[36.86,39.03],[36.83,38.01],[35.13,36.75],[33.56,35.37],[33.27,35.20],[32.05,34.75],[31.78,34.85],[31.565,34.849]]},
   'deportacion-722': {'n': 'Deportación de Israel, 722 a.C. (aproximada)',
-    'l': [[32.28,35.20],[33.51,36.29],[35.13,36.75],[36.2,37.15],[36.86,39.03],[36.83,40.03],[36.36,43.15],[34.80,48.52]]},
+    'l': [[32.28,35.20],[33.51,36.29],[35.13,36.75],[36.2,37.15],[36.86,39.03],[36.83,40.03],[36.36,43.15],[36.78,43.55],[36.19,44.01],[34.45,47.35]]},
   'jonas': {'n': 'De Israel a Nínive (aproximado)',
     'l': [[32.74,35.33],[33.51,36.29],[35.13,36.75],[36.2,37.15],[36.86,39.03],[36.83,40.03],[36.36,43.15]]},
   'alejandro-oriente': {'n': 'Alejandro hacia la India, 330–323 a.C.',
