@@ -1,14 +1,14 @@
 ---
 uid: templo-herodes
 titulo: El templo de Herodes
-resumen: El templo que conoció Jesús en 3D, del muro sur al Lugar Santísimo, comparado a escala con el templo de Salomón.
+resumen: "El templo que conoció Jesús en 3D: recorrido por sus atrios, comparación con el templo de Salomón y lo que queda hoy del monte."
 emoji: 🏛️
 imagen: portadas/templo-herodes.webp
 testamento: [nuevo, antiguo]
 libros: [mateo, marcos, lucas, juan, hechos, hebreos, esdras, hageo]
 epocas: [vida-de-jesus, iglesia-primitiva, intertestamentario]
 tipo: 3d
-tags: [santuario, jerusalen, herodes, templo, arqueologia]
+tags: [santuario, jerusalen, herodes, templo, arqueologia, muro-occidental, israel]
 visor:
   motor: legado
   ruta: templo-herodes
@@ -21,10 +21,13 @@ fuentes:
   - Lucas 1:8-13; 2:22-38; 21:5
   - Juan 2:20; 8:20; 10:22-23
   - Hechos 3; 5:12; 21:27-40
+  - Ezequiel 43:1-4; 44:1-3; Daniel 9:26; Romanos 11
   - Hebreos 9:3; 10:19-20
   - Flavio Josefo, Antigüedades de los judíos 15 y 20; La guerra de los judíos 5 y 6
   - Mishná, tratados Middot, Yoma, Shekalim y Sukkah
   - Hallazgos arqueológicos del monte del templo (muros, arco de Robinson, escalinata del sur, inscripción del soreg, piedra de la trompeta)
+  - Excavaciones del Muro Occidental y sus túneles, del parque arqueológico al sur del monte y del camino de los peregrinos (Autoridad de Antigüedades de Israel)
+  - Prensa sobre el statu quo del monte del templo, a octubre de 2026
 revision:
   estado: borrador
 fechaPublicacion: 2026-10-11
@@ -42,12 +45,16 @@ El templo de Jerusalén en tiempos de Jesús: el segundo templo, reconstruido tr
 
 **Templo de Salomón y templo de Herodes.** Nueve estaciones que comparan ambos templos a la misma escala: el monte, las salas interiores, la altura, la separación entre las salas, el mobiliario, el atrio y el altar, lo que se perdió en Babilonia, la gloria y las dos destrucciones.
 
+**Lo que queda hoy.** Diez estaciones sobre lo que sigue en pie: las piedras caídas en el año 70, el Muro Occidental y sus túneles, el camino de los peregrinos, la puerta Dorada, el arco de Tito en Roma, la historia del acceso judío al Muro, las propuestas sobre la ubicación del Lugar Santísimo, la situación actual del monte y lo que el Muro significa para Israel.
+
 ## Cómo usarlo en clases
 
-Nombres y Medidas muestran rótulos y cotas. Techo quita la parte alta del santuario para ver el interior. Escala agrega figuras humanas de 1,70 m. Templo de Salomón superpone el primer templo en rojo, alineado en el Lugar Santísimo. Middot muestra el cuadrado de 500 codos que describe la Mishná. Al tocar una parte del modelo se abre su estación. Pantalla completa deja solo el modelo para proyectar.
+Nombres y Medidas muestran rótulos y cotas. Techo quita la parte alta del santuario para ver el interior. Escala agrega figuras humanas de 1,70 m. Templo de Salomón superpone el primer templo en rojo, alineado en el Lugar Santísimo. Lo que queda hoy vuelve translúcido lo que desapareció y dibuja en rojo la Cúpula de la Roca y la mezquita de al-Aqsa. Middot muestra el cuadrado de 500 codos que describe la Mishná. Al tocar una parte del modelo se abre su estación. Pantalla completa deja solo el modelo para proyectar.
 
 ## Qué es reconstrucción
 
 La Biblia no da las medidas de este templo. La plataforma sigue la arqueología, porque sus muros todavía existen. Los atrios y el santuario siguen la Mishná (tratado Middot), escrita hacia el año 200 d.C. Los pórticos y la fortaleza Antonia siguen a Flavio Josefo. Donde estas fuentes no coinciden, como en la altura del altar o en la identidad de la puerta la Hermosa, la ficha de cada estación lo indica.
 
 El modelo usa el codo común de unos 45 cm, igual que el tabernáculo y el templo de Salomón, para que la comparación sea directa. Si el codo de Herodes fue de unos 52,5 cm, como proponen algunos estudiosos, el santuario sería alrededor de un 15 % mayor. Las cámaras de los atrios, el interior de la Antonia y la ciudad que rodea el monte son esquemáticos.
+
+El modelo ubica el Lugar Santísimo sobre la roca que hoy cubre la Cúpula de la Roca, que es la propuesta mayoritaria; la ruta «Lo que queda hoy» muestra las otras. Las medidas de los edificios actuales y de los tramos del Muro Occidental son aproximadas. La situación del monte se describe a octubre de 2026 y puede cambiar.

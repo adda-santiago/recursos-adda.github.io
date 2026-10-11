@@ -13,26 +13,36 @@
   <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Inter:wght@500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../assets/css/base.css">
   <link rel="stylesheet" href="templo-herodes.css">
+  <link rel="stylesheet" href="../assets/css/visor-3d.css">
 </head>
-<body class="herodes">
+<body class="herodes v3d">
   <div class="tb-app">
-    <aside class="tb-panel">
-      <header class="tb-head">
+    <article class="tb-detail" id="detail">
+      <header class="tb-cab">
         <a class="brand" href="../../">Recursos Bíblicos</a>
-        <h1>El templo de Herodes</h1>
-        <p class="lead">Sube al monte del templo como un peregrino en tiempos de Jesús, del muro sur al Lugar Santísimo, y compáralo con el templo de Salomón.</p>
+        <h1 class="tb-recurso">El templo de Herodes</h1>
       </header>
-      <div class="ruta-sel">
-        <label class="ruta-label" for="ruta">Ruta de aprendizaje</label>
-        <div class="ruta-campo"><select id="ruta"></select></div>
-        <p class="ruta-info" id="ruta-info"></p>
+      <div class="tb-cuerpo" id="d-cuerpo" aria-live="polite">
+        <p class="kicker" id="d-kicker" hidden></p>
+        <h2 id="d-title"></h2>
+        <p class="ref" id="d-ref"></p>
+        <dl id="d-rows"></dl>
+        <div class="desc" id="d-desc"></div>
+        <p class="pensar" id="d-think" hidden><strong>Para pensar</strong><span></span></p>
+        <p class="credito">Citas bíblicas: Reina-Valera 1960 © Sociedades Bíblicas en América Latina, 1960. Renovado © Sociedades Bíblicas Unidas, 1988. Utilizado con permiso.</p>
       </div>
-      <ol class="stations" id="stations" aria-label="Estaciones de la ruta"></ol>
-      <p class="credito">Citas bíblicas: Reina-Valera 1960 © Sociedades Bíblicas en América Latina, 1960. Renovado © Sociedades Bíblicas Unidas, 1988. Utilizado con permiso.</p>
-    </aside>
+      <nav class="tb-nav" aria-label="Recorrido">
+        <button class="linkbtn" id="prev" type="button">Anterior</button>
+        <span class="pos" id="d-pos"></span>
+        <button class="linkbtn" id="next" type="button">Siguiente</button>
+      </nav>
+    </article>
 
     <main class="tb-stage" id="stage">
       <canvas id="scene" tabindex="0" aria-label="Modelo 3D del templo de Herodes. Arrastra para girar y usa la rueda o pellizca para acercar."></canvas>
+      <button class="tb-rutas-btn" id="rutas-btn" type="button" aria-expanded="false" aria-controls="rutas-panel">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span>Rutas</span>
+      </button>
       <div class="tb-compass" aria-hidden="true">
         <svg viewBox="0 0 44 44">
           <circle class="ring" cx="22" cy="22" r="20.5"/>
@@ -49,6 +59,7 @@
         <button class="btn" id="t-roof" type="button" aria-pressed="true">Techo</button>
         <button class="btn" id="t-scale" type="button" aria-pressed="false">Escala</button>
         <button class="btn" id="t-salomon" type="button" aria-pressed="false">Templo de Salomón</button>
+        <button class="btn" id="t-hoy" type="button" aria-pressed="false">Lo que queda hoy</button>
         <button class="btn" id="t-middot" type="button" aria-pressed="false">Middot</button>
         <button class="btn" id="t-theme" type="button">Ver de noche</button>
         <button class="btn" id="t-home" type="button">Vista general</button>
@@ -57,19 +68,15 @@
       <p class="tb-fallback" id="fallback" hidden>No se pudo cargar el visor 3D. Revisa tu conexión y vuelve a abrir la página.</p>
     </main>
 
-    <article class="tb-detail" id="detail" aria-live="polite">
-      <p class="kicker" id="d-kicker" hidden></p>
-      <h2 id="d-title"></h2>
-      <p class="ref" id="d-ref"></p>
-      <dl id="d-rows"></dl>
-      <div class="desc" id="d-desc"></div>
-      <p class="pensar" id="d-think" hidden><strong>Para pensar</strong><span></span></p>
-      <nav class="tb-nav" aria-label="Recorrido">
-        <button class="linkbtn" id="prev" type="button">Anterior</button>
-        <span class="pos" id="d-pos"></span>
-        <button class="linkbtn" id="next" type="button">Siguiente</button>
-      </nav>
-    </article>
+    <aside class="tb-rutas" id="rutas-panel" hidden aria-label="Rutas de aprendizaje">
+      <div class="tb-rutas-cab"><p>El templo de Herodes</p><button type="button" id="rutas-ocultar">Ocultar</button></div>
+      <div id="rutas-lista"></div>
+    </aside>
+  </div>
+
+  <div class="tb-lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="Imagen ampliada">
+    <button type="button" class="tb-lightbox-cerrar" id="lightbox-cerrar">Cerrar</button>
+    <figure><img id="lightbox-img" alt=""><figcaption id="lightbox-pie"></figcaption></figure>
   </div>
 
   <!-- three.js r128 local: el recurso no depende de sitios externos -->

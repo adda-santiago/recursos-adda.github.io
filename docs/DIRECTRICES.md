@@ -1,6 +1,6 @@
 # Directrices del proyecto — Recursos bíblicos interactivos
 
-Versión 2.15 · 10 de octubre de 2026
+Versión 2.16 · 11 de octubre de 2026
 
 Este documento es la fuente de verdad del proyecto. Cualquier decisión nueva que contradiga algo de aquí se registra en la bitácora (§23) y se actualiza la sección correspondiente. Si el código y este documento no coinciden, se corrige uno de los dos; no se deja la diferencia. Mientras una diferencia esté en proceso de corregirse, la sección lo indica como **pendiente de implementar**.
 
@@ -10,7 +10,9 @@ Este documento es la fuente de verdad del proyecto. Cualquier decisión nueva qu
 
 **Cambio de la versión 2.2:** cuando un recurso tiene más de una ruta, se eligen en un selector de ruta (lista desplegable) en lugar de pestañas y acordeones (§20).
 
-**Cambio de la versión 2.15:** regla para las imágenes compartidas entre recursos; corrección de los mapas de la deportación de Israel (2 R 17:6 y 17:24); segundo trazo con otro color en los mapas.
+**Cambio de la versión 2.16:** diseño común de los modelos 3D: columna de texto a la izquierda, rutas en un panel con el botón flotante «Rutas» (como en las rutas de estudio) e imágenes entre párrafos ampliables (`visor-3d.css` y `visor-3d.js`, §20); el templo de Herodes suma la ruta «Lo que queda hoy»; todas las apps 3D cargan Three.js desde el sitio.
+
+**Cambio de la versión 2.15:** nuevo recurso 3D, El templo de Herodes, con las rutas Recorrido por el monte del templo y Templo de Salomón y templo de Herodes; Three.js r128 pasa a servirse desde el propio sitio (`public/apps/assets/js/`).
 
 **Cambio de la versión 2.14:** recurso integrador «Los imperios en la historia bíblica»; los recursos pueden reutilizar imágenes de otras apps.
 
@@ -207,7 +209,7 @@ El visor nunca contiene anuncios ni elementos ajenos al recurso.
 
 | Motor | Cuándo usarlo | Estado |
 |---|---|---|
-| `legado` | Apps que corren como página propia en `public/apps/` | En uso: atlas, línea de reyes, genealogías, tabernáculo, templo de Salomón, sumo sacerdote (y las apps de las fichas ocultas) |
+| `legado` | Apps que corren como página propia en `public/apps/` | En uso: atlas, línea de reyes, genealogías, tabernáculo, templo de Salomón, templo de Herodes, sumo sacerdote (y las apps de las fichas ocultas) |
 | `model-viewer` | Un solo `.glb` con hotspots (un objeto: arca, altar, lámpara, utensilio) | Implementado en el visor, **sin probar aún con un modelo real** |
 | `three` | Escenas compuestas, recorridos narrativos, comparaciones, modelos procedurales | Reservado. El build falla a propósito si un recurso lo declara antes de implementarlo |
 
@@ -218,7 +220,7 @@ Las apps legadas no se reescriben por reescribir. Se migran a `three` nativo sol
 - Escenas bíblicas e históricas: **1 unidad = 1 codo (≈ 45 cm)**. Ejes: **+x oriente, −z norte, +y arriba**.
 - Si una escena usa otra escala, la declara en `visor.escala`.
 - Toda escena declara su escala en el campo `visor.escala` de la ficha.
-- Three.js: las apps legadas usan r128. Todo desarrollo nuevo en `three` usa una versión actual vía ES modules; no se agregan funciones nuevas sobre r128.
+- Three.js: las apps legadas usan r128. Todas lo cargan desde `public/apps/assets/js/three.min.js` y `OrbitControls.js`, no desde un CDN (los recursos no dependen de sitios externos). Todo desarrollo nuevo en `three` usa una versión actual vía ES modules; no se agregan funciones nuevas sobre r128.
 
 ### Presupuesto de rendimiento (criterio propio, a validar con uso real)
 
@@ -442,9 +444,16 @@ Reglas:
 
 ### Ruta de aprendizaje (obligatoria en todo modelo 3D)
 
-**Todo modelo 3D nuevo incluye una ruta de aprendizaje.** Un modelo sin ruta no se publica. Siguen el patrón del tabernáculo: panel lateral con selector de ruta y lista de pasos, ficha flotante con título, filas de datos, explicación y navegación Anterior/Siguiente, y cámara que viaja a cada estación. Reglas:
+**Todo modelo 3D nuevo incluye una ruta de aprendizaje.** Un modelo sin ruta no se publica. Todas comparten un diseño común (`assets/css/visor-3d.css`):
 
-- **Selector de ruta.** Si el recurso tiene dos o más rutas (el recorrido principal más procesos, ceremonias, viajes, etc.), se eligen en una lista desplegable nativa (`<select id="ruta">`) con la etiqueta «Ruta de aprendizaje», y la lista de abajo muestra solo los pasos de la ruta elegida. Nunca se apilan rutas una tras otra.
+- **Columna de texto a la izquierda**, de 29rem (el ancho que tenía la ficha flotante): cabecera con la marca y el nombre del recurso, cuerpo desplazable con la ruta, el título, la referencia, las filas de datos, la explicación y «Para pensar», y la navegación Anterior/Siguiente fija abajo. La escena ocupa el resto. En celular, la escena va arriba y el texto debajo.
+- **Botón flotante «Rutas»** en la esquina superior izquierda de la escena. Abre un panel lateral con solo los nombres de las rutas, agrupados; la ruta actual va marcada. No se listan las estaciones, para no confundir pasos con rutas: elegir una ruta lleva a su primer paso, y los pasos se recorren con Anterior/Siguiente. La brújula va abajo a la izquierda.
+- **Imágenes entre párrafos.** En `desc`, una imagen se escribe `{ img, alt, pie, origen: 'ia' | 'foto', licencia }`. Se muestra a todo el ancho de la columna, con su pie y su origen, y al tocarla se agranda.
+- Las apps anteriores (tabernáculo, templo de Salomón, sumo sacerdote, ADN, motor de combustión) conservan su estructura interna y cargan `assets/js/visor-3d.js` después de `app.js`: el script mueve la ficha a la columna, oculta el panel lateral y arma el panel de rutas con las opciones de su selector. Las apps nuevas escriben esa estructura directamente (referencia: `templo-herodes/`).
+
+Reglas:
+
+- **Rutas.** Si el recurso tiene dos o más rutas (el recorrido principal más procesos, ceremonias, viajes, etc.), se eligen en el panel del botón «Rutas». Nunca se apilan rutas una tras otra. En las apps anteriores el panel se arma a partir de su lista desplegable (`<select id="ruta">`), que queda oculta.
   - Las opciones se agrupan con `<optgroup>`: *Recorrido* para la ruta principal y un grupo con nombre según el contenido para las demás (*Ceremonias*, *Procesos*, *Viajes*). El nombre de la opción no lleva conteo de pasos.
   - Bajo el selector, una línea breve con la referencia de la ruta (`info` o `ref`; en mapas, el color del recorrido).
   - En código, cada ruta es `{ id, grupo, n, info, steps }` dentro de `ROUTES`. Elegir una ruta va a su primer paso; tocar un objeto de la escena o «Vista general» devuelve el selector a la ruta principal.
@@ -468,11 +477,10 @@ Distinta de la **presentación** (`segunda-guerra-mundial/`), que un profesor us
 - **Contenido por descubrir.** Una pestaña que el alumno no ha abierto se ve como un botón por tocar: borde y texto de acento y una flecha («Mapa ›»). Si tiene pasos, lo indica («Mapa · 5 pasos»). En la primera visita a la estación, la pestaña late tres veces (unos 2,7 s) y aparece una nota guía que se cierra sola. Los mapas por pasos muestran puntos de avance que se pueden tocar, y el botón «▶ Ver la evolución» los recorre solos, uno cada 3,5 s, con pausa. En la primera visita, «›» y «Ver la evolución» también laten. El motor recuerda en el dispositivo qué estaciones y pestañas ya se vieron (clave `fyp:v1:visto:<ruta de la app>`); `?reiniciar-vistos` en la dirección las vuelve a mostrar. Con «reducir movimiento» activado no hay pulsos.
 - **Selector de rutas** como botón flotante en la esquina, que abre y oculta un panel con las rutas y sus estaciones; las rutas en preparación aparecen deshabilitadas.
 - **Línea de tiempo inferior** opcional por ruta (`linea-tiempo.js`): hitos y un marcador que se desliza a la fecha de cada estación o de cada paso del mapa.
-- **Mapas** con `mapa-imperios.js`: capas por imperio y período, lugares, trazos animados y pasos dentro de una estación. Si una estación muestra dos trazos a la vez, el segundo se dibuja en azul punteado y la leyenda los distingue. Geografía compartida en `imperios-geo.js`, generada por `geo/imperios.py`.
+- **Mapas** con `mapa-imperios.js`: capas por imperio y período, lugares, trazos animados y pasos dentro de una estación. Geografía compartida en `imperios-geo.js`, generada por `geo/imperios.py`.
 - **Texto:** entre 250 y 450 palabras por estación; si necesita más, se divide. Cada estación cierra con **Para pensar**, siempre desde el texto bíblico y la línea doctrinal pentecostal clásica de las Asambleas de Dios, sin mencionarla.
 - **Historia y texto bíblico.** Cuando una fuente histórica parece diferir del relato bíblico, o dos textos bíblicos dan datos distintos, se usa el bloque de dos posturas (`posturas`) con ambas versiones y cómo se entienden; nunca se presenta el texto bíblico como error. En temas doctrinales prevalece la línea de las Asambleas de Dios.
 - **Recursos complementarios** (cada imperio, el exilio, el esquema escatológico) hablan de todos los libros donde aparece el tema, no solo del libro que los originó. Los recursos históricos incluyen además su legado (aportes, costumbres, inventos), verificado.
-- **Imágenes compartidas:** un recurso puede usar imágenes de otro con una ruta relativa (`../otra-app/img/archivo.webp`); el archivo existe una sola vez. Antes de renombrar o borrar una imagen, buscar su nombre en el repositorio para ver si otro recurso la usa (hoy, el integrador «Los imperios en la historia bíblica» usa diez imágenes de los seis imperios).
 - **Imágenes:** ilustraciones cinematográficas realistas generadas con IA, en 4:3, con el tema al centro; `foco` ajusta el recorte. Un objeto arqueológico real nunca se representa con una imagen generada: se usa una foto con licencia verificada o una escena que no se confunda con evidencia.
 
 ### Pendientes
@@ -485,16 +493,18 @@ Distinta de la **presentación** (`segunda-guerra-mundial/`), que un profesor us
 - **Limpieza del código comercial:** eliminar `anuncios.ts`, `cuenta.ts`, `EspacioAnuncio`, `SITIO.anuncios` y la llamada a `iniciarAnuncios()`.
 - **El sumo sacerdote: rutas pendientes.** Labores (con el mobiliario del tabernáculo), Día de la Expiación (proceso con indicador de estado; coordinar con la ceremonia del mismo nombre en `tabernaculo/`), Sumo sacerdote, sacerdote y levita, y Las doce piedras. Al sumar la segunda ruta aparece el selector (`ROUTES` en `app.js`).
 - **Crédito de la RV 1960 en las apps existentes:** revisar las apps que citan texto bíblico y agregarles el crédito (§15).
-- **Templo de Herodes** (`herodes/`): no estaba en el repositorio de Fuego y Palabra. Incorporarlo con el procedimiento anterior.
+- **El templo de Herodes: rutas pendientes.** Jesús y la iglesia en el templo, e Historia del segundo templo (de Zorobabel al año 70 y el templo de los últimos tiempos). Las estaciones «Dos destrucciones» y «Del exilio al Muro» ya remiten a esta última.
+- **El monte hoy (templo de Herodes, estación 9):** la situación del statu quo cambia con frecuencia; revisar las noticias y actualizar el texto, que hoy describe octubre de 2026.
+- **Viajes de Colón** (`viajes-colon/`, oculto) usa todavía el panel lateral con selector; pasarlo al diseño común si se vuelve a publicar o si se crea otro recurso de mapa con recorridos sobre esa base.
 - Revisar la respuesta en celular de las apps legadas con barra lateral fija: dentro del visor, en pantallas angostas, quedan apretadas. Solución de fondo: panel lateral colapsable por defecto bajo cierto ancho. Es prioritario, porque el estudio personal ocurre sobre todo en el celular.
 
 ## 21. Roadmap
 
 | Fase | Alcance | Criterio de salida |
 |---|---|---|
-| 0. Plataforma mínima | Astro, visor con contrato, Pagefind, apps bíblicas incorporadas, compartir, embed, buzón | **Hecho en v1.1**, salvo Herodes y buzón sin URL |
+| 0. Plataforma mínima | Astro, visor con contrato, Pagefind, apps bíblicas incorporadas, compartir, embed, buzón | **Hecho en v1.1**, salvo buzón sin URL; Herodes, en v2.15 |
 | 1. Reorientación a la iglesia | Despliegue en `adda-santiago` (hecho), nombre visible (hecho), taxonomía bíblica (hecho), limpieza del código comercial | Sitio publicado en la URL nueva con facetas bíblicas |
-| 2. Contenido | Templo de Herodes y recursos nuevos según el buzón y las búsquedas sin resultado | Usado por miembros y líderes de la iglesia |
+| 2. Contenido | Templo de Herodes (hecho, faltan dos rutas) y recursos nuevos según el buzón y las búsquedas sin resultado | Usado por miembros y líderes de la iglesia |
 | 3. Crecimiento | Analítica activa, PWA con modo sin conexión, enlace directo a estaciones (`fyp:ir-a`) | Uso sostenido medible |
 
 ## 22. Decisiones abiertas
@@ -579,8 +589,16 @@ Distinta de la **presentación** (`segunda-guerra-mundial/`), que un profesor us
 | 2026-10-10 | Nuevo recurso: El imperio griego, con las rutas Historia, Sociedad y cultura, y Grecia y la Biblia; 1 y 2 Macabeos solo como fuentes históricas | Quinto recurso complementario; cubre Daniel 8 y 11 y el período entre los testamentos |
 | 2026-10-10 | Nuevo recurso: El imperio romano, con las rutas Historia, Sociedad, ley y religión, y Roma y la Biblia; se completan los seis imperios | Sexto recurso complementario; cubre el Nuevo Testamento y la forma final del cuarto reino de Daniel |
 | 2026-10-10 | Recurso integrador «Los imperios en la historia bíblica», con las rutas La sucesión de los imperios, Los imperios en la profecía y Dios y las naciones | Puerta de entrada a la serie y puente hacia el estudio de Daniel; reutiliza imágenes de los seis recursos |
-| 2026-10-10 | Mapa de la deportación de 722 a.C. con el imperio de Sargón II (Samaria como provincia y oeste de Media) y los destinos de 2 Reyes 17:6: Gozán junto al Habor, Halah y las ciudades de los medos | La flecha terminaba fuera del imperio y en Ecbatana, que no fue asiria; el texto bíblico nombra los destinos |
-| 2026-10-10 | El mapa de «Deportaciones y gobierno» muestra también a los colonos llevados a Samaria (2 R 17:24); un segundo trazo se distingue por color | El texto describe la deportación en las dos direcciones, origen de los samaritanos |
+| 2026-10-11 | Nuevo recurso 3D: El templo de Herodes, con las rutas Recorrido por el monte del templo y Templo de Salomón y templo de Herodes | Es el templo del Nuevo Testamento; estaba pendiente desde la migración |
+| 2026-10-11 | Reconstrucción del templo de Herodes: plataforma según la arqueología, atrios y santuario según la Mishná (Middot), pórticos y Antonia según Josefo; codo de 45 cm | Combinar las fuentes según su fuerza en cada parte; el mismo codo permite comparar a escala con el tabernáculo y Salomón |
+| 2026-10-11 | Botón «Templo de Salomón»: superposición a escala alineada en el Lugar Santísimo | Mismo recurso didáctico que el botón Tabernáculo del templo de Salomón |
+| 2026-10-11 | Three.js r128 y OrbitControls se sirven desde `public/apps/assets/js/` en las apps nuevas | Cumplir la regla de no depender de sitios externos (2026-10-08) |
+| 2026-10-11 | Diseño común de los modelos 3D: columna de texto a la izquierda con el ancho de la antigua ficha flotante, rutas en un panel con botón flotante y brújula abajo; las apps anteriores se adaptan con `visor-3d.js` sin reescribir su lógica | Recuperar el espacio del panel lateral para el modelo y unificar la experiencia con las rutas de estudio |
+| 2026-10-11 | El panel «Rutas» de los modelos 3D muestra solo los nombres de las rutas, sin sus estaciones | Con las estaciones listadas no se distinguía entre paso y ruta |
+| 2026-10-11 | Imágenes entre los párrafos de una estación, ampliables al tocarlas | La columna de texto es angosta; la imagen acompaña la lectura y se puede ver en detalle |
+| 2026-10-11 | Templo de Herodes: ruta «Lo que queda hoy» y botón del mismo nombre; lo desaparecido se ve translúcido y la Cúpula de la Roca y al-Aqsa se dibujan con líneas rojas, como el templo de Salomón | Mostrar qué parte del monte sigue en pie sin mezclar el templo con edificios de otra época |
+| 2026-10-11 | La estación «El monte hoy» describe el statu quo con hechos fechados, sin tomar posición política | El tema es disputado y cambia con frecuencia |
+| 2026-10-11 | Marca visible «Recursos Bíblicos» también dentro de las apps del tabernáculo, el templo de Salomón, el ADN y el motor de combustión | Todavía decían «Fuego y Palabra» o «Aula Visual» |
 
 ## 24. Relación con el repositorio Fuego y Palabra
 

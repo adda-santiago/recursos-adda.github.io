@@ -10,12 +10,13 @@
    ROUTES: una ruta = { id, grupo, n, info, steps }.
    Cada estación define:
      n, short, ref, rows [[título, texto]],
-     desc: párrafos (arreglo de textos),
+     desc: párrafos (arreglo de textos); una imagen entre párrafos es
+       { img, alt, pie, origen: 'ia' | 'foto', licencia } y se agranda al tocarla,
      think: pregunta «Para pensar» (sin respuesta),
      view { t: objetivo, p: posición de cámara } en codos,
      zona: parte que se resalta (ver LAYOUT.zonas),
      roof: false quita los techos para ver el interior,
-     show: grupos auxiliares: 'nombres' | 'medidas' | 'middot' | 'escala' | 'salomon'
+     show: grupos auxiliares: 'nombres' | 'medidas' | 'middot' | 'escala' | 'salomon' | 'hoy'
    ========================================================== */
 window.HERODES_DATA = {
 
@@ -70,6 +71,17 @@ window.HERODES_DATA = {
       altar: { x: [82, 102], z: [-10, 10], alto: 10 },  // 2 Cr 4:1
       mar: { pos: [72, 28], diametro: 10, alto: 5 },    // 1 R 7:23
       atrio: { x: [-34, 124], z: [-48, 48] }            // estimado
+    },
+    /* El monte hoy (botón «Lo que queda hoy»). Medidas aproximadas y redondeadas;
+       el Muro Occidental, en codos desde la esquina suroeste. */
+    hoy: {
+      muroPlaza: { z: [360, 487] },          // ≈ 57 m frente a la plaza de oración
+      tuneles: { z: [-400, 360] },           // el resto del muro occidental, hacia el norte
+      granPiedra: 230, puertaWarren: 255,    // posición aproximada a lo largo del muro (z)
+      puertaDorada: -25,                     // z, en el muro oriental
+      cupula: { centro: [0, 0], diametro: 120, altoMuro: 25, cupulaDiam: 45, alto: 78, plataforma: 9 },
+      alAqsa: { x: [-80, 40], z: [490, 660], alto: 25, cupula: [-20, 640] },
+      teorias: { norte: [0, -244], sur: [0, 244] }   // centro del Lugar Santísimo según otras propuestas
     },
     zonas: [
       'plataforma', 'escalinata', 'robinson', 'porticoReal', 'porticoSalomon',
@@ -567,6 +579,207 @@ window.HERODES_DATA = {
           ],
           think: 'Dos veces el pueblo perdió el templo por no oír a Dios a tiempo. ¿En qué cosas externas podemos confiar hoy en lugar de una relación viva con Él?',
           view: { t: [80,  20,  100], p: [581,  470,  697] }, show: ['salomon', 'nombres']
+        }
+      ]
+    },
+    {
+      id: 'hoy', grupo: 'El templo hoy', n: 'Lo que queda hoy',
+      info: 'Qué parte del monte sigue en pie, qué desapareció y qué significa hoy el Muro Occidental. Lo que ya no existe se ve translúcido.',
+      steps: [
+        {
+          id: 'hoy-general', num: null, n: 'Lo que queda hoy', short: 'Vista general',
+          ref: 'Mateo 24:1-2; Lucas 21:5-6',
+          rows: [
+            ['Se conserva', 'Los cuatro muros de contención de la plataforma, en gran parte bajo tierra o detrás de edificios'],
+            ['Desapareció', 'El santuario, los atrios, el altar, los pórticos y la fortaleza Antonia'],
+            ['El Muro Occidental', 'Un tramo de unos 57 m del muro occidental, que mide 488 m'],
+            ['Hoy en el monte', 'La Cúpula de la Roca y la mezquita de al-Aqsa, que el modelo marca con líneas rojas']
+          ],
+          desc: [
+            'De todo lo que muestra el modelo, lo único que sigue en pie es la base: los muros que Herodes levantó para sostener la explanada. Del templo mismo, de sus atrios y de sus pórticos no queda nada sobre el terreno. En esta ruta, lo que desapareció se ve translúcido y lo que se conserva mantiene su color.',
+            'El famoso Muro Occidental, que muchos llaman muro de los Lamentos, no es una pared del templo. Es un tramo del muro de contención del lado oeste, el más cercano al lugar donde estuvo el santuario al que los judíos han podido acercarse durante siglos.',
+            'Sobre la explanada se levantan hoy dos edificios islámicos construidos siglos después: la Cúpula de la Roca, en el lugar donde la mayoría de los estudiosos ubica el santuario, y la mezquita de al-Aqsa, en el extremo sur. Para distinguirlos del templo, el modelo los dibuja solo con líneas rojas, como al templo de Salomón en la otra ruta.'
+          ],
+          think: 'Del templo que admiraban los discípulos solo quedó la base que lo sostenía. ¿Qué te enseña esto sobre lo que permanece y lo que pasa (Mt 24:35)?',
+          view: { t: [80,  -10,  120], p: [1065,  965,  1105] }, show: ['hoy', 'nombres']
+        },
+        {
+          id: 'hoy-piedras', num: 1, n: '«No quedará piedra sobre piedra»', short: 'No quedará piedra sobre piedra',
+          ref: 'Mateo 24:1-2; Lucas 19:41-44',
+          rows: [
+            ['Qué anunció', 'Que los edificios del templo serían derribados (Mt 24:1-2)'],
+            ['Cuándo', 'En el año 70 d.C., unos cuarenta años después'],
+            ['Evidencia', 'Grandes sillares caídos sobre la calle herodiana, al pie de la esquina suroeste, que se dejaron tal como se encontraron'],
+            ['Lo que quedó', 'La base del monte, no el templo']
+          ],
+          desc: [
+            'Cuando los discípulos le mostraron «los edificios del templo», Jesús respondió: «no quedará aquí piedra sobre piedra, que no sea derribada» (Mt 24:2). En el año 70, los soldados de Tito incendiaron el santuario y después derribaron lo que quedaba de los edificios.',
+            { img: 'img/hoy-piedras-caidas.webp', alt: 'Grandes bloques de piedra caídos y amontonados sobre una antigua calle pavimentada al pie de un muro de sillería', pie: 'Piedras del monte del templo caídas sobre la calle herodiana en el año 70.', origen: 'ia' },
+            'Las excavaciones que comenzaron en 1968 junto a la esquina suroeste encontraron la calle herodiana cubierta por enormes sillares que cayeron desde lo alto del muro. Algunos dejaron hundido el pavimento por el golpe. Los arqueólogos los dejaron donde estaban, y hoy se pueden ver.',
+            'Jesús habló de los edificios del templo, y eso fue lo que desapareció. Los muros de contención que todavía existen no eran parte del templo, sino del relleno artificial del monte. Por eso la profecía se cumplió aunque el Muro Occidental siga en pie.'
+          ],
+          think: 'Jesús anunció la destrucción del templo cuarenta años antes, y se cumplió. Él mismo dijo: «El cielo y la tierra pasarán, pero mis palabras no pasarán» (Mt 24:35). ¿Cómo afecta eso tu confianza en lo que Él prometió sobre su regreso?',
+          view: { t: [-275,  -45,  615], p: [-415,  8,  696] }, zona: 'robinson', show: ['hoy', 'nombres']
+        },
+        {
+          id: 'hoy-muro', num: 2, n: 'El Muro Occidental', short: 'El Muro Occidental',
+          ref: 'Salmos 137:5-6; Lamentaciones 5:21',
+          rows: [
+            ['Qué es', 'Un tramo del muro de contención occidental de la explanada, no una pared del templo'],
+            ['Medidas', 'El tramo de la plaza mide unos 57 m; el muro completo, 488 m'],
+            ['Hileras', 'Tiene 45 hileras de piedra: 17 bajo el piso de la plaza y 28 a la vista. Solo las 7 inferiores visibles son herodianas; las de encima son de épocas omeya y otomana'],
+            ['Nombres', 'En hebreo, HaKotel, «el muro». «De los Lamentos» es un nombre que le dieron viajeros extranjeros. Los musulmanes lo llaman muro de al-Buraq']
+          ],
+          desc: [
+            'Este tramo del muro occidental se volvió el lugar de oración más importante del judaísmo porque, a diferencia del resto, nunca quedó del todo tapado por otras construcciones, y porque es la parte de los muros más cercana al lugar del santuario a la que los judíos podían llegar.',
+            { img: 'img/hoy-muro-occidental.webp', alt: 'La plaza del Muro Occidental en Jerusalén, con personas orando frente al muro de grandes piedras claras', pie: 'La plaza del Muro Occidental hoy.', origen: 'ia' },
+            'Las piedras herodianas se reconocen por su borde rebajado y su centro en relieve, el mismo acabado que muestra el modelo. Encima de ellas se ven hileras de piedras más pequeñas, agregadas en reparaciones de los siglos VII y VIII y en la época otomana.',
+            'El nombre «muro de los Lamentos» viene del llanto de los judíos por la destrucción del templo, que viajeros europeos describieron durante siglos. Los judíos lo llaman simplemente el Kotel, el muro.'
+          ],
+          think: '«Si me olvidare de ti, oh Jerusalén, pierda mi diestra su destreza» (Sal 137:5). ¿Qué te enseña la fidelidad de un pueblo que durante siglos no olvidó el lugar donde Dios puso su nombre?',
+          view: { t: [-255,  -25,  425], p: [-492,  8,  446] }, zona: 'muroOccidental', show: ['hoy', 'nombres', 'escala']
+        },
+        {
+          id: 'hoy-tuneles', num: 3, n: 'Los túneles del Muro Occidental', short: 'Los túneles',
+          ref: 'Salmos 102:13-14',
+          rows: [
+            ['Recorrido', 'Siguen el muro hacia el norte bajo las casas de la ciudad vieja, hasta casi la esquina noroeste'],
+            ['La gran piedra', 'Un solo sillar de 13,6 m de largo y unos 3 m de alto; su peso se ha estimado entre 250 y 570 toneladas, según el ancho que se suponga'],
+            ['Puerta de Warren', 'Una antigua entrada tapiada. La tradición judía la considera el punto de oración más cercano al lugar del Lugar Santísimo'],
+            ['Arco de Wilson', 'Sostenía un puente sobre el valle; hoy cubre una sala de oración al norte de la plaza']
+          ],
+          desc: [
+            'La mayor parte del muro occidental está escondida bajo las casas de la ciudad vieja. Desde fines del siglo XX, unos túneles permiten recorrerlo hacia el norte y ver las hileras inferiores, que en la plaza están bajo tierra.',
+            'Allí está el sillar más grande conocido del monte, de 13,6 m de largo. Es parte de una hilera de piedras gigantes que sostenía el empuje del relleno del monte. Fue colocado sin mortero y sin máquinas, y sigue en su lugar después de dos mil años.',
+            'En los túneles hay también una puerta herodiana tapiada, llamada puerta de Warren por el explorador que la describió. Si el Lugar Santísimo estaba sobre la roca, como sigue el modelo, este es el punto del muro más cercano a él, y por eso muchos judíos oran allí.'
+          ],
+          think: '«Porque tus siervos aman sus piedras, y del polvo de ella tienen compasión» (Sal 102:14). ¿Qué diferencia hay entre amar las piedras de un lugar santo y amar al Dios que allí se reveló?',
+          view: { t: [-262,  -30,  150], p: [-593,  112,  271] }, zona: 'tuneles', show: ['hoy', 'nombres']
+        },
+        {
+          id: 'hoy-sur', num: 4, n: 'El muro sur y el camino de los peregrinos', short: 'El camino de los peregrinos',
+          ref: 'Juan 9:6-7; Salmos 122:1-2',
+          rows: [
+            ['Excavaciones', 'Desde 1968, al pie de los muros sur y occidental; hoy es un parque arqueológico'],
+            ['Se ve', 'El arranque del arco de Robinson, la escalinata del sur, las puertas de Hulda tapiadas y muchos baños rituales'],
+            ['El camino', 'Una calle escalonada de unos 600 m que subía desde el estanque de Siloé hasta el monte; abierta al público en 2026 tras años de excavación'],
+            ['Fecha', 'Primeras décadas del siglo I; las monedas halladas apuntan al tiempo de Poncio Pilato']
+          ],
+          desc: [
+            'Al sur del monte se conserva el acceso que usaban los peregrinos. La escalinata frente a las puertas de Hulda fue excavada y restaurada, y se puede subir por ella. Las puertas siguen ahí, aunque tapiadas, bajo la actual mezquita de al-Aqsa.',
+            'Desde el sur llegaba al monte una calle escalonada que comenzaba en el estanque de Siloé. Se descubrió en 2004, cuando se rompió una tubería, y después de años de excavaciones bajo el barrio de Silwan se abrió al público en 2026. A lo largo de ella se hallaron tiendas, un baño ritual y una gran cantidad de monedas.',
+            'Es muy probable que Jesús y sus discípulos subieran por esta calle en las fiestas. En el estanque donde comienza, Jesús envió a lavarse al ciego de nacimiento: «Fue entonces, y se lavó, y regresó viendo» (Jn 9:7).'
+          ],
+          think: 'El ciego obedeció la palabra de Jesús antes de ver el resultado, y caminó hasta Siloé. ¿En qué paso de obediencia te está llamando Dios a caminar hoy, aunque aún no veas el resultado?',
+          view: { t: [40,  -40,  670], p: [72,  52,  1037] }, zona: 'escalinata', show: ['hoy', 'nombres']
+        },
+        {
+          id: 'hoy-dorada', num: 5, n: 'El muro oriental y la puerta Dorada', short: 'La puerta Dorada',
+          ref: 'Ezequiel 43:1-4; Ezequiel 44:1-3; Zacarías 14:4',
+          rows: [
+            ['Ubicación', 'En el muro oriental, frente al monte de los Olivos'],
+            ['Antigüedad', 'La puerta actual es posterior al templo: se fecha entre los siglos VI y VII. Bajo ella se han propuesto restos de una puerta más antigua'],
+            ['Estado', 'Sellada desde la época otomana; la tradición fecha el cierre en 1541'],
+            ['Ezequiel', 'Describe una puerta oriental cerrada porque por ella entró la gloria de Jehová (Ez 44:1-2)']
+          ],
+          desc: [
+            'El muro oriental conserva partes herodianas y aun anteriores, pero su puerta más conocida, la puerta Dorada, es de una época posterior al templo. Está sellada desde hace siglos, y frente a ella hay un cementerio musulmán.',
+            'Ezequiel vio en visión que la gloria de Jehová entraba al templo «por la vía de la puerta que daba al oriente» (Ez 43:4), y que después esa puerta quedaba cerrada: «Esta puerta estará cerrada; no se abrirá» (Ez 44:2). Muchos creyentes relacionan la puerta Dorada sellada con esa profecía.',
+            'Hay que distinguir dos cosas. La puerta de Ezequiel pertenece al templo de su visión (Ez 40–48), que en una lectura dispensacionalista corresponde al templo del reino milenial, todavía futuro. La puerta Dorada actual es una puerta de la muralla, cerrada por razones históricas. La coincidencia es llamativa, pero el texto no habla de esta puerta en particular.'
+          ],
+          think: 'Jesús subió al cielo desde el monte de los Olivos, y los ángeles anunciaron que volverá de la misma manera (Hch 1:11). Zacarías dice: «se afirmarán sus pies en aquel día sobre el monte de los Olivos» (Zac 14:4). ¿Vives esperando ese regreso?',
+          view: { t: [405,  0,  -25], p: [655,  54,  -69] }, zona: 'puertaDorada', show: ['hoy', 'nombres']
+        },
+        {
+          id: 'hoy-tito', num: 6, n: 'Lo que se llevó Roma', short: 'El arco de Tito',
+          ref: 'Lucas 21:20-24; Daniel 9:26',
+          rows: [
+            ['El arco', 'En el foro de Roma, levantado hacia el año 81 d.C. en honor de Tito'],
+            ['El relieve', 'Soldados romanos llevan el candelero de siete brazos, la mesa de los panes y trompetas'],
+            ['Josefo', 'Describe el desfile triunfal en Roma con esos mismos objetos (Guerra 7)'],
+            ['Su destino', 'Se pierde el rastro de los objetos en los siglos siguientes; las leyendas sobre su paradero no tienen respaldo']
+          ],
+          desc: [
+            'Lo que quedó del templo no está solo en Jerusalén. Tito llevó a Roma el botín del santuario, y el desfile triunfal quedó tallado en un arco que todavía está en pie en el foro romano. Es la única imagen de la época que muestra el candelero del templo.',
+            { img: 'img/hoy-arco-tito.webp', alt: 'Relieve de piedra que muestra a soldados romanos cargando un gran candelero de siete brazos en un desfile', pie: 'El desfile triunfal de Tito con el candelero del templo.', origen: 'ia' },
+            'Daniel había anunciado que, después de que se quitara la vida al Mesías, «el pueblo de un príncipe que ha de venir destruirá la ciudad y el santuario» (Dn 9:26). Fueron los romanos quienes lo hicieron. En la lectura dispensacionalista, ese «príncipe que ha de venir» es un gobernante futuro que surgirá de ese mismo pueblo.',
+            'Jesús había advertido a los suyos que huyeran cuando vieran a Jerusalén rodeada de ejércitos (Lc 21:20-21). Según la tradición que recoge el historiador Eusebio, los cristianos de Jerusalén salieron de la ciudad antes del sitio.'
+          ],
+          think: 'Los cristianos que creyeron la advertencia de Jesús salieron a tiempo. ¿Qué advertencias de la Palabra de Dios estás tomando en serio hoy?',
+          view: { t: [31,  24,  0], p: [57,  94,  0] }, zona: 'santo', roof: false, show: ['hoy', 'nombres']
+        },
+        {
+          id: 'hoy-historia', num: 7, n: 'Del exilio al Muro', short: 'Del exilio al Muro',
+          ref: 'Lucas 21:24; Salmos 137:1-6',
+          rows: [
+            ['135 d.C.', 'El emperador Adriano refunda Jerusalén como colonia romana y prohíbe la entrada a los judíos'],
+            ['Período bizantino', 'Se permite a los judíos subir a llorar una vez al año, el 9 de Av'],
+            ['638–1517', 'Conquista musulmana (la Cúpula de la Roca, hacia 691); cruzados desde 1099; Saladino desde 1187'],
+            ['Época otomana', 'Un callejón angosto junto al muro, de 28 m de largo y 3,6 m de ancho, se vuelve el lugar de oración judío'],
+            ['1948–1967', 'La ciudad vieja queda bajo Jordania y los judíos no pueden llegar al Muro'],
+            ['1967', 'En la guerra de los Seis Días, soldados israelíes llegan al Muro el 7 de junio; días después se demuele el barrio magrebí para abrir la plaza actual']
+          ],
+          desc: [
+            'Durante casi diecinueve siglos, los judíos tuvieron un acceso limitado o nulo al lugar del templo. En distintas épocas se les prohibió entrar a la ciudad, se les permitió llorar solo un día al año o se les dejó orar en un callejón estrecho junto al muro.',
+            'En junio de 1967, durante la guerra de los Seis Días, Israel tomó la ciudad vieja. La imagen de los soldados frente al Muro se volvió un símbolo nacional. Pocos días después se demolió el barrio magrebí, que llegaba hasta el muro, para abrir la gran plaza que hoy se conoce. Esa demolición sigue siendo motivo de reclamo para los palestinos.',
+            'Jesús anunció que «Jerusalén será hollada por los gentiles, hasta que los tiempos de los gentiles se cumplan» (Lc 21:24). Algunos intérpretes ven en 1967 una señal de que ese tiempo se acerca a su fin. Otros señalan que el monte sigue bajo administración musulmana y que los tiempos de los gentiles aún no se han cumplido. El texto no fija una fecha.'
+          ],
+          think: 'Durante siglos, el pueblo judío no dejó de orar por Jerusalén aunque no podía llegar a ella. ¿Qué te enseña esa perseverancia sobre tus propias oraciones que todavía esperan respuesta?',
+          view: { t: [-262,  -10,  425], p: [-685,  250,  579] }, zona: 'muroOccidental', show: ['hoy', 'nombres']
+        },
+        {
+          id: 'hoy-ubicacion', num: 8, n: '¿Dónde estaba el Lugar Santísimo?', short: 'El lugar del Santísimo',
+          ref: '2 Crónicas 3:1; Juan 4:20-24',
+          rows: [
+            ['Sobre la roca', 'Bajo la Cúpula de la Roca. Es la propuesta de la mayoría de los estudiosos y la que sigue el modelo'],
+            ['Al norte', 'Unos 100 m al norte de la roca, junto a una pequeña cúpula (Asher Kaufman)'],
+            ['Al sur', 'Entre la Cúpula de la Roca y al-Aqsa (Tuvia Sagiv)'],
+            ['Fuera del monte', 'Algunos autores lo ubican en la Ciudad de David; la mayoría de los arqueólogos lo descarta, porque los muros herodianos que aún existen rodean el monte'],
+            ['Por qué no se sabe', 'No se permiten excavaciones arqueológicas en la explanada, y del santuario no quedaron restos visibles']
+          ],
+          desc: [
+            'Nadie puede señalar con certeza el punto exacto donde estuvo el Lugar Santísimo. Del santuario no quedó nada en pie, y sobre la explanada no se han hecho excavaciones científicas. Las propuestas se basan en las medidas de la Mishná, en las pendientes del terreno y en la posición de los muros.',
+            'La propuesta más aceptada lo ubica sobre la gran roca que hoy cubre la Cúpula, la misma que la Mishná llama piedra de la fundación. Otras lo ponen al norte, alineado con la puerta Dorada, o al sur, más cerca de al-Aqsa. El botón «Lo que queda hoy» muestra las tres ubicaciones como cuadros rojos del tamaño del Lugar Santísimo.',
+            'La samaritana discutía con Jesús sobre el lugar correcto para adorar, y Él respondió que llegaba la hora en que «los verdaderos adoradores adorarán al Padre en espíritu y en verdad» (Jn 4:23).'
+          ],
+          think: 'Hoy no se sabe con certeza dónde estaba el lugar más santo del templo. ¿Por qué crees que eso no afecta la manera en que un creyente puede acercarse a Dios (Jn 4:21-24)?',
+          view: { t: [0,  10,  0], p: [215,  624,  373] }, zona: 'teorias', show: ['hoy', 'nombres', 'teorias']
+        },
+        {
+          id: 'hoy-monte', num: 9, n: 'El monte hoy', short: 'El monte hoy',
+          ref: 'Salmos 122:6-9',
+          rows: [
+            ['Cúpula de la Roca', 'Santuario islámico construido hacia el año 691 por el califa Abd al-Malik sobre la roca. No es una mezquita en sentido estricto'],
+            ['Mezquita de al-Aqsa', 'En el extremo sur de la explanada; levantada a comienzos del siglo VIII y reconstruida varias veces'],
+            ['Administración', 'Desde 1967, Israel ejerce la soberanía y el Waqf islámico, ligado a Jordania, administra el lugar (el llamado statu quo)'],
+            ['Oración judía', 'El statu quo permitía a los judíos visitar el monte, pero no orar. En 2026 la policía israelí ha relajado esas restricciones, con protestas de Jordania y críticas dentro de Israel'],
+            ['Los rabinos', 'Muchos rabinos prohíben a los judíos subir al monte, para no pisar sin saberlo el lugar del Lugar Santísimo']
+          ],
+          desc: [
+            'La explanada que construyó Herodes es hoy uno de los lugares más disputados del mundo. Para el judaísmo es el lugar más santo; para el islam, que lo llama Haram al-Sharif, es el tercero en importancia, por su relación con el viaje nocturno de Mahoma.',
+            'Desde 1967 rige un acuerdo llamado statu quo: Israel tiene la soberanía, el Waqf administra el lugar, los no musulmanes pueden visitarlo en horarios limitados, y la oración judía se concentra en el Muro Occidental. En 2026 ese acuerdo ha comenzado a cambiar: en enero se permitió a los visitantes judíos entrar con una hoja de oración, y en agosto, con libros de oración. Estos cambios han provocado protestas y tensiones.',
+            'No todos los judíos quieren subir al monte. Muchos rabinos lo prohíben, porque nadie puede estar seguro de no pisar el lugar donde estuvo el Lugar Santísimo, al que solo entraba el sumo sacerdote. La situación cambia con frecuencia: lo que aquí se describe corresponde a octubre de 2026.'
+          ],
+          think: '«Pedid por la paz de Jerusalén; sean prosperados los que te aman» (Sal 122:6). ¿Cómo puedes obedecer este mandato en tus oraciones, sin dejarte llevar por la pasión política?',
+          view: { t: [60,  10,  250], p: [668,  612,  858] }, zona: 'monteHoy', show: ['hoy', 'nombres']
+        },
+        {
+          id: 'hoy-israel', num: 10, n: 'Lo que el Muro significa para Israel', short: 'El Muro para Israel',
+          ref: 'Romanos 10:1; Romanos 11:1-2, 25-29',
+          rows: [
+            ['Oración', 'La plaza funciona como sinagoga al aire libre, abierta día y noche, con secciones de hombres y de mujeres, y una sección mixta junto al arco de Robinson'],
+            ['Las notas', 'Se dejan oraciones escritas entre las piedras; se retiran dos veces al año y se entierran en el monte de los Olivos'],
+            ['Fechas', 'El 9 de Av se recuerda con ayuno la destrucción de los dos templos. Allí se celebran también el Día de Jerusalén, los bar mitzvá y juramentos de soldados'],
+            ['Símbolo', 'Es a la vez un lugar religioso y un símbolo nacional del Estado de Israel y de los judíos de todo el mundo']
+          ],
+          desc: [
+            'Para el pueblo judío, el Muro Occidental es el lugar más santo donde hoy puede orar libremente. Millones de personas lo visitan cada año. Muchos escriben sus oraciones en papeles que dejan entre las piedras, y en las grandes fiestas la plaza se llena.',
+            { img: 'img/hoy-notas-muro.webp', alt: 'Primer plano de grandes piedras antiguas con pequeños papeles doblados metidos entre sus junturas', pie: 'Oraciones escritas entre las piedras del Muro.', origen: 'ia' },
+            'El 9 de Av, aniversario de la destrucción de los dos templos, miles de judíos se sientan en el suelo frente al Muro para leer Lamentaciones. Ese mismo lugar es también escenario de celebraciones nacionales, como el Día de Jerusalén, y de juramentos de soldados. Por eso el Muro es a la vez lugar de duelo, de oración y de identidad nacional.',
+            'Pablo, judío, escribió: «el anhelo de mi corazón, y mi oración a Dios por Israel, es para salvación» (Ro 10:1). También afirmó que Dios no ha desechado a su pueblo (Ro 11:1-2) y que «irrevocables son los dones y el llamamiento de Dios» (Ro 11:29). El creyente puede amar y honrar a Israel, y a la vez orar para que conozca a Jesús como su Mesías.'
+          ],
+          think: 'Frente al Muro se llora por un templo perdido; en Cristo tenemos libertad para entrar al Lugar Santísimo (He 10:19-20). ¿Cómo debería esto mover tu oración por Israel?',
+          view: { t: [-258,  -20,  425], p: [-427,  -2,  425] }, zona: 'muroOccidental', show: ['hoy', 'escala']
         }
       ]
     }

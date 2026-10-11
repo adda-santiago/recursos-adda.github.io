@@ -321,6 +321,7 @@
   // Un pórtico corre a lo largo de un muro, de A a B, con el interior hacia el centro de la explanada
   function portico(id, A, B, opts) {
     const g = group(id);
+    g.userData.portico = true;
     const dx = B[0] - A[0], dz = B[1] - A[1], len = Math.hypot(dx, dz);
     g.position.set(A[0], 0, A[1]);
     g.rotation.y = Math.atan2(-dz / len, dx / len);
@@ -379,7 +380,7 @@
     const wx = edgeX(P.nO, P.sO, rz);           // cara del muro occidental
     const px0 = wx - 30, px1 = wx - 22;          // pilar del arco
     // calle pavimentada y tiendas
-    slab(wx - 60, wx - 1, BASE, BASE + 0.4, 380, ZS + 90, pavingMat(60, 300), robinson);
+    slab(wx - 60, wx - 1, BASE, BASE + 0.4, 380, ZS + 90, pavingMat(60, 300), robinson).userData.keep = true;   // la calle se conserva
     for (let z = 400; z < ZS + 80; z += 14) slab(wx - 75, wx - 62, BASE, BASE + 8, z, z + 12, M.house, robinson);
     // pilar y arco que salva la calle
     wall(px0, px1, BASE, -24, rz - 18, rz + 18, robinson);
@@ -801,6 +802,7 @@
   }
 
   /* ---------------- Resaltado de la parte activa ---------------- */
+
   const hiMat = new THREE.LineBasicMaterial({ color: 0x9e2b25, depthTest: false, transparent: true });
   const highlight = new THREE.Group(); add(highlight);
   const rect = (x0, x1, z0, z1, y) => ({ loop: [[x0, z0], [x1, z0], [x1, z1], [x0, z1]], y });
@@ -822,6 +824,11 @@
     santo: [bx(SA.santoX[0], SA.santoX[1], yF, yR, -10, 10)],
     velo: [bx(SA.veloX[0], SA.veloX[1], yF, yR, -10, 10)],
     santisimo: [bx(SA.santisimoX[0], SA.santisimoX[1], yF, yR, -10, 10)],
+    muroOccidental: [bx(edgeX(P.nO, P.sO, 487) - 3, edgeX(P.nO, P.sO, 360) + 1, BASE, -6, 360, 487)],
+    tuneles: [bx(edgeX(P.nO, P.sO, -20) - 4, edgeX(P.nO, P.sO, -20) + 1, BASE, -26, -400, 360)],
+    puertaDorada: [bx(edgeX(P.nE, P.sE, LY.hoy.puertaDorada) - 16, edgeX(P.nE, P.sE, LY.hoy.puertaDorada) + 6, 0, 24, LY.hoy.puertaDorada - 16, LY.hoy.puertaDorada + 16)],
+    teorias: [rect(-10, 10, -10, 10, 41), rect(-10, 10, LY.hoy.teorias.norte[1] - 10, LY.hoy.teorias.norte[1] + 10, 41), rect(-10, 10, LY.hoy.teorias.sur[1] - 10, LY.hoy.teorias.sur[1] + 10, 41)],
+    monteHoy: [{ loop: platPts, y: 0.4 }],
     antonia: [bx(LY.antonia.x[0], LY.antonia.x[1], BASE, 70, LY.antonia.z[0], LY.antonia.z[1])]
   };
   function showZone(id) {
@@ -834,6 +841,97 @@
         e.position.set((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2); e.renderOrder = 17; highlight.add(e);
       }
     });
+  }
+
+
+  /* ---------------- Lo que queda hoy ----------------
+     Lo que desapareció se vuelve translúcido; lo que se construyó después
+     (Cúpula de la Roca, al-Aqsa) se dibuja con líneas rojas, como Salomón. */
+  const HOY = LY.hoy;
+  const hoyGroup = new THREE.Group(); hoyGroup.visible = false; add(hoyGroup);
+  const teoriasGroup = new THREE.Group(); teoriasGroup.visible = false; add(teoriasGroup);
+  function ghostIn(parent, geo, x, y, z, ry) {
+    const m = new THREE.Mesh(geo, cmpFill); m.position.set(x, y, z); m.renderOrder = 15;
+    const e = new THREE.LineSegments(new THREE.EdgesGeometry(geo, 20), cmpEdge); e.position.copy(m.position); e.renderOrder = 16;
+    if (ry) { m.rotation.y = ry; e.rotation.y = ry; }
+    parent.add(m, e);
+  }
+  {
+    const C = HOY.cupula, [cx, cz] = C.centro, y0 = C.plataforma;
+    const r8 = C.diametro / 2 / Math.cos(Math.PI / 8);
+    ghostIn(hoyGroup, new THREE.CylinderGeometry(r8, r8, C.altoMuro, 8), cx, y0 + C.altoMuro / 2, cz, Math.PI / 8);
+    const rd = C.cupulaDiam / 2, drum = 12;
+    ghostIn(hoyGroup, new THREE.CylinderGeometry(rd, rd, drum, 24), cx, y0 + C.altoMuro + drum / 2, cz);
+    ghostIn(hoyGroup, new THREE.SphereGeometry(rd, 24, 10, 0, Math.PI * 2, 0, Math.PI / 2), cx, y0 + C.altoMuro + drum, cz);
+    label('Cúpula de la Roca', 'hacia el año 691', cx, y0 + C.altoMuro + drum + rd + 2, cz, hoyGroup, Infinity, true);
+    const Q = HOY.alAqsa;
+    ghostIn(hoyGroup, new THREE.BoxGeometry(Q.x[1] - Q.x[0], Q.alto, Q.z[1] - Q.z[0]), (Q.x[0] + Q.x[1]) / 2, Q.alto / 2, (Q.z[0] + Q.z[1]) / 2);
+    ghostIn(hoyGroup, new THREE.SphereGeometry(10, 18, 8, 0, Math.PI * 2, 0, Math.PI / 2), Q.cupula[0], Q.alto, Q.cupula[1]);
+    label('Mezquita de al-Aqsa', 'siglo VIII', (Q.x[0] + Q.x[1]) / 2, Q.alto + 12, (Q.z[0] + Q.z[1]) / 2, hoyGroup, Infinity, true);
+  }
+  // Muro Occidental: tramo de la plaza de oración y tramo de los túneles
+  const wxAt = z => edgeX(P.nO, P.sO, z);
+  {
+    const [p0, p1] = HOY.muroPlaza.z, x0 = wxAt(p1), x1 = wxAt(p0);
+    const top = -8, y0 = BASE + 4;
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute([x0 - 0.6, y0, p1, x1 - 0.6, y0, p0, x1 - 0.6, top, p0, x0 - 0.6, top, p1], 3));
+    const l = new THREE.LineLoop(g, hiMatHoy()); l.renderOrder = 17; hoyGroup.add(l);
+    slab(Math.min(x0, x1) - 90, Math.min(x0, x1) - 0.5, BASE, BASE + 4, p0, p1, pavingMat(90, 127), hoyGroup);   // plaza actual
+    label('Muro Occidental', 'tramo de la plaza de oración', Math.min(x0, x1) - 2, top + 2, (p0 + p1) / 2, hoyGroup, Infinity);
+    const [t0, t1] = HOY.tuneles.z, a = [wxAt(t0), t0], b = [wxAt(t1), t1];
+    const len = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    ghostIn(hoyGroup, new THREE.BoxGeometry(3, 22, len), (a[0] + b[0]) / 2 - 2, BASE + 15, (a[1] + b[1]) / 2, Math.atan2(b[0] - a[0], b[1] - a[1]));
+    label('Túneles del Muro Occidental', null, wxAt(-60) - 3, BASE + 30, -60, hoyGroup, 1400);
+    label('La gran piedra', '13,6 m', wxAt(HOY.granPiedra) - 3, BASE + 22, HOY.granPiedra, hoyGroup, 500);
+    label('Puerta de Warren', null, wxAt(HOY.puertaWarren) - 3, BASE + 28, HOY.puertaWarren - 18, hoyGroup, 500);
+  }
+  function hiMatHoy() { return cmpEdge; }
+  // Puerta Dorada (posterior al templo, sellada)
+  {
+    const z = HOY.puertaDorada, x = edgeX(P.nE, P.sE, z);
+    const g = new THREE.Group(); hoyGroup.add(g);
+    wall(x - 14, x + 4, 0, 22, z - 14, z + 14, g);
+    [-1, 1].forEach(k => slab(x + 4, x + 4.4, 4, 16, z + k * 7 - 4, z + k * 7 + 4, M.stone, g));
+    label('Puerta Dorada', 'sellada', x + 6, 26, z, hoyGroup, 1400);
+  }
+  // Piedras caídas sobre la calle herodiana (año 70)
+  {
+    const r = mulberry(70), x1 = wxAt(620) - 3;
+    for (let i = 0; i < 46; i++) {
+      const w = 3 + r() * 5, h = 2 + r() * 2.2, d = 2.5 + r() * 3;
+      const st = box(w, h, d, stoneMat(8, 4), x1 - r() * 34, BASE + h / 2 + (r() < 0.3 ? h * 0.8 : 0), 560 + r() * 95, hoyGroup);
+      st.rotation.set((r() - 0.5) * 0.5, r() * Math.PI, (r() - 0.5) * 0.5);
+    }
+    label('Piedras caídas en el año 70', null, x1 - 18, BASE + 10, 610, hoyGroup, 700);
+  }
+  // Otras propuestas para el Lugar Santísimo
+  {
+    const T = HOY.teorias;
+    [[0, 0, 'Sobre la roca', 'propuesta mayoritaria'], [T.norte[0], T.norte[1], 'Propuesta norte', null], [T.sur[0], T.sur[1], 'Propuesta sur', null]].forEach(([x, z, t, sub]) => {
+      ghostIn(teoriasGroup, new THREE.BoxGeometry(20, 40, 20), x, 20, z);
+      label(t, sub, x, 44, z, teoriasGroup, Infinity, true);
+    });
+  }
+  const fadeCache = new Map();
+  function faded(m) {
+    if (!fadeCache.has(m.uuid)) { const f = m.clone(); f.transparent = true; f.opacity = 0.12; f.depthWrite = false; fadeCache.set(m.uuid, f); }
+    return fadeCache.get(m.uuid);
+  }
+  const FADE_IDS = new Set(['santuario', 'santo', 'velo', 'santisimo', 'altar', 'lavatorio', 'mujeres', 'israel', 'nicanor', 'soreg', 'antonia', 'robinson']);
+  const fadeTargets = pickables.filter(g => FADE_IDS.has(g.userData.station) || g.userData.portico);
+  let hoyOn = false;
+  function setHoyFade(on) {
+    if (on === hoyOn) return;
+    hoyOn = on;
+    fadeTargets.forEach(g => g.traverse(o => {
+      if (!o.isMesh || o.userData.keep) return;
+      if (on) {
+        o.userData.mat = o.material; o.userData.cs = o.castShadow;
+        o.material = Array.isArray(o.material) ? o.material.map(faded) : faded(o.material);
+        o.castShadow = false;
+      } else { o.material = o.userData.mat; o.castShadow = o.userData.cs; }
+    }));
   }
 
   /* ---------------- Fuego y lámparas ---------------- */
@@ -909,40 +1007,66 @@
   if (mq.addEventListener) mq.addEventListener('change', onScheme); else if (mq.addListener) mq.addListener(onScheme);
 
   /* ---------------- Interruptores ---------------- */
-  const LAYERS = { nombres: names, medidas: dims, escala: scaleGroup, salomon, middot };
-  const BTN = { nombres: 't-names', medidas: 't-dims', escala: 't-scale', salomon: 't-salomon', middot: 't-middot' };
+  const LAYERS = { nombres: names, medidas: dims, escala: scaleGroup, salomon, middot, hoy: hoyGroup, teorias: teoriasGroup };
+  const BTN = { nombres: 't-names', medidas: 't-dims', escala: 't-scale', salomon: 't-salomon', middot: 't-middot', hoy: 't-hoy' };
   function setLayer(k, on) {
     LAYERS[k].visible = on;
-    document.getElementById(BTN[k]).setAttribute('aria-pressed', String(on));
+    if (k === 'hoy') setHoyFade(on);
+    if (BTN[k]) document.getElementById(BTN[k]).setAttribute('aria-pressed', String(on));
   }
   Object.keys(BTN).forEach(k => document.getElementById(BTN[k]).addEventListener('click', () => setLayer(k, !LAYERS[k].visible)));
   const roofBtn = document.getElementById('t-roof');
   function setRoof(on) { roof.visible = on; roofBtn.setAttribute('aria-pressed', String(on)); }
   roofBtn.addEventListener('click', () => setRoof(!roof.visible));
 
-  /* ---------------- UI: selector de ruta, lista y ficha ----------------
-     Patrón común: una ruta a la vez; la lista lleva solo sus pasos. */
-  const list = document.getElementById('stations');
-  const routeSel = document.getElementById('ruta');
-  const routeInfo = document.getElementById('ruta-info');
-  routeSel.innerHTML = [...new Set(ROUTES.map(r => r.grupo))].map(g => `<optgroup label="${g}">${
-    ROUTES.filter(r => r.grupo === g).map(r => `<option value="${r.id}">${r.n}</option>`).join('')
-  }</optgroup>`).join('');
-  routeSel.addEventListener('change', () => select(routeSel.value, 0));
-  if (ROUTES.length < 2) document.querySelector('.ruta-sel').hidden = true;
-  let shownRoute = null;
-  function renderRoute(t) {
-    const r = ROUTE_BY_ID[t];
-    shownRoute = t;
-    routeSel.value = t;
-    routeInfo.textContent = r.info || '';
-    list.innerHTML = r.steps.map((s, i) => `<li><button class="st" type="button" data-i="${i}">
-      <span class="st-num">${s.num ?? ''}</span>
-      <span class="st-name">${s.short || s.n}</span>
-      <span class="st-ref">${s.ref}</span>
-    </button></li>`).join('');
+  /* ---------------- UI: botón «Rutas», panel y ficha ----------------
+     Patrón común (DIRECTRICES §20): el panel lista solo las rutas, por grupo;
+     la actual va marcada. */
+  const panel = document.getElementById('rutas-panel');
+  const btnRutas = document.getElementById('rutas-btn');
+  const listaRutas = document.getElementById('rutas-lista');
+  const escH = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  function abrirPanel(abrir) {
+    panel.hidden = !abrir;
+    btnRutas.setAttribute('aria-expanded', String(abrir));
+    if (abrir) { pintarPanel(); const cur = panel.querySelector('[aria-current="true"]'); if (cur) cur.focus(); }
   }
-  list.addEventListener('click', e => { const b = e.target.closest('.st'); if (b) select(tour, +b.dataset.i); });
+  btnRutas.addEventListener('click', () => abrirPanel(panel.hidden));
+  document.getElementById('rutas-ocultar').addEventListener('click', () => { abrirPanel(false); btnRutas.focus(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !panel.hidden) abrirPanel(false); });
+  function pintarPanel() {
+    const grupos = [...new Set(ROUTES.map(r => r.grupo))];
+    listaRutas.innerHTML = grupos.map(g => `<section><h2>${escH(g)}</h2>${ROUTES.filter(r => r.grupo === g).map(r => `
+      <div class="tb-r${r.id === tour ? ' actual' : ''}">
+        <button type="button" class="tb-r-btn" data-r="${r.id}" data-i="0"${r.id === tour ? ' aria-current="true"' : ''}><span>${escH(r.n)}</span>${r.info ? `<em>${escH(r.info)}</em>` : ''}</button>
+      </div>`).join('')}</section>`).join('');
+  }
+  listaRutas.addEventListener('click', e => {
+    const b = e.target.closest('button[data-r]');
+    if (!b) return;
+    // Elegir una ruta lleva a su primer paso; los pasos se recorren con Anterior/Siguiente
+    if (b.dataset.r !== tour) select(b.dataset.r, 0);
+    abrirPanel(false);
+  });
+  btnRutas.querySelector('span').textContent = 'Rutas';
+
+  // Imágenes entre párrafos, ampliables
+  const lightbox = document.getElementById('lightbox');
+  const lbImg = document.getElementById('lightbox-img'), lbPie = document.getElementById('lightbox-pie');
+  function cerrarLightbox() { lightbox.hidden = true; lbImg.removeAttribute('src'); }
+  lightbox.addEventListener('click', cerrarLightbox);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !lightbox.hidden) cerrarLightbox(); });
+  const origenTxt = d => d.origen === 'ia' ? 'Ilustración generada con IA' : `Foto${d.licencia ? ` · ${d.licencia}` : ''}`;
+  function figura(d) {
+    return `<figure><button type="button" class="desc-img" data-src="${escH(d.img)}" data-pie="${escH(d.pie || '')}" aria-label="Ampliar imagen: ${escH(d.alt)}"><img src="${escH(d.img)}" alt="${escH(d.alt)}" loading="lazy"></button>${d.pie ? `<figcaption>${escH(d.pie)} <em>${origenTxt(d)}</em></figcaption>` : ''}</figure>`;
+  }
+  document.getElementById('d-desc').addEventListener('click', e => {
+    const b = e.target.closest('.desc-img');
+    if (!b) return;
+    lbImg.src = b.dataset.src; lbImg.alt = b.querySelector('img').alt; lbPie.textContent = b.dataset.pie;
+    lightbox.hidden = false;
+    document.getElementById('lightbox-cerrar').focus();
+  });
 
   const dKicker = document.getElementById('d-kicker'), dTitle = document.getElementById('d-title');
   const dRef = document.getElementById('d-ref'), dRows = document.getElementById('d-rows');
@@ -951,6 +1075,7 @@
   const prevBtn = document.getElementById('prev'), nextBtn = document.getElementById('next');
   const detailEl = document.getElementById('detail');
   let tour = ROUTES[0].id, idx = 0;
+  const cuerpo = document.getElementById('d-cuerpo');
   const items = t => ROUTE_BY_ID[t].steps;
   prevBtn.addEventListener('click', () => step(-1));
   nextBtn.addEventListener('click', () => step(1));
@@ -971,22 +1096,21 @@
     dRef.textContent = it.ref;
     dRows.innerHTML = it.rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('');
     const paras = Array.isArray(it.desc) ? it.desc : [it.desc];
-    dDesc.innerHTML = paras.map(p => `<p>${p}</p>`).join('');
+    dDesc.innerHTML = paras.map(p => typeof p === 'string' ? `<p>${p}</p>` : figura(p)).join('');
     dThink.hidden = !it.think;
     dThink.querySelector('span').textContent = it.think || '';
     const total = arr.filter(s => s.num).length;
     dPos.textContent = it.num ? `${it.num} de ${total}` : '';
     prevBtn.disabled = idx === 0;
     nextBtn.disabled = idx === arr.length - 1;
-    detailEl.scrollTop = 0;
+    cuerpo.scrollTop = 0;
   }
   function select(t, i, instant) {
     if (!ROUTE_BY_ID[t] || !items(t)[i]) return;
     tour = t; idx = i;
     const it = items(t)[i];
-    if (shownRoute !== t) renderRoute(t);
-    list.querySelectorAll('.st').forEach(b => b.setAttribute('aria-current', String(+b.dataset.i === i)));
     renderDetail();
+    if (!panel.hidden) pintarPanel();
     const show = it.show || [];
     Object.keys(LAYERS).forEach(k => setLayer(k, show.includes(k)));
     setRoof(it.roof !== false);
@@ -1066,6 +1190,7 @@
   const altarTop = new THREE.Vector3(111, yS + 9.3, 0);
   function updateEffects(dt, t) {
     for (const s of altarFire) {
+      s.visible = !hoyOn;
       const u = s.userData;
       u.y += dt * (0.5 + 0.4 * u.spd);
       if (u.y > 1) { u.y -= 1; u.a = rnd() * Math.PI * 2; u.r = rnd(); }
@@ -1075,8 +1200,8 @@
       s.material.opacity = (night ? 0.9 : 0.75) * (1 - u.y) * smooth(0, 0.08, u.y);
       s.scale.setScalar((2.2 + u.spd) * (1 - u.y * 0.5));
     }
-    flames.forEach(s => s.scale.setScalar(0.32 + 0.06 * Math.sin(t * 11 + s.userData.ph)));
-    altarLight.intensity = (night ? 2.2 : 0.6) * (0.85 + 0.15 * Math.sin(t * 13) * Math.sin(t * 7.3));
+    flames.forEach(s => { s.visible = !hoyOn; s.scale.setScalar(0.32 + 0.06 * Math.sin(t * 11 + s.userData.ph)); });
+    altarLight.intensity = (hoyOn ? 0 : 1) * (night ? 2.2 : 0.6) * (0.85 + 0.15 * Math.sin(t * 13) * Math.sin(t * 7.3));
   }
   const camPos = new THREE.Vector3();
   function updateLabels() {
