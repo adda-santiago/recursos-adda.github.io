@@ -10,7 +10,7 @@ Este documento es la fuente de verdad del proyecto. Cualquier decisión nueva qu
 
 **Cambio de la versión 2.2:** cuando un recurso tiene más de una ruta, se eligen en un selector de ruta (lista desplegable) en lugar de pestañas y acordeones (§20).
 
-**Cambio de la versión 2.15:** regla para las imágenes compartidas entre recursos; corrección del mapa de la deportación de Israel (2 R 17:6).
+**Cambio de la versión 2.15:** regla para las imágenes compartidas entre recursos; corrección de los mapas de la deportación de Israel (2 R 17:6 y 17:24); segundo trazo con otro color en los mapas.
 
 **Cambio de la versión 2.14:** recurso integrador «Los imperios en la historia bíblica»; los recursos pueden reutilizar imágenes de otras apps.
 
@@ -468,7 +468,7 @@ Distinta de la **presentación** (`segunda-guerra-mundial/`), que un profesor us
 - **Contenido por descubrir.** Una pestaña que el alumno no ha abierto se ve como un botón por tocar: borde y texto de acento y una flecha («Mapa ›»). Si tiene pasos, lo indica («Mapa · 5 pasos»). En la primera visita a la estación, la pestaña late tres veces (unos 2,7 s) y aparece una nota guía que se cierra sola. Los mapas por pasos muestran puntos de avance que se pueden tocar, y el botón «▶ Ver la evolución» los recorre solos, uno cada 3,5 s, con pausa. En la primera visita, «›» y «Ver la evolución» también laten. El motor recuerda en el dispositivo qué estaciones y pestañas ya se vieron (clave `fyp:v1:visto:<ruta de la app>`); `?reiniciar-vistos` en la dirección las vuelve a mostrar. Con «reducir movimiento» activado no hay pulsos.
 - **Selector de rutas** como botón flotante en la esquina, que abre y oculta un panel con las rutas y sus estaciones; las rutas en preparación aparecen deshabilitadas.
 - **Línea de tiempo inferior** opcional por ruta (`linea-tiempo.js`): hitos y un marcador que se desliza a la fecha de cada estación o de cada paso del mapa.
-- **Mapas** con `mapa-imperios.js`: capas por imperio y período, lugares, trazos animados y pasos dentro de una estación. Geografía compartida en `imperios-geo.js`, generada por `geo/imperios.py`.
+- **Mapas** con `mapa-imperios.js`: capas por imperio y período, lugares, trazos animados y pasos dentro de una estación. Si una estación muestra dos trazos a la vez, el segundo se dibuja en azul punteado y la leyenda los distingue. Geografía compartida en `imperios-geo.js`, generada por `geo/imperios.py`.
 - **Texto:** entre 250 y 450 palabras por estación; si necesita más, se divide. Cada estación cierra con **Para pensar**, siempre desde el texto bíblico y la línea doctrinal pentecostal clásica de las Asambleas de Dios, sin mencionarla.
 - **Historia y texto bíblico.** Cuando una fuente histórica parece diferir del relato bíblico, o dos textos bíblicos dan datos distintos, se usa el bloque de dos posturas (`posturas`) con ambas versiones y cómo se entienden; nunca se presenta el texto bíblico como error. En temas doctrinales prevalece la línea de las Asambleas de Dios.
 - **Recursos complementarios** (cada imperio, el exilio, el esquema escatológico) hablan de todos los libros donde aparece el tema, no solo del libro que los originó. Los recursos históricos incluyen además su legado (aportes, costumbres, inventos), verificado.
@@ -580,6 +580,7 @@ Distinta de la **presentación** (`segunda-guerra-mundial/`), que un profesor us
 | 2026-10-10 | Nuevo recurso: El imperio romano, con las rutas Historia, Sociedad, ley y religión, y Roma y la Biblia; se completan los seis imperios | Sexto recurso complementario; cubre el Nuevo Testamento y la forma final del cuarto reino de Daniel |
 | 2026-10-10 | Recurso integrador «Los imperios en la historia bíblica», con las rutas La sucesión de los imperios, Los imperios en la profecía y Dios y las naciones | Puerta de entrada a la serie y puente hacia el estudio de Daniel; reutiliza imágenes de los seis recursos |
 | 2026-10-10 | Mapa de la deportación de 722 a.C. con el imperio de Sargón II (Samaria como provincia y oeste de Media) y los destinos de 2 Reyes 17:6: Gozán junto al Habor, Halah y las ciudades de los medos | La flecha terminaba fuera del imperio y en Ecbatana, que no fue asiria; el texto bíblico nombra los destinos |
+| 2026-10-10 | El mapa de «Deportaciones y gobierno» muestra también a los colonos llevados a Samaria (2 R 17:24); un segundo trazo se distingue por color | El texto describe la deportación en las dos direcciones, origen de los samaritanos |
 
 ## 24. Relación con el repositorio Fuego y Palabra
 

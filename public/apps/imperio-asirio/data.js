@@ -163,7 +163,7 @@
     {
       id: 'gobierno', n: 'Deportaciones y gobierno', ref: '2 Reyes 17:6, 24-41; 18:17, 26; 1 Crónicas 5:26; Esdras 4:2, 10',
       visual: [
-        { tipo: 'mapa', titulo: 'Mapa', estado: { view: CRECIENTE, capas: ['asiria-720'], lugares: ['samaria', 'gozan', 'halah', 'medos', 'babilonia', 'hamat'], trazos: ['deportacion-722'] } },
+        { tipo: 'mapa', titulo: 'Mapa', estado: { view: CRECIENTE, capas: ['asiria-720'], lugares: ['samaria', 'gozan', 'halah', 'medos', 'babilonia', 'cuta', 'hamat'], trazos: ['deportacion-722', 'repoblacion-samaria'] } },
         { tipo: 'tabla', titulo: 'Cargos', tabla: {
           titulo: 'Los títulos asirios de 2 Reyes 18:17', cab: ['Título bíblico', 'Título asirio', 'Qué significaba'],
           filas: [

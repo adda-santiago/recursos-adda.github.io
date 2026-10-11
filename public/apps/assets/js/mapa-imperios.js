@@ -144,6 +144,12 @@
         if (on && !map.hasLayer(t.grupo)) t.grupo.addTo(map);
         if (!on && map.hasLayer(t.grupo)) map.removeLayer(t.grupo);
         t.linea.setLatLngs(t.l);
+        // Un segundo trazo en el mismo mapa se dibuja con otro color, para distinguirlos en la leyenda
+        const segundo = on && activos.indexOf(id) > 0;
+        const el = t.linea.getElement && t.linea.getElement();
+        if (el) el.classList.toggle('mi-trazo-2', segundo);
+        const fl = t.flecha.getElement && t.flecha.getElement();
+        if (fl) fl.classList.toggle('mi-flecha-2', segundo);
       });
       if (animar && activos.length && !reduceMotion) {
         const t0 = performance.now(), dur = 1600;
@@ -162,7 +168,7 @@
       const filas = [...propias, ...vecinas].filter(id => capas[id]).map(id => {
         const c = capas[id];
         return `<span class="${vecinas.includes(id) ? 'vec' : ''}"><i class="sw imp-${c.imp}"></i>${esc(c.n)}, ${esc(c.periodo)}</span>`;
-      }).concat(activos.filter(id => trazos[id]).map(id => `<span><i class="sw-trazo"></i>${esc(trazos[id].n)}</span>`));
+      }).concat(activos.filter(id => trazos[id]).map((id, k) => `<span><i class="sw-trazo${k ? ' sw-trazo-2' : ''}"></i>${esc(trazos[id].n)}</span>`));
       leyenda.innerHTML = filas.join('');
       leyenda.hidden = !filas.length;
     }
@@ -221,6 +227,8 @@ ${['babilonia', 'asiria', 'persia', 'media', 'lidia', 'egipto', 'grecia', 'roma'
 :root[data-theme="dark"] .leaflet-tooltip.mi-lbl { background: rgba(21,23,28,.85); color: #ebe9e4; }
 .mi-trazo { fill: none; stroke: var(--mi-trazo); stroke-width: 3; stroke-dasharray: 8 6; stroke-linecap: round; stroke-linejoin: round; }
 .mi-flecha { background: none; border: 0; color: var(--mi-trazo); }
+.mi-trazo.mi-trazo-2 { stroke: var(--mi-trazo-2, #2f6fa5); stroke-dasharray: 3 6; }
+.mi-flecha.mi-flecha-2 { color: var(--mi-trazo-2, #2f6fa5); }
 .mi-flecha div, .mi-flecha svg { width: 100%; height: 100%; display: block; }
 .mi-leyenda { position: absolute; left: .75rem; bottom: .75rem; z-index: 500; display: flex; flex-direction: column; gap: .25rem;
   font: 500 .74rem var(--sans, system-ui, sans-serif); color: var(--ink, #1f2430); background: color-mix(in srgb, var(--bg, #fafaf8) 88%, transparent);
@@ -232,6 +240,7 @@ ${['babilonia', 'asiria', 'persia', 'media', 'lidia', 'egipto', 'grecia', 'roma'
 .mi-leyenda .sw { flex: none; width: .9rem; height: .65rem; border-radius: 2px; opacity: .75; }
 .mi-leyenda .vec .sw { opacity: .35; }
 .mi-leyenda .sw-trazo { flex: none; width: .9rem; border-top: 2.5px dashed var(--mi-trazo); }
+.mi-leyenda .sw-trazo.sw-trazo-2 { border-top: 2.5px dotted var(--mi-trazo-2, #2f6fa5); }
 .mi-btn { position: absolute; top: .75rem; right: .75rem; z-index: 500; display: inline-flex; align-items: center; gap: .45rem;
   font: 500 .8rem var(--sans, system-ui, sans-serif); color: var(--ink, #1f2430); background: color-mix(in srgb, var(--bg, #fafaf8) 88%, transparent);
   border: 1px solid var(--line, #e4e4df); border-radius: 999px; padding: .4rem .85rem; cursor: pointer; }
